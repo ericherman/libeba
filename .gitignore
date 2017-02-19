@@ -24,6 +24,8 @@ $*
 *.log
 *.trs
 *.log
+*.gch
+*.out
 
 ################
 # autotools
