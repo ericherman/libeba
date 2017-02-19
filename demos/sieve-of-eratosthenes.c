@@ -11,6 +11,10 @@ int main(int argc, char **argv)
 	max = argc > 1 ? atoi(argv[1]) : 100;
 
 	eba = eba_new(max + 1);
+	if (!eba) {
+		fprintf(stderr, "eba_new returned NULL\n");
+		return 1;
+	}
 
 	/* zero and one are not prime */
 	eba_set(eba, 0, 0);
