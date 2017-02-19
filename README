@@ -10,6 +10,16 @@ Usage:
 
 https://github.com/ericherman/libeba/blob/master/demos/sieve-of-eratosthenes.c
 
+There is no magic to the 'eba_new' and 'eba_free', only convience.
+
+In fact, there is not magic to the 'eba_set' or 'eba_get', rather they
+simply make the indexing a bit in a byte array easier, as well as do the
+bit-fiddling so I don't have to look it up or think hard.
+
+If targeting something like an stm or avr chip, the source should be
+easy to drop into a project, then modify to remove references to the C
+standard library.
+
 
 Packaging
 ---------
