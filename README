@@ -20,6 +20,13 @@ If targeting something like an stm or avr chip, the source should be
 easy to drop into a project, then modify to remove references to the C
 standard library.
 
+If you wish, and you are confident the calling code never send invalid
+requests, you may compile without a lot of safety options:
+
+#define EBA_SKIP_STRUCT_NULL_CHECK
+#define EBA_SKIP_STRUCT_BITS_NULL_CHECK
+#define EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY
+
 
 Packaging
 ---------

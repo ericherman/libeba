@@ -27,12 +27,28 @@ void eba_set(struct eba_s *eba, unsigned long index, unsigned char val)
 	byte = index / 8;	/* compiler should convert to shift */
 	offset = index % 8;	/* compiler should convert to bitwise AND */
 
+#ifndef EBA_SKIP_STRUCT_NULL_CHECK
+	if (!eba) {
+		Eba_log_error0("eba struct is NULL\n");
+		Eba_crash();
+	}
+#endif /* EBA_SKIP_STRUCT_NULL_CHECK */
+
+#ifndef EBA_SKIP_STRUCT_BITS_NULL_CHECK
+	if (!eba->bits) {
+		Eba_log_error0("eba->bits is NULL\n");
+		Eba_crash();
+	}
+#endif /* EBA_SKIP_STRUCT_BITS_NULL_CHECK */
+
+#ifndef EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY
 	if (byte >= eba->size) {
 		Eba_log_error3("bit index %lu is position %lu, size is %lu\n",
 			       (unsigned long)index, (unsigned long)byte,
 			       (unsigned long)eba->size);
 		Eba_crash();
 	}
+#endif /* EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY */
 
 	/* This should work, but seems too tricky: */
 	/* val = val ? 1 : 0 */ ;
@@ -53,12 +69,28 @@ unsigned char eba_get(struct eba_s *eba, unsigned long index)
 	byte = index / 8;	/* compiler should convert to shift */
 	offset = index % 8;	/* compiler should convert to bitwise AND */
 
+#ifndef EBA_SKIP_STRUCT_NULL_CHECK
+	if (!eba) {
+		Eba_log_error0("eba struct is NULL\n");
+		Eba_crash_uc();
+	}
+#endif /* EBA_SKIP_STRUCT_NULL_CHECK */
+
+#ifndef EBA_SKIP_STRUCT_BITS_NULL_CHECK
+	if (!eba->bits) {
+		Eba_log_error0("eba->bits is NULL\n");
+		Eba_crash_uc();
+	}
+#endif /* EBA_SKIP_STRUCT_BITS_NULL_CHECK */
+
+#ifndef EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY
 	if (byte >= eba->size) {
 		Eba_log_error3("bit index %lu is position %lu, size is %lu\n",
 			       (unsigned long)index, (unsigned long)byte,
 			       (unsigned long)eba->size);
 		Eba_crash_uc();
 	}
+#endif /* EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY */
 
 	return (eba->bits[byte] >> offset) & 1;
 }
