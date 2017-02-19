@@ -15,8 +15,6 @@ License for more details.
 
 #include "eba-log.h"
 
-#include <stdarg.h>		/* va_list */
-
 #ifdef _POSIX_SOURCE
 #include <execinfo.h>		/* backtrace backtrace_symbols_fd */
 #include <stdio.h>		/* fileno */
