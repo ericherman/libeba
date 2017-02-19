@@ -5,10 +5,11 @@
 
 int main(int argc, char **argv)
 {
-	size_t i, j, max;
+	unsigned long max;
 	struct eba_s *eba;
+	size_t i, j;
 
-	max = argc > 1 ? atoi(argv[1]) : 100;
+	max = argc > 1 ? strtoul(argv[1], NULL, 10) : 100;
 
 	eba = eba_new(max + 1);
 	if (!eba) {
