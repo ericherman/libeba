@@ -20,13 +20,17 @@ License for more details.
 extern "C" {
 #endif
 
-#include <stdio.h>		/* FILE */
-
+/* if no Eba_crash macro is defined, we use standard C lib */
 #ifndef Eba_crash
 #include <stdlib.h>
 #define Eba_crash() exit(EXIT_FAILURE)
 #define Eba_crash_uc() exit(EXIT_FAILURE)
 #endif
+
+/* if no logging macros are defined, we use std C lib */
+/* and the impl from eba-log.c may be used, as well */
+#ifndef Eba_log_error0
+#include <stdio.h>		/* FILE */
 
 /* Get the FILE pointer to where fprintf messages currently target.
    Defaults to stderr. */
@@ -38,7 +42,6 @@ void set_eba_log_file(FILE *log);
 /* if _POSIX_C_SOURCE backtrace_symbols_fd is used */
 void eba_log_backtrace(FILE *log);
 
-#ifndef Eba_log_error0
 #define Eba_log_error0(format) \
  fprintf(eba_log_file(), "%s:%d: ", __FILE__, __LINE__); \
  fprintf(eba_log_file(), format); \
