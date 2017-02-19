@@ -19,43 +19,6 @@ License for more details.
 FILE *eba_global_log_file = NULL;
 #endif
 
-#ifndef EBA_SKIP_EBA_NEW
-struct eba_s *eba_new(unsigned long num_bits)
-{
-	struct eba_s *eba;
-
-	eba = Eba_alloc(sizeof(struct eba_s));
-	if (!eba) {
-		Eba_log_error1("could not allocate %lu bytes?\n",
-			       (unsigned long)sizeof(struct eba_s));
-		return NULL;
-	}
-
-	eba->size = num_bits / 8;
-	if ((eba->size * 8) < num_bits) {
-		eba->size += 1;
-	}
-
-	eba->bits = Eba_alloc(eba->size);
-	if (!(eba->bits)) {
-		Eba_log_error1("could not allocate %lu bytes?\n",
-			       (unsigned long)eba->size);
-		Eba_free(eba);
-		return NULL;
-	}
-	return eba;
-}
-
-void eba_free(struct eba_s *eba)
-{
-	if (!eba) {
-		return;
-	}
-	Eba_free(eba->bits);
-	Eba_free(eba);
-}
-#endif /* EBA_SKIP_EBA_NEW */
-
 void eba_set(struct eba_s *eba, unsigned long index, unsigned char val)
 {
 	size_t byte;
@@ -99,3 +62,40 @@ unsigned char eba_get(struct eba_s *eba, unsigned long index)
 
 	return (eba->bits[byte] >> offset) & 1;
 }
+
+#ifndef EBA_SKIP_EBA_NEW
+struct eba_s *eba_new(unsigned long num_bits)
+{
+	struct eba_s *eba;
+
+	eba = Eba_alloc(sizeof(struct eba_s));
+	if (!eba) {
+		Eba_log_error1("could not allocate %lu bytes?\n",
+			       (unsigned long)sizeof(struct eba_s));
+		return NULL;
+	}
+
+	eba->size = num_bits / 8;
+	if ((eba->size * 8) < num_bits) {
+		eba->size += 1;
+	}
+
+	eba->bits = Eba_alloc(eba->size);
+	if (!(eba->bits)) {
+		Eba_log_error1("could not allocate %lu bytes?\n",
+			       (unsigned long)eba->size);
+		Eba_free(eba);
+		return NULL;
+	}
+	return eba;
+}
+
+void eba_free(struct eba_s *eba)
+{
+	if (!eba) {
+		return;
+	}
+	Eba_free(eba->bits);
+	Eba_free(eba);
+}
+#endif /* EBA_SKIP_EBA_NEW */
