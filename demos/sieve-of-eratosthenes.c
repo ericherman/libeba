@@ -21,8 +21,11 @@ int main(int argc, char **argv)
 		eba_set(eba, i, 1);
 	}
 
+	/* now walk the array looking for primes */
 	for (i = 2; (i * 2) <= max; ++i) {
+		/* if prime */
 		if (eba_get(eba, i)) {
+			/* mark all multiples as non-prime */
 			for (j = i + i; j <= max; j += i) {
 				eba_set(eba, j, 0);
 			}
