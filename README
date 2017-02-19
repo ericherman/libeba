@@ -1,0 +1,20 @@
+LibEBA Embedable Bit Array
+
+Toying with making an implementation suitable for small cpus.
+
+This is just a learning exercise, although perhaps it may be useful.
+
+
+Packaging
+---------
+autoreconf -iv &&
+ ./configure &&
+ make &&
+ make distcheck &&
+ echo "Success."
+
+
+License
+-------
+GNU Lesser General Public License (LGPL), version 3 or later.
+See COPYING and COPYING.GPL3 for details.
