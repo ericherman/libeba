@@ -14,14 +14,12 @@ License for more details.
 */
 
 #include "eba.h"
-#include "eba-log.h"
 
-#ifndef Eba_alloc
-#include <stdlib.h>
-#define Eba_alloc malloc
-#define Eba_free free
+#ifdef EBA_NEED_GLOBAL_LOG_FILE
+FILE *eba_global_log_file = NULL;
 #endif
 
+#ifndef EBA_SKIP_EBA_NEW
 struct eba_s *eba_new(unsigned long num_bits)
 {
 	struct eba_s *eba;
@@ -56,6 +54,7 @@ void eba_free(struct eba_s *eba)
 	Eba_free(eba->bits);
 	Eba_free(eba);
 }
+#endif /* EBA_SKIP_EBA_NEW */
 
 void eba_set(struct eba_s *eba, unsigned long index, unsigned char val)
 {

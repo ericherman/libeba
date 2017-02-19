@@ -16,9 +16,7 @@ include_HEADERS=src/eba.h
 
 libeba_la_SOURCES=\
  src/eba.h \
- src/eba.c \
- src/eba-log.h \
- src/eba-log.c
+ src/eba.c
 
 libeba_la_LIBADD=
 AM_LDFLAGS=-rdynamic
