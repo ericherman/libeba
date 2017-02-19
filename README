@@ -5,6 +5,12 @@ Toying with making an implementation suitable for small cpus.
 This is just a learning exercise, although perhaps it may be useful.
 
 
+Usage:
+------
+
+https://github.com/ericherman/libeba/blob/master/demos/sieve-of-eratosthenes.c
+
+
 Packaging
 ---------
 autoreconf -iv &&
