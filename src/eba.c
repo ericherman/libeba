@@ -95,7 +95,7 @@ unsigned char eba_get(struct eba_s *eba, unsigned long index)
 		Eba_log_error3("bit index %lu is position %lu, size is %lu\n",
 			       (unsigned long)index, (unsigned long)byte,
 			       (unsigned long)eba->size);
-		Eba_crash();
+		Eba_crash_uc();
 	}
 
 	return (eba->bits[byte] >> offset) & 1;

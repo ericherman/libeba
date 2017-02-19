@@ -25,6 +25,7 @@ extern "C" {
 #ifndef Eba_crash
 #include <stdlib.h>
 #define Eba_crash() exit(EXIT_FAILURE)
+#define Eba_crash_uc() exit(EXIT_FAILURE)
 #endif
 
 /* Get the FILE pointer to where fprintf messages currently target.
