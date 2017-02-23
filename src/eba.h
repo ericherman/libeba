@@ -32,6 +32,8 @@ void eba_set(struct eba_s *eba, unsigned long index, unsigned char val);
 
 unsigned char eba_get(struct eba_s *eba, unsigned long index);
 
+void eba_toggle(struct eba_s *eba, unsigned long index);
+
 /**********************************************************************/
 /* failure handling macros */
 /**********************************************************************/

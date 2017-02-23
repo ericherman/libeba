@@ -95,6 +95,40 @@ unsigned char eba_get(struct eba_s *eba, unsigned long index)
 	return (eba->bits[byte] >> offset) & 1;
 }
 
+void eba_toggle(struct eba_s *eba, unsigned long index)
+{
+	size_t byte;
+	unsigned char offset;
+
+	byte = index / 8;	/* compiler should convert to shift */
+	offset = index % 8;	/* compiler should convert to bitwise AND */
+
+#ifndef EBA_SKIP_STRUCT_NULL_CHECK
+	if (!eba) {
+		Eba_log_error0("eba struct is NULL\n");
+		Eba_crash_uc();
+	}
+#endif /* EBA_SKIP_STRUCT_NULL_CHECK */
+
+#ifndef EBA_SKIP_STRUCT_BITS_NULL_CHECK
+	if (!eba->bits) {
+		Eba_log_error0("eba->bits is NULL\n");
+		Eba_crash_uc();
+	}
+#endif /* EBA_SKIP_STRUCT_BITS_NULL_CHECK */
+
+#ifndef EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY
+	if (byte >= eba->size) {
+		Eba_log_error3("bit index %lu is position %lu, size is %lu\n",
+			       (unsigned long)index, (unsigned long)byte,
+			       (unsigned long)eba->size);
+		Eba_crash_uc();
+	}
+#endif /* EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY */
+
+	eba->bits[byte] ^= (1 << offset);
+}
+
 #ifndef EBA_SKIP_EBA_NEW
 struct eba_s *eba_new(unsigned long num_bits)
 {

@@ -24,7 +24,8 @@ AM_LDFLAGS=-rdynamic
 TESTS=$(check_PROGRAMS)
 check_PROGRAMS=\
  test-get \
- test-set
+ test-set \
+ test-toggle
 
 COMMON_TEST_SOURCES=src/eba.h \
  tests/echeck.h \
@@ -38,6 +39,9 @@ test_set_LDADD=$(TEST_LDADDS)
 
 test_get_SOURCES=tests/test-set.c $(COMMON_TEST_SOURCES)
 test_get_LDADD=$(TEST_LDADDS)
+
+test_toggle_SOURCES=tests/test-set.c $(COMMON_TEST_SOURCES)
+test_toggle_LDADD=$(TEST_LDADDS)
 
 ACLOCAL_AMFLAGS=-I m4 --install
 
@@ -74,3 +78,4 @@ spotless:
 valgrind: $(check_PROGRAMS)
 	libtool --mode=execute valgrind -q ./test-get
 	libtool --mode=execute valgrind -q ./test-set
+	libtool --mode=execute valgrind -q ./test-toggle
