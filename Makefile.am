@@ -22,11 +22,22 @@ libeba_la_LIBADD=
 AM_LDFLAGS=-rdynamic
 
 TESTS=$(check_PROGRAMS)
-check_PROGRAMS=
+check_PROGRAMS=\
+ test-get \
+ test-set
 
-#COMMON_TEST_SOURCES=src/eba.h
+COMMON_TEST_SOURCES=src/eba.h \
+ tests/echeck.h \
+ tests/echeck.c \
+ tests/eba-test-private-utils.h
 
 TEST_LDADDS=-leba
+
+test_set_SOURCES=tests/test-set.c $(COMMON_TEST_SOURCES)
+test_set_LDADD=$(TEST_LDADDS)
+
+test_get_SOURCES=tests/test-set.c $(COMMON_TEST_SOURCES)
+test_get_LDADD=$(TEST_LDADDS)
 
 ACLOCAL_AMFLAGS=-I m4 --install
 
@@ -59,3 +70,7 @@ spotless:
 	rm -rf `cat .gitignore | sed -e 's/#.*//'`
 	pushd src && rm -rf `cat ../.gitignore | sed -e 's/#.*//'`; popd
 	pushd tests && rm -rf `cat ../.gitignore | sed -e 's/#.*//'`; popd
+
+valgrind: $(check_PROGRAMS)
+	libtool --mode=execute valgrind -q ./test-get
+	libtool --mode=execute valgrind -q ./test-set
