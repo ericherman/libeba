@@ -19,6 +19,15 @@ License for more details.
 FILE *eba_global_log_file = NULL;
 #endif
 
+static unsigned char eba_insanity(struct eba_s *eba, unsigned long index,
+				  unsigned long byte);
+
+#define Eba_sanity(eba, index, byte) \
+ if (eba_insanity(eba, index, byte)) { Eba_crash(); }
+
+#define Eba_sanity_uc(eba, index, byte) \
+ if (eba_insanity(eba, index, byte)) { Eba_crash_uc(); }
+
 void eba_set(struct eba_s *eba, unsigned long index, unsigned char val)
 {
 	size_t byte;
@@ -27,28 +36,7 @@ void eba_set(struct eba_s *eba, unsigned long index, unsigned char val)
 	byte = index / 8;	/* compiler should convert to shift */
 	offset = index % 8;	/* compiler should convert to bitwise AND */
 
-#ifndef EBA_SKIP_STRUCT_NULL_CHECK
-	if (!eba) {
-		Eba_log_error0("eba struct is NULL\n");
-		Eba_crash();
-	}
-#endif /* EBA_SKIP_STRUCT_NULL_CHECK */
-
-#ifndef EBA_SKIP_STRUCT_BITS_NULL_CHECK
-	if (!eba->bits) {
-		Eba_log_error0("eba->bits is NULL\n");
-		Eba_crash();
-	}
-#endif /* EBA_SKIP_STRUCT_BITS_NULL_CHECK */
-
-#ifndef EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY
-	if (byte >= eba->size) {
-		Eba_log_error3("bit index %lu is position %lu, size is %lu\n",
-			       (unsigned long)index, (unsigned long)byte,
-			       (unsigned long)eba->size);
-		Eba_crash();
-	}
-#endif /* EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY */
+	Eba_sanity(eba, index, byte);
 
 	/* This should work, but seems too tricky: */
 	/* val = val ? 1 : 0 */ ;
@@ -69,28 +57,7 @@ unsigned char eba_get(struct eba_s *eba, unsigned long index)
 	byte = index / 8;	/* compiler should convert to shift */
 	offset = index % 8;	/* compiler should convert to bitwise AND */
 
-#ifndef EBA_SKIP_STRUCT_NULL_CHECK
-	if (!eba) {
-		Eba_log_error0("eba struct is NULL\n");
-		Eba_crash_uc();
-	}
-#endif /* EBA_SKIP_STRUCT_NULL_CHECK */
-
-#ifndef EBA_SKIP_STRUCT_BITS_NULL_CHECK
-	if (!eba->bits) {
-		Eba_log_error0("eba->bits is NULL\n");
-		Eba_crash_uc();
-	}
-#endif /* EBA_SKIP_STRUCT_BITS_NULL_CHECK */
-
-#ifndef EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY
-	if (byte >= eba->size) {
-		Eba_log_error3("bit index %lu is position %lu, size is %lu\n",
-			       (unsigned long)index, (unsigned long)byte,
-			       (unsigned long)eba->size);
-		Eba_crash_uc();
-	}
-#endif /* EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY */
+	Eba_sanity_uc(eba, index, byte);
 
 	return (eba->bits[byte] >> offset) & 1;
 }
@@ -103,28 +70,7 @@ void eba_toggle(struct eba_s *eba, unsigned long index)
 	byte = index / 8;	/* compiler should convert to shift */
 	offset = index % 8;	/* compiler should convert to bitwise AND */
 
-#ifndef EBA_SKIP_STRUCT_NULL_CHECK
-	if (!eba) {
-		Eba_log_error0("eba struct is NULL\n");
-		Eba_crash_uc();
-	}
-#endif /* EBA_SKIP_STRUCT_NULL_CHECK */
-
-#ifndef EBA_SKIP_STRUCT_BITS_NULL_CHECK
-	if (!eba->bits) {
-		Eba_log_error0("eba->bits is NULL\n");
-		Eba_crash_uc();
-	}
-#endif /* EBA_SKIP_STRUCT_BITS_NULL_CHECK */
-
-#ifndef EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY
-	if (byte >= eba->size) {
-		Eba_log_error3("bit index %lu is position %lu, size is %lu\n",
-			       (unsigned long)index, (unsigned long)byte,
-			       (unsigned long)eba->size);
-		Eba_crash_uc();
-	}
-#endif /* EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY */
+	Eba_sanity(eba, index, byte);
 
 	eba->bits[byte] ^= (1 << offset);
 }
@@ -165,3 +111,31 @@ void eba_free(struct eba_s *eba)
 	Eba_free(eba);
 }
 #endif /* EBA_SKIP_EBA_NEW */
+
+static unsigned char eba_insanity(struct eba_s *eba, unsigned long index,
+				  unsigned long byte)
+{
+#ifndef EBA_SKIP_STRUCT_NULL_CHECK
+	if (!eba) {
+		Eba_log_error0("eba struct is NULL\n");
+		return 1;
+	}
+#endif /* EBA_SKIP_STRUCT_NULL_CHECK */
+
+#ifndef EBA_SKIP_STRUCT_BITS_NULL_CHECK
+	if (!eba->bits) {
+		Eba_log_error0("eba->bits is NULL\n");
+		return 1;
+	}
+#endif /* EBA_SKIP_STRUCT_BITS_NULL_CHECK */
+
+#ifndef EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY
+	if (byte >= eba->size) {
+		Eba_log_error3("bit index %lu is position %lu, size is %lu\n",
+			       (unsigned long)index, (unsigned long)byte,
+			       (unsigned long)eba->size);
+		return 1;
+	}
+#endif /* EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY */
+	return 0;
+}

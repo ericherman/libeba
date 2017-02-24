@@ -3,6 +3,7 @@
 	add "make demo" target for Sieve of Eratosthenes
 	improve tests
 
+	* src/eba.c: factor out sanity checking code
 	* Makefile.am: make demo
 	* tests/test-toggle.c: add test, improve test
 	* tests/test-get.c: fix message
@@ -10,6 +11,7 @@
 	* tests/eba-test-private-utils.h: 2017 copyright
 	* tests/echeck.c: 2017 copyright
 	* tests/echeck.h: 2017 copyright
+	* Makefile.am: example comments
 	* .gitignore: sieve-of-eratosthenes
 	* ChangeLog: backfill ChangeLog
 
