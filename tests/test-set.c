@@ -1,6 +1,6 @@
 /*
 test-set.c
-Copyright (C) 2016 Eric Herman <eric@freesa.org>
+Copyright (C) 2017 Eric Herman <eric@freesa.org>
 
 This work is free software: you can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License as published by
@@ -69,7 +69,7 @@ int test_set(int verbose)
 	failures = check_byte_array(bytes, 10, expected, 10);
 
 	if (failures) {
-		Test_log_error1("%d failures in test_dec\n", failures);
+		Test_log_error1("%d failures in test_set\n", failures);
 	}
 
 	return failures;

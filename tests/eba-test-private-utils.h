@@ -1,6 +1,6 @@
 /*
 eba-test-private-utils.h
-Copyright (C) 2016 Eric Herman <eric@freesa.org>
+Copyright (C) 2016, 2017 Eric Herman <eric@freesa.org>
 
 This work is free software: you can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License as published by
