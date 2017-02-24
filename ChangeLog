@@ -1,3 +1,66 @@
+2017-02-24  Eric Herman <eric@freesa.org>
+
+	add "make demo" target for Sieve of Eratosthenes
+	improve tests
+
+	* Makefile.am: make demo
+	* tests/test-toggle.c: add test, improve test
+	* tests/test-get.c: fix message
+	* tests/test-set.c: fix message
+	* tests/eba-test-private-utils.h: 2017 copyright
+	* tests/echeck.c: 2017 copyright
+	* tests/echeck.h: 2017 copyright
+	* .gitignore: sieve-of-eratosthenes
+	* ChangeLog: backfill ChangeLog
+
+
+2017-02-23  Eric Herman <eric@freesa.org>
+
+	add eba_toggle function
+	add simple test suite
+
+	* src/eba.h: add eba_toggle
+	* src/eba.c: add eba_toggle
+	* tests/test-get.c: simple test
+	* tests/test-set.c: simple test
+	* tests/test-toggle.c: simple test
+	* tests/echeck.h: https://github.com/ericherman/libecheck
+	* tests/echeck.c: https://github.com/ericherman/libecheck
+	* tests/eba-test-private-utils.h: macros for test
+	* misc/pre-tidy.patch: respin for alignment
+	* Makefile.am: add tests
+	* .gitignore: add tests
+
+
+2017-02-19  Eric Herman <eric@freesa.org>
+
+	use Sieve of Eratosthenes as usage demo
+	make safety code optional
+	simplify and fold-in eba-log.h to eba.h
+	basic autotools building/packaging
+
+	* src/eba.h: improve macros for embedded
+	* src/eba.c: re-order, make NULL checks optional
+	* src/eba-log.h: fold into eba.h
+	* src/eba-log.c: remove
+	* demos/sieve-of-eratosthenes.c: a demo/usage example
+	* misc/pre-tidy.patch: indent wants to indent too much
+	* README: minimal text
+	* Makefile.am: basic autotools
+	* configure.ac: basic autotools
+	* ChangeLog: autotools required
+	* AUTHORS: Eric Herman
+	* .gitignore: misc output
+
+
 2017-02-18  Eric Herman <eric@freesa.org>
 
-	init ChangeLog
+	basic implementation
+
+	* src/eba.h: struct and function definitions
+	* src/eba.c: the impl
+	* src/eba-log.h: macros for malloc/free, fprintf
+	* src/eba-log.c: impl if using std C lib
+	* COPYING: LGPLv3+
+	* COPYING.GPL3: LGPLv3+
+	* .gitignore
