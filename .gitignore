@@ -1,6 +1,7 @@
 test-get
 test-set
 test-toggle
+sieve-of-eratosthenes
 
 ###################
 # backup files

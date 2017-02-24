@@ -70,6 +70,11 @@ tidy:
 		`find src tests demos -name '*.h' -o -name '*.c'`
 	patch -Rp1 -i misc/pre-tidy.patch
 
+demo:
+	$(CC) $(CSTD_CFLAGS) $(DEBUG_CFLAGS) $(NOISY_CFLAGS) \
+		-o sieve-of-eratosthenes $(libeba_la_SOURCES) \
+		demos/sieve-of-eratosthenes.c
+
 spotless:
 	rm -rf `cat .gitignore | sed -e 's/#.*//'`
 	pushd src && rm -rf `cat ../.gitignore | sed -e 's/#.*//'`; popd
