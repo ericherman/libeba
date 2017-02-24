@@ -1,9 +1,11 @@
 2017-02-24  Eric Herman <eric@freesa.org>
 
+	use 1U for unsigned int constant used in shifts for clarity
 	add "make demo" target for Sieve of Eratosthenes
 	improve tests
+	tidy comments
 
-	* src/eba.c: factor out sanity checking code
+	* src/eba.c: factor out sanity checking code; 1U for clarity
 	* Makefile.am: make demo
 	* tests/test-toggle.c: add test, improve test
 	* tests/test-get.c: fix message

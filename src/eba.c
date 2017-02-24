@@ -15,10 +15,6 @@ License for more details.
 
 #include "eba.h"
 
-#ifdef EBA_NEED_GLOBAL_LOG_FILE
-FILE *eba_global_log_file = NULL;
-#endif
-
 static unsigned char eba_insanity(struct eba_s *eba, unsigned long index,
 				  unsigned long byte);
 
@@ -28,24 +24,29 @@ static unsigned char eba_insanity(struct eba_s *eba, unsigned long index,
 #define Eba_sanity_uc(eba, index, byte) \
  if (eba_insanity(eba, index, byte)) { Eba_crash_uc(); }
 
+#ifdef EBA_NEED_GLOBAL_LOG_FILE
+FILE *eba_global_log_file = NULL;
+#endif
+
 void eba_set(struct eba_s *eba, unsigned long index, unsigned char val)
 {
 	size_t byte;
 	unsigned char offset;
 
-	byte = index / 8;	/* compiler should convert to shift */
-	offset = index % 8;	/* compiler should convert to bitwise AND */
+	/* compiler does the right thing; no "div"s in the .s files */
+	byte = index / 8;
+	offset = index % 8;
 
 	Eba_sanity(eba, index, byte);
 
 	/* This should work, but seems too tricky: */
 	/* val = val ? 1 : 0 */ ;
-	/* eba->bits[byte] ^= (-val ^ eba->bits[byte]) & (1 << offset); */
+	/* eba->bits[byte] ^= (-val ^ eba->bits[byte]) & (1U << offset); */
 	/* instead, be a bit more verbose and trust the optimizer */
 	if (val) {
-		eba->bits[byte] |= (1 << offset);
+		eba->bits[byte] |= (1U << offset);
 	} else {
-		eba->bits[byte] &= ~(1 << offset);
+		eba->bits[byte] &= ~(1U << offset);
 	}
 }
 
@@ -54,8 +55,8 @@ unsigned char eba_get(struct eba_s *eba, unsigned long index)
 	size_t byte;
 	unsigned char offset;
 
-	byte = index / 8;	/* compiler should convert to shift */
-	offset = index % 8;	/* compiler should convert to bitwise AND */
+	byte = index / 8;
+	offset = index % 8;
 
 	Eba_sanity_uc(eba, index, byte);
 
@@ -67,12 +68,12 @@ void eba_toggle(struct eba_s *eba, unsigned long index)
 	size_t byte;
 	unsigned char offset;
 
-	byte = index / 8;	/* compiler should convert to shift */
-	offset = index % 8;	/* compiler should convert to bitwise AND */
+	byte = index / 8;
+	offset = index % 8;
 
 	Eba_sanity(eba, index, byte);
 
-	eba->bits[byte] ^= (1 << offset);
+	eba->bits[byte] ^= (1U << offset);
 }
 
 #ifndef EBA_SKIP_EBA_NEW
