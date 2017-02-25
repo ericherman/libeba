@@ -30,7 +30,7 @@ enum eba_endian {
 /* embedable bit vector */
 struct eba_s {
 	unsigned char *bits;
-	size_t size;
+	size_t size_bytes;
 	enum eba_endian endian;
 };
 

@@ -87,16 +87,16 @@ struct eba_s *eba_new(unsigned long num_bits, enum eba_endian endian)
 		return NULL;
 	}
 
-	eba->size = num_bits / 8;
-	if ((eba->size * 8) < num_bits) {
-		eba->size += 1;
+	eba->size_bytes = num_bits / 8;
+	if ((eba->size_bytes * 8) < num_bits) {
+		eba->size_bytes += 1;
 	}
 	eba->endian = endian;
 
-	eba->bits = Eba_alloc(eba->size);
+	eba->bits = Eba_alloc(eba->size_bytes);
 	if (!(eba->bits)) {
 		Eba_log_error1("could not allocate %lu bytes?\n",
-			       (unsigned long)eba->size);
+			       (unsigned long)eba->size_bytes);
 		Eba_free(eba);
 		return NULL;
 	}
@@ -136,16 +136,16 @@ static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
 	*offset = index % 8;
 
 #ifndef EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY
-	if ((*byte) >= eba->size) {
+	if ((*byte) >= eba->size_bytes) {
 		Eba_log_error3("bit index %lu is position %lu, size is %lu\n",
 			       (unsigned long)index, (unsigned long)(*byte),
-			       (unsigned long)eba->size);
+			       (unsigned long)eba->size_bytes);
 		return 1;
 	}
 #endif /* EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY */
 
 	if (eba->endian == eba_big_endian) {
-		*byte = (eba->size - 1) - (*byte);
+		*byte = (eba->size_bytes - 1) - (*byte);
 	}
 
 	return 0;

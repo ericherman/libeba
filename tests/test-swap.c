@@ -32,7 +32,7 @@ int test_swap_endianness(int verbose, enum eba_endian endian)
 	}
 
 	eba.bits = bytes;
-	eba.size = 10;
+	eba.size_bytes = 10;
 	eba.endian = endian;
 
 	expected[1] = 251;

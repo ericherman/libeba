@@ -30,7 +30,7 @@ int test_toggle(int verbose, enum eba_endian endian)
 	}
 
 	eba.bits = bytes;
-	eba.size = 2;
+	eba.size_bytes = 2;
 	eba.endian = endian;
 
 	expected[(endian == eba_big_endian) ? 1 : 0] = (1U << 7);
@@ -176,7 +176,7 @@ int test_toggle_all(int verbose)
 	}
 
 	eba.bits = bytes;
-	eba.size = 10;
+	eba.size_bytes = 10;
 	eba.endian = eba_endian_little;
 
 	expected[0] = 4;

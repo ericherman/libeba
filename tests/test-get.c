@@ -29,7 +29,7 @@ int test_get_el(int verbose)
 	}
 
 	eba.bits = bytes;
-	eba.size = 10;
+	eba.size_bytes = 10;
 	eba.endian = eba_endian_little;
 
 	bytes[0] = 4;
@@ -149,7 +149,7 @@ int test_get_be(int verbose)
 	}
 
 	eba.bits = bytes;
-	eba.size = 10;
+	eba.size_bytes = 10;
 	eba.endian = eba_big_endian;
 
 	bytes[9] = 4;

@@ -31,7 +31,7 @@ int test_set(int verbose, enum eba_endian endian)
 	}
 
 	eba.bits = bytes;
-	eba.size = 10;
+	eba.size_bytes = 10;
 	eba.endian = endian;
 
 	if (endian == eba_big_endian) {
