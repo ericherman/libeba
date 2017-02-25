@@ -14,7 +14,7 @@ License for more details.
 */
 #include "eba-test-private-utils.h"
 
-int test_set(int verbose)
+int test_set(int verbose, enum eba_endian endian)
 {
 	int failures;
 	size_t i;
@@ -32,11 +32,19 @@ int test_set(int verbose)
 
 	eba.bits = bytes;
 	eba.size = 10;
+	eba.endian = endian;
 
-	expected[0] = 4;
-	expected[1] = 6;
-	expected[6] = 255;
-	expected[8] = 251;
+	if (endian == eba_big_endian) {
+		expected[9] = 4;
+		expected[8] = 6;
+		expected[3] = 255;
+		expected[1] = 251;
+	} else {
+		expected[0] = 4;
+		expected[1] = 6;
+		expected[6] = 255;
+		expected[8] = 251;
+	}
 
 	/* test that "20" becomes "1" */
 	eba_set(&eba, 2, 20);
@@ -66,7 +74,7 @@ int test_set(int verbose)
 	eba_set(&eba, 71, 1);
 	eba_set(&eba, 66, 0);
 
-	failures = check_byte_array(bytes, 10, expected, 10);
+	failures += check_byte_array(bytes, 10, expected, 10);
 
 	if (failures) {
 		Test_log_error1("%d failures in test_set\n", failures);
@@ -83,7 +91,8 @@ int main(int argc, char **argv)
 
 	failures = 0;
 
-	failures += test_set(v);
+	failures += test_set(v, eba_endian_little);
+	failures += test_set(v, eba_big_endian);
 
 	if (failures) {
 		Test_log_error2("%d failures in %s\n", failures, __FILE__);

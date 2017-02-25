@@ -15,14 +15,14 @@ License for more details.
 
 #include "eba.h"
 
-static unsigned char eba_insanity(struct eba_s *eba, unsigned long index,
-				  unsigned long byte);
+static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
+					 size_t *byte, unsigned char *offset);
 
-#define Eba_sanity(eba, index, byte) \
- if (eba_insanity(eba, index, byte)) { Eba_crash(); }
+#define Get_byte_and_offset(eba, index, byte, offset) \
+ if (get_byte_and_offset(eba, index, byte, offset)) { Eba_crash(); }
 
-#define Eba_sanity_uc(eba, index, byte) \
- if (eba_insanity(eba, index, byte)) { Eba_crash_uc(); }
+#define Get_byte_and_offset_uc(eba, index, byte, offset) \
+ if (get_byte_and_offset(eba, index, byte, offset)) { Eba_crash_uc(); }
 
 #ifdef EBA_NEED_GLOBAL_LOG_FILE
 FILE *eba_global_log_file = NULL;
@@ -33,11 +33,7 @@ void eba_set(struct eba_s *eba, unsigned long index, unsigned char val)
 	size_t byte;
 	unsigned char offset;
 
-	/* compiler does the right thing; no "div"s in the .s files */
-	byte = index / 8;
-	offset = index % 8;
-
-	Eba_sanity(eba, index, byte);
+	Get_byte_and_offset(eba, index, &byte, &offset);
 
 	/* This should work, but seems too tricky: */
 	/* val = val ? 1 : 0 */ ;
@@ -55,10 +51,7 @@ unsigned char eba_get(struct eba_s *eba, unsigned long index)
 	size_t byte;
 	unsigned char offset;
 
-	byte = index / 8;
-	offset = index % 8;
-
-	Eba_sanity_uc(eba, index, byte);
+	Get_byte_and_offset_uc(eba, index, &byte, &offset);
 
 	return (eba->bits[byte] >> offset) & 1;
 }
@@ -68,16 +61,13 @@ void eba_toggle(struct eba_s *eba, unsigned long index)
 	size_t byte;
 	unsigned char offset;
 
-	byte = index / 8;
-	offset = index % 8;
-
-	Eba_sanity(eba, index, byte);
+	Get_byte_and_offset(eba, index, &byte, &offset);
 
 	eba->bits[byte] ^= (1U << offset);
 }
 
 #ifndef EBA_SKIP_EBA_NEW
-struct eba_s *eba_new(unsigned long num_bits)
+struct eba_s *eba_new(unsigned long num_bits, enum eba_endian endian)
 {
 	struct eba_s *eba;
 
@@ -92,6 +82,7 @@ struct eba_s *eba_new(unsigned long num_bits)
 	if ((eba->size * 8) < num_bits) {
 		eba->size += 1;
 	}
+	eba->endian = endian;
 
 	eba->bits = Eba_alloc(eba->size);
 	if (!(eba->bits)) {
@@ -113,9 +104,10 @@ void eba_free(struct eba_s *eba)
 }
 #endif /* EBA_SKIP_EBA_NEW */
 
-static unsigned char eba_insanity(struct eba_s *eba, unsigned long index,
-				  unsigned long byte)
+static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
+					 size_t *byte, unsigned char *offset)
 {
+
 #ifndef EBA_SKIP_STRUCT_NULL_CHECK
 	if (!eba) {
 		Eba_log_error0("eba struct is NULL\n");
@@ -130,13 +122,22 @@ static unsigned char eba_insanity(struct eba_s *eba, unsigned long index,
 	}
 #endif /* EBA_SKIP_STRUCT_BITS_NULL_CHECK */
 
+	/* compiler does the right thing; no "div"s in the .s files */
+	*byte = index / 8;
+	*offset = index % 8;
+
 #ifndef EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY
-	if (byte >= eba->size) {
+	if ((*byte) >= eba->size) {
 		Eba_log_error3("bit index %lu is position %lu, size is %lu\n",
-			       (unsigned long)index, (unsigned long)byte,
+			       (unsigned long)index, (unsigned long)(*byte),
 			       (unsigned long)eba->size);
 		return 1;
 	}
 #endif /* EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY */
+
+	if (eba->endian == eba_big_endian) {
+		*byte = (eba->size - 1) - (*byte);
+	}
+
 	return 0;
 }

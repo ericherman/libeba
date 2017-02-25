@@ -37,10 +37,10 @@ TEST_LDADDS=-leba
 test_set_SOURCES=tests/test-set.c $(COMMON_TEST_SOURCES)
 test_set_LDADD=$(TEST_LDADDS)
 
-test_get_SOURCES=tests/test-set.c $(COMMON_TEST_SOURCES)
+test_get_SOURCES=tests/test-get.c $(COMMON_TEST_SOURCES)
 test_get_LDADD=$(TEST_LDADDS)
 
-test_toggle_SOURCES=tests/test-set.c $(COMMON_TEST_SOURCES)
+test_toggle_SOURCES=tests/test-toggle.c $(COMMON_TEST_SOURCES)
 test_toggle_LDADD=$(TEST_LDADDS)
 
 ACLOCAL_AMFLAGS=-I m4 --install
@@ -75,10 +75,13 @@ tidy:
 		`find src tests demos -name '*.h' -o -name '*.c'`
 	patch -Rp1 -i misc/pre-tidy.patch
 
-demo:
+sieve-of-eratosthenes:
 	$(CC) $(CSTD_CFLAGS) $(DEBUG_CFLAGS) $(NOISY_CFLAGS) \
 		-o sieve-of-eratosthenes $(libeba_la_SOURCES) \
 		demos/sieve-of-eratosthenes.c
+
+demo: sieve-of-eratosthenes
+	./sieve-of-eratosthenes 50
 
 spotless:
 	rm -rf `cat .gitignore | sed -e 's/#.*//'`

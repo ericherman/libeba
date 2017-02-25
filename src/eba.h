@@ -22,10 +22,16 @@ extern "C" {
 
 #include <stddef.h>		/* size_t */
 
+enum eba_endian {
+	eba_endian_little,
+	eba_big_endian
+};
+
 /* embedable bit vector */
 struct eba_s {
 	unsigned char *bits;
 	size_t size;
+	enum eba_endian endian;
 };
 
 void eba_set(struct eba_s *eba, unsigned long index, unsigned char val);
@@ -62,7 +68,7 @@ void eba_toggle(struct eba_s *eba, unsigned long index);
 #define Eba_free free
 #endif
 
-struct eba_s *eba_new(unsigned long num_bits);
+struct eba_s *eba_new(unsigned long num_bits, enum eba_endian endian);
 
 void eba_free(struct eba_s *eba);
 #endif /*EBA_SKIP_EBA_NEW */
