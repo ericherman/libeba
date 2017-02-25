@@ -66,6 +66,15 @@ void eba_toggle(struct eba_s *eba, unsigned long index)
 	eba->bits[byte] ^= (1U << offset);
 }
 
+void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2)
+{
+	unsigned char tmp;
+
+	tmp = eba_get(eba, index1);
+	eba_set(eba, index1, eba_get(eba, index2));
+	eba_set(eba, index2, tmp);
+}
+
 #ifndef EBA_SKIP_EBA_NEW
 struct eba_s *eba_new(unsigned long num_bits, enum eba_endian endian)
 {

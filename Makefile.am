@@ -25,6 +25,7 @@ TESTS=$(check_PROGRAMS)
 check_PROGRAMS=\
  test-get \
  test-set \
+ test-swap \
  test-toggle
 
 COMMON_TEST_SOURCES=src/eba.h \
@@ -39,6 +40,9 @@ test_set_LDADD=$(TEST_LDADDS)
 
 test_get_SOURCES=tests/test-get.c $(COMMON_TEST_SOURCES)
 test_get_LDADD=$(TEST_LDADDS)
+
+test_swap_SOURCES=tests/test-swap.c $(COMMON_TEST_SOURCES)
+test_swap_LDADD=$(TEST_LDADDS)
 
 test_toggle_SOURCES=tests/test-toggle.c $(COMMON_TEST_SOURCES)
 test_toggle_LDADD=$(TEST_LDADDS)
@@ -91,4 +95,5 @@ spotless:
 valgrind: $(check_PROGRAMS)
 	libtool --mode=execute valgrind -q ./test-get
 	libtool --mode=execute valgrind -q ./test-set
+	libtool --mode=execute valgrind -q ./test-swap
 	libtool --mode=execute valgrind -q ./test-toggle

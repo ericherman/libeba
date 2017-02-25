@@ -12,7 +12,7 @@
  
  #include <stddef.h>		/* size_t */
  
-@@ -111,8 +113,10 @@
+@@ -125,8 +127,10 @@
  
  #endif /* Eba_log_error0 */
  

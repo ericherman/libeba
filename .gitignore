@@ -1,5 +1,6 @@
 test-get
 test-set
+test-swap
 test-toggle
 sieve-of-eratosthenes
 

@@ -40,6 +40,20 @@ unsigned char eba_get(struct eba_s *eba, unsigned long index);
 
 void eba_toggle(struct eba_s *eba, unsigned long index);
 
+void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2);
+
+/*
+void eba_ring_shift_left(struct eba_s *eba, unsigned long positions);
+
+void eba_ring_shift_right(struct eba_s *eba, unsigned long positions);
+
+void eba_shift_left(struct eba_s *eba, unsigned long positions);
+
+void eba_shift_right(struct eba_s *eba, unsigned long positions);
+
+void eba_shift_right_signed(struct eba_s *eba, unsigned long positions);
+*/
+
 /**********************************************************************/
 /* failure handling macros */
 /**********************************************************************/

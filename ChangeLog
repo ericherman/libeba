@@ -1,16 +1,19 @@
 2017-02-25  Eric Herman <eric@freesa.org>
 
+	Add eba_swap
 	Add big or little endian support
 	fix tests! very broken
 
-	* src/eba.h: add "enum eba_endian"
+	* src/eba.h: add "enum eba_endian", eba_swap
 	* src/eba.c: support endian-ness, consolidate duplication
 	* tests/test-get.c: D'oh! over-writing failure; test big endian
 	* tests/test-set.c: add big_endian test
+	* tests/test-swap.c: new test
 	* tests/test-toggle.c: add big_endian test
 	* demos/sieve-of-eratosthenes.c: use eba_endian_little
 	* Makefile.am: D'oh! used the test-set sources for all tests!
 	* misc/pre-tidy.patch: respin for hunk offsets
+	* .gitignore: test-swap
 
 2017-02-24  Eric Herman <eric@freesa.org>
 
