@@ -87,7 +87,7 @@ void eba_ring_shift_right(struct eba_s *eba, unsigned long positions)
 		Eba_crash();
 	}
 
-	size_bits = eba->size_bytes * 8;
+	size_bits = eba->size_bytes * EBA_CHAR_BIT;
 
 	if (positions >= size_bits) {
 		positions = positions % size_bits;
@@ -138,7 +138,7 @@ void eba_ring_shift_left(struct eba_s *eba, unsigned long positions)
 		Eba_crash();
 	}
 
-	size_bits = eba->size_bytes * 8;
+	size_bits = eba->size_bytes * EBA_CHAR_BIT;
 
 	if (positions >= size_bits) {
 		positions = positions % size_bits;
@@ -158,8 +158,8 @@ struct eba_s *eba_new(unsigned long num_bits, enum eba_endian endian)
 		return NULL;
 	}
 
-	eba->size_bytes = num_bits / 8;
-	if ((eba->size_bytes * 8) < num_bits) {
+	eba->size_bytes = num_bits / EBA_CHAR_BIT;
+	if ((eba->size_bytes * EBA_CHAR_BIT) < num_bits) {
 		eba->size_bytes += 1;
 	}
 	eba->endian = endian;
@@ -211,8 +211,8 @@ static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
 	}
 
 	/* compiler does the right thing; no "div"s in the .s files */
-	*byte = index / 8;
-	*offset = index % 8;
+	*byte = index / EBA_CHAR_BIT;
+	*offset = index % EBA_CHAR_BIT;
 
 #ifndef EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY
 	if ((*byte) >= eba->size_bytes) {

@@ -55,6 +55,29 @@ void eba_shift_right_signed(struct eba_s *eba, unsigned long positions);
 */
 
 /**********************************************************************/
+/* bits in a byte */
+/**********************************************************************/
+/*
+ * C defines a char to be at least 8 bits,
+ * but a char *may* be more ...
+ * thus use CHAR_BIT from limits.h
+ * unless compiled with -DEBA_CHAR_BIT=8 or similar
+ */
+#ifndef EBA_CHAR_BIT
+#ifdef CHAR_BIT
+#define EBA_CHAR_BIT CHAR_BIT
+#else
+#include <limits.h>
+#ifdef CHAR_BIT
+#define EBA_CHAR_BIT CHAR_BIT
+#endif
+#endif
+#endif
+#ifndef EBA_CHAR_BIT
+#define EBA_CHAR_BIT 8
+#endif
+
+/**********************************************************************/
 /* failure handling macros */
 /**********************************************************************/
 /* if no Eba_crash macro is defined, we use standard C lib */
