@@ -15,6 +15,8 @@ License for more details.
 
 #include "eba.h"
 
+static unsigned char is_eba_null(struct eba_s *eba);
+
 static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
 					 size_t *byte, unsigned char *offset);
 
@@ -75,6 +77,75 @@ void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2)
 	eba_set(eba, index2, tmp);
 }
 
+void eba_ring_shift_right(struct eba_s *eba, unsigned long positions)
+{
+	unsigned long i, j, size_bits;
+	unsigned char val;
+	struct eba_s *tmp;
+
+	if (is_eba_null(eba)) {
+		Eba_crash();
+	}
+
+	size_bits = eba->size_bytes * 8;
+
+	if (positions >= size_bits) {
+		positions = positions % size_bits;
+	}
+
+	if (positions == 0) {
+		return;
+	}
+
+	tmp = (struct eba_s *)Eba_stack_alloc(sizeof(struct eba_s));
+	if (!tmp) {
+		Eba_log_error2("could not %s %lu bytes?\n", Eba_stack_alloc_str,
+			       sizeof(struct eba_s));
+		Eba_crash();
+	}
+	tmp->endian = eba->endian;
+	tmp->size_bytes = 0;	/* not really needed, just clarity */
+	tmp->bits = (unsigned char *)Eba_stack_alloc(eba->size_bytes);
+	if (!tmp->bits) {
+		Eba_log_error2("could not %s %lu bytes?\n", Eba_stack_alloc_str,
+			       (unsigned long)eba->size_bytes);
+		/* we must free before crashing. */
+		/* Eba_crash may be implemented something like: */
+		/* { GlobalErr = 1; return; } */
+		Eba_stack_free(tmp, sizeof(struct eba_s));
+		Eba_crash();
+	}
+	tmp->size_bytes = eba->size_bytes;
+	Eba_memcpy(tmp->bits, eba->bits, eba->size_bytes);
+
+	for (i = 0; i < size_bits; ++i) {
+		j = i + positions;
+		if (j >= size_bits) {
+			j -= size_bits;
+		}
+		val = eba_get(tmp, j);
+		eba_set(eba, i, val);
+	}
+	Eba_stack_free(tmp->bits, tmp->size_bytes);
+	Eba_stack_free(tmp, sizeof(struct eba_s));
+}
+
+void eba_ring_shift_left(struct eba_s *eba, unsigned long positions)
+{
+	unsigned long size_bits;
+
+	if (is_eba_null(eba)) {
+		Eba_crash();
+	}
+
+	size_bits = eba->size_bytes * 8;
+
+	if (positions >= size_bits) {
+		positions = positions % size_bits;
+	}
+	eba_ring_shift_right(eba, size_bits - positions);
+}
+
 #ifndef EBA_SKIP_EBA_NEW
 struct eba_s *eba_new(unsigned long num_bits, enum eba_endian endian)
 {
@@ -82,7 +153,7 @@ struct eba_s *eba_new(unsigned long num_bits, enum eba_endian endian)
 
 	eba = Eba_alloc(sizeof(struct eba_s));
 	if (!eba) {
-		Eba_log_error1("could not allocate %lu bytes?\n",
+		Eba_log_error2("could not %s %lu bytes?\n", Eba_alloc_str,
 			       (unsigned long)sizeof(struct eba_s));
 		return NULL;
 	}
@@ -95,7 +166,7 @@ struct eba_s *eba_new(unsigned long num_bits, enum eba_endian endian)
 
 	eba->bits = Eba_alloc(eba->size_bytes);
 	if (!(eba->bits)) {
-		Eba_log_error1("could not allocate %lu bytes?\n",
+		Eba_log_error2("could not %s %lu bytes?\n", Eba_alloc_str,
 			       (unsigned long)eba->size_bytes);
 		Eba_free(eba);
 		return NULL;
@@ -113,10 +184,8 @@ void eba_free(struct eba_s *eba)
 }
 #endif /* EBA_SKIP_EBA_NEW */
 
-static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
-					 size_t *byte, unsigned char *offset)
+static unsigned char is_eba_null(struct eba_s *eba)
 {
-
 #ifndef EBA_SKIP_STRUCT_NULL_CHECK
 	if (!eba) {
 		Eba_log_error0("eba struct is NULL\n");
@@ -130,6 +199,16 @@ static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
 		return 1;
 	}
 #endif /* EBA_SKIP_STRUCT_BITS_NULL_CHECK */
+
+	return 0;
+}
+
+static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
+					 size_t *byte, unsigned char *offset)
+{
+	if (is_eba_null(eba)) {
+		return 1;
+	}
 
 	/* compiler does the right thing; no "div"s in the .s files */
 	*byte = index / 8;
@@ -150,3 +229,42 @@ static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
 
 	return 0;
 }
+
+#ifdef EBA_NEED_DO_STACK_FREE
+void eba_do_stack_free(void *ptr, size_t size)
+{
+	if (size == 0) {
+		Eba_log_error2("size is 0? (%p, %lu)\n", ptr,
+			       (unsigned long)size);
+	}
+	free(ptr);
+}
+#endif
+
+#ifdef EBA_NEED_NO_STACK_FREE
+void eba_no_stack_free(void *ptr, size_t size)
+{
+	if (size == 0) {
+		Eba_log_error2("size is 0? (%p, %lu)\n", ptr,
+			       (unsigned long)size);
+	}
+}
+#endif
+
+#ifdef EBA_NEED_DIY_MEMCPY
+void *eba_diy_memcpy(void *dest, const void *src, size_t n)
+{
+	unsigned char *d;
+	const unsigned char *s;
+
+	if (dest) {
+
+		d = (unsigned char *)dest;
+		s = (const unsigned char *)src;
+		while (n--) {
+			d[n] = s[n];
+		}
+	}
+	return dest;
+}
+#endif

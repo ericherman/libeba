@@ -11,6 +11,34 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
 
+# for environments that do not have alloca, malloc is used
+# malloc instead of alloca can be forced: #define EBA_NO_ALLOCA 1
+# TODO: make this plugable for non-alloca embedded environments
+#ALLOCA_CFLAGS=-DEBA_NO_ALLOCA=1
+ALLOCA_CFLAGS=
+
+CSTD_CFLAGS=-std=c89
+
+DEBUG_CFLAGS=-ggdb -O2
+#DEBUG_CFLAGS=-ggdb -O0
+
+#DEBUG_CFLAGS=-ggdb -O2 \
+# -Wno-unused-parameter \
+# -DEBA_SKIP_STRUCT_NULL_CHECK \
+# -DEBA_SKIP_STRUCT_BITS_NULL_CHECK \
+# -DEBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY
+
+#DEBUG_CFLAGS=-ggdb -O2 \
+# -DEBA_DIY_MEMCPY \
+# -DEBA_NO_ALLOCA
+
+NOISY_CFLAGS=-Wall -Wextra -pedantic -Werror
+
+AM_CFLAGS=$(CSTD_CFLAGS) \
+ $(ALLOCA_CFLAGS) \
+ $(DEBUG_CFLAGS) \
+ $(NOISY_CFLAGS)
+
 lib_LTLIBRARIES=libeba.la
 include_HEADERS=src/eba.h
 
@@ -26,6 +54,7 @@ check_PROGRAMS=\
  test-get \
  test-set \
  test-swap \
+ test-ring-shift \
  test-toggle
 
 COMMON_TEST_SOURCES=src/eba.h \
@@ -44,28 +73,15 @@ test_get_LDADD=$(TEST_LDADDS)
 test_swap_SOURCES=tests/test-swap.c $(COMMON_TEST_SOURCES)
 test_swap_LDADD=$(TEST_LDADDS)
 
+test_ring_shift_SOURCES=tests/test-ring-shift.c $(COMMON_TEST_SOURCES)
+test_ring_shift_LDADD=$(TEST_LDADDS)
+
 test_toggle_SOURCES=tests/test-toggle.c $(COMMON_TEST_SOURCES)
 test_toggle_LDADD=$(TEST_LDADDS)
 
 ACLOCAL_AMFLAGS=-I m4 --install
 
 EXTRA_DIST=COPYING.GPL3 misc
-
-CSTD_CFLAGS=-std=c89
-
-DEBUG_CFLAGS=-ggdb -O2
-#DEBUG_CFLAGS=-ggdb -O0
-#DEBUG_CFLAGS=-ggdb -O2 \
-# -Wno-unused-parameter \
-# -DEBA_SKIP_STRUCT_NULL_CHECK \
-# -DEBA_SKIP_STRUCT_BITS_NULL_CHECK \
-# -DEBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY
-
-NOISY_CFLAGS=-Wall -Wextra -pedantic -Werror
-
-AM_CFLAGS=$(CSTD_CFLAGS) \
- $(DEBUG_CFLAGS) \
- $(NOISY_CFLAGS)
 
 # extracted from https://github.com/torvalds/linux/blob/master/scripts/Lindent
 LINDENT=indent -npro -kr -i8 -ts8 -sob -l80 -ss -ncs -cp1 -il0
@@ -96,4 +112,5 @@ valgrind: $(check_PROGRAMS)
 	libtool --mode=execute valgrind -q ./test-get
 	libtool --mode=execute valgrind -q ./test-set
 	libtool --mode=execute valgrind -q ./test-swap
+	libtool --mode=execute valgrind -q ./test-ring-shift
 	libtool --mode=execute valgrind -q ./test-toggle

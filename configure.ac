@@ -25,6 +25,7 @@ AC_TYPE_SIZE_T
 
 # Checks for library functions.
 AC_FUNC_MALLOC
+AC_FUNC_ALLOCA
 AC_CHECK_FUNCS([atoi])
 
 AM_INIT_AUTOMAKE([subdir-objects -Werror -Wall])

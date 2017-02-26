@@ -42,11 +42,11 @@ void eba_toggle(struct eba_s *eba, unsigned long index);
 
 void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2);
 
-/*
 void eba_ring_shift_left(struct eba_s *eba, unsigned long positions);
 
 void eba_ring_shift_right(struct eba_s *eba, unsigned long positions);
 
+/*
 void eba_shift_left(struct eba_s *eba, unsigned long positions);
 
 void eba_shift_right(struct eba_s *eba, unsigned long positions);
@@ -70,16 +70,73 @@ void eba_shift_right_signed(struct eba_s *eba, unsigned long positions);
 #endif /* Eba_crash */
 
 /**********************************************************************/
+/* memcpy */
+/**********************************************************************/
+/* if you wish, you can define your own memcpy
+ * alternatively you may define EBA_DIY_MEMCPY to avoid standard C lib
+ * the default is to simply use memcpy from the standard C lib */
+#ifndef Eba_memcpy
+#ifdef EBA_DIY_MEMCPY
+#define EBA_NEED_DIY_MEMCPY
+void *eba_diy_memcpy(void *dest, const void *src, size_t n);
+#define Eba_memcpy eba_diy_memcpy
+#else
+#include <string.h>
+#define Eba_memcpy memcpy
+#endif
+#endif /* Eba_memcpy */
+
+/**********************************************************************/
+/* internal (stack) allocation functions */
+/**********************************************************************/
+/*
+ * In the shifting code, I would like to simly write something like:
+ * "unsigned char bytes[foo];" where "foo" is a function parameter
+ * But this is not widely supported.
+ *
+ * While C99,C11 have variable stack allocation, C++ and C89 do not.
+ * As it happens, gcc supports alloca even for 8bit CPUs.
+ * I would like wider-spread support of more modern C99/C11 especially
+ * from Visual C++, but for now I'll just do this.
+ *
+ * This whole Eba_stack_alloc idea should be replaced with something
+ * better, but I am out of ideas at the moment.
+ */
+#ifndef Eba_stack_alloc
+#ifdef EBA_NO_ALLOCA
+#include <stdlib.h>
+#define Eba_stack_alloc malloc
+#define Eba_stack_alloc_str "malloc"
+#define EBA_NEED_DO_STACK_FREE
+void eba_do_stack_free(void *ptr, size_t size);
+#define Eba_stack_free eba_do_stack_free
+#else
+#include <alloca.h>
+#define Eba_stack_alloc alloca
+#define Eba_stack_alloc_str "alloca"
+#define EBA_NEED_NO_STACK_FREE
+void eba_no_stack_free(void *ptr, size_t size);
+#define Eba_stack_free eba_no_stack_free
+#endif
+#endif /* Eba_stack_alloc */
+
+/**********************************************************************/
 /* allocation convience functions */
 /**********************************************************************/
 #ifndef EBA_SKIP_EBA_NEW
 
 /* #define Eba_alloc and Eba_free to use something other than malloc/free */
+/* #define Eba_alloc_str for using in error message log lines */
 
 #ifndef Eba_alloc
 #include <stdlib.h>
 #define Eba_alloc malloc
+#define Eba_alloc_str "malloc"
 #define Eba_free free
+#endif
+
+#ifndef Eba_alloc_str
+#define "(custom) allocate"
 #endif
 
 struct eba_s *eba_new(unsigned long num_bits, enum eba_endian endian);
