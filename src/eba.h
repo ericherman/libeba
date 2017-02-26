@@ -46,13 +46,15 @@ void eba_ring_shift_left(struct eba_s *eba, unsigned long positions);
 
 void eba_ring_shift_right(struct eba_s *eba, unsigned long positions);
 
-/*
 void eba_shift_left(struct eba_s *eba, unsigned long positions);
 
 void eba_shift_right(struct eba_s *eba, unsigned long positions);
 
-void eba_shift_right_signed(struct eba_s *eba, unsigned long positions);
-*/
+void eba_shift_left_fill(struct eba_s *eba, unsigned long positions,
+			 unsigned char fillval);
+
+void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
+			  unsigned char fillval);
 
 /**********************************************************************/
 /* bits in a byte */

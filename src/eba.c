@@ -77,7 +77,44 @@ void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2)
 	eba_set(eba, index2, tmp);
 }
 
-void eba_ring_shift_right(struct eba_s *eba, unsigned long positions)
+/* since we are allocating on the stack, this can not be a function
+   and thus must be a macro such that it exists in the same stack frame */
+#define Eba_copy_on_stack(eba, tmp, eba_crash_func) \
+	tmp = (struct eba_s *)Eba_stack_alloc(sizeof(struct eba_s)); \
+	if (!tmp) { \
+		Eba_log_error2("could not %s %lu bytes?\n",\
+			       Eba_stack_alloc_str, \
+			       sizeof(struct eba_s)); \
+		eba_crash_func(); \
+	} \
+	tmp->endian = eba->endian; \
+	tmp->size_bytes = 0;	/* not really needed, just clarity */ \
+	tmp->bits = (unsigned char *)Eba_stack_alloc(eba->size_bytes); \
+	if (!tmp->bits) { \
+		Eba_log_error2("could not %s %lu bytes?\n", \
+			       Eba_stack_alloc_str, \
+			       (unsigned long)eba->size_bytes); \
+		/* we must free before crashing. */ \
+		/* Eba_crash may be implemented something like: */ \
+		/* { GlobalErr = 1; return; } */ \
+		Eba_stack_free(tmp, sizeof(struct eba_s)); \
+		eba_crash_func(); \
+	} \
+	tmp->size_bytes = eba->size_bytes; \
+	Eba_memcpy(tmp->bits, eba->bits, eba->size_bytes)
+
+#define Eba_free_stack_copy(tmp) \
+	if (tmp) { Eba_stack_free(tmp->bits, tmp->size_bytes); } \
+	Eba_stack_free(tmp, sizeof(struct eba_s))
+
+enum eba_shift_fill_val {
+	eba_fill_zero = 0,
+	eba_fill_one = 1,
+	eba_fill_ring
+};
+
+void eba_inner_shift_right(struct eba_s *eba, unsigned long positions,
+			   enum eba_shift_fill_val fill)
 {
 	unsigned long i, j, size_bits;
 	unsigned char val;
@@ -97,42 +134,44 @@ void eba_ring_shift_right(struct eba_s *eba, unsigned long positions)
 		return;
 	}
 
-	tmp = (struct eba_s *)Eba_stack_alloc(sizeof(struct eba_s));
-	if (!tmp) {
-		Eba_log_error2("could not %s %lu bytes?\n", Eba_stack_alloc_str,
-			       sizeof(struct eba_s));
-		Eba_crash();
-	}
-	tmp->endian = eba->endian;
-	tmp->size_bytes = 0;	/* not really needed, just clarity */
-	tmp->bits = (unsigned char *)Eba_stack_alloc(eba->size_bytes);
-	if (!tmp->bits) {
-		Eba_log_error2("could not %s %lu bytes?\n", Eba_stack_alloc_str,
-			       (unsigned long)eba->size_bytes);
-		/* we must free before crashing. */
-		/* Eba_crash may be implemented something like: */
-		/* { GlobalErr = 1; return; } */
-		Eba_stack_free(tmp, sizeof(struct eba_s));
-		Eba_crash();
-	}
-	tmp->size_bytes = eba->size_bytes;
-	Eba_memcpy(tmp->bits, eba->bits, eba->size_bytes);
+	Eba_copy_on_stack(eba, tmp, Eba_crash);
 
 	for (i = 0; i < size_bits; ++i) {
 		j = i + positions;
-		if (j >= size_bits) {
-			j -= size_bits;
+		if (j < size_bits) {
+			val = eba_get(tmp, j);
+		} else {
+			switch (fill) {
+			case eba_fill_zero:
+				val = 0;
+				break;
+			case eba_fill_one:
+				val = 1;
+				break;
+			case eba_fill_ring:
+				j -= size_bits;
+				val = eba_get(tmp, j);
+				break;
+			default:
+				val = 0;
+				Eba_log_error1
+				    ("impossible enum eba_shift_fill_val: %lu",
+				     (unsigned long)fill);
+				Eba_crash();
+			}
 		}
-		val = eba_get(tmp, j);
 		eba_set(eba, i, val);
 	}
-	Eba_stack_free(tmp->bits, tmp->size_bytes);
-	Eba_stack_free(tmp, sizeof(struct eba_s));
+
+	Eba_free_stack_copy(tmp);
 }
 
-void eba_ring_shift_left(struct eba_s *eba, unsigned long positions)
+void eba_inner_shift_left(struct eba_s *eba, unsigned long positions,
+			  enum eba_shift_fill_val fill)
 {
-	unsigned long size_bits;
+	unsigned long i, j, size_bits;
+	unsigned char val;
+	struct eba_s *tmp;
 
 	if (is_eba_null(eba)) {
 		Eba_crash();
@@ -143,7 +182,75 @@ void eba_ring_shift_left(struct eba_s *eba, unsigned long positions)
 	if (positions >= size_bits) {
 		positions = positions % size_bits;
 	}
-	eba_ring_shift_right(eba, size_bits - positions);
+
+	if (positions == 0) {
+		return;
+	}
+
+	Eba_copy_on_stack(eba, tmp, Eba_crash);
+
+	for (i = 0; i < size_bits; ++i) {
+		if (i >= positions) {
+			j = i - positions;
+			val = eba_get(tmp, j);
+		} else {
+			switch (fill) {
+			case eba_fill_zero:
+				val = 0;
+				break;
+			case eba_fill_one:
+				val = 1;
+				break;
+			case eba_fill_ring:
+				j = (size_bits - positions) + i;
+				val = eba_get(tmp, j);
+				break;
+			default:
+				val = 0;
+				Eba_log_error1
+				    ("impossible enum eba_shift_fill_val: %lu",
+				     (unsigned long)fill);
+				Eba_crash();
+			}
+		}
+		eba_set(eba, i, val);
+	}
+
+	Eba_free_stack_copy(tmp);
+}
+
+void eba_ring_shift_right(struct eba_s *eba, unsigned long positions)
+{
+	eba_inner_shift_right(eba, positions, eba_fill_ring);
+}
+
+void eba_ring_shift_left(struct eba_s *eba, unsigned long positions)
+{
+	eba_inner_shift_left(eba, positions, eba_fill_ring);
+}
+
+void eba_shift_left(struct eba_s *eba, unsigned long positions)
+{
+	eba_inner_shift_left(eba, positions, eba_fill_zero);
+}
+
+void eba_shift_left_fill(struct eba_s *eba, unsigned long positions,
+			 unsigned char fillval)
+{
+	eba_inner_shift_left(eba, positions,
+			     fillval ? eba_fill_one : eba_fill_zero);
+}
+
+void eba_shift_right(struct eba_s *eba, unsigned long positions)
+{
+	eba_inner_shift_left(eba, positions, eba_fill_zero);
+}
+
+void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
+			  unsigned char fillval)
+{
+	eba_inner_shift_left(eba, positions,
+			     fillval ? eba_fill_one : eba_fill_zero);
 }
 
 #ifndef EBA_SKIP_EBA_NEW

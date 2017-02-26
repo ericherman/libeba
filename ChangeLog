@@ -1,16 +1,19 @@
 2017-02-26  Eric Herman <eric@freesa.org>
 
 	added eba_ring_shift_right and _left functions
+	and eba_shift_left, _right, _left_fill, _right_fill
+	generalized the shifting code
 	added macros for avoiding alloca and memcpy
 	use EBA_CHAR_BIT instead of hardcoding 8 bits per byte
 
-	* src/eba.h: eba_ring_shift, memcpy, alloca
-	* src/eba.c: eba_ring_shift, eba_diy_memcpy
+	* src/eba.h: eba_ring_shift, eba_shift, memcpy, alloca
+	* src/eba.c: eba_ring_shift, eba_shift, eba_diy_memcpy
 	* tests/test-ring-shift.c: new test
 	* Makefile.am: test-ring-shift
 	* configure.ac: test for alloca
 	* misc/pre-tidy.patch: hunk offset
 	* .gitignore: test-ring-shift
+
 
 2017-02-25  Eric Herman <eric@freesa.org>
 
@@ -30,6 +33,7 @@
 	* Makefile.am: D'oh! used the test-set sources for all tests!
 	* misc/pre-tidy.patch: respin for hunk offsets
 	* .gitignore: test-swap
+
 
 2017-02-24  Eric Herman <eric@freesa.org>
 
