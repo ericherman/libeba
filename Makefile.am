@@ -19,11 +19,12 @@ ALLOCA_CFLAGS=
 
 CSTD_CFLAGS=-std=c89
 
-DEBUG_CFLAGS=-ggdb -O2
+DEBUG_CFLAGS=-ggdb -O2 -fomit-frame-pointer
 #DEBUG_CFLAGS=-ggdb -O0
 
-#DEBUG_CFLAGS=-ggdb -O2 \
+#DEBUG_CFLAGS=-ggdb -O2 -fomit-frame-pointer \
 # -Wno-unused-parameter \
+# -DEBA_SKIP_ENDIAN \
 # -DEBA_SKIP_STRUCT_NULL_CHECK \
 # -DEBA_SKIP_STRUCT_BITS_NULL_CHECK \
 # -DEBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY

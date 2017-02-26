@@ -22,16 +22,20 @@ extern "C" {
 
 #include <stddef.h>		/* size_t */
 
+#ifndef EBA_SKIP_ENDIAN
 enum eba_endian {
 	eba_endian_little,
 	eba_big_endian
 };
+#endif
 
 /* embedable bit vector */
 struct eba_s {
 	unsigned char *bits;
 	size_t size_bytes;
+#ifndef EBA_SKIP_ENDIAN
 	enum eba_endian endian;
+#endif
 };
 
 void eba_set(struct eba_s *eba, unsigned long index, unsigned char val);
@@ -42,6 +46,7 @@ void eba_toggle(struct eba_s *eba, unsigned long index);
 
 void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2);
 
+#ifndef EBA_SKIP_SHIFTS
 void eba_ring_shift_left(struct eba_s *eba, unsigned long positions);
 
 void eba_ring_shift_right(struct eba_s *eba, unsigned long positions);
@@ -55,6 +60,7 @@ void eba_shift_left_fill(struct eba_s *eba, unsigned long positions,
 
 void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
 			  unsigned char fillval);
+#endif
 
 /**********************************************************************/
 /* bits in a byte */
@@ -93,6 +99,8 @@ void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
 #define Eba_crash_uc() exit(EXIT_FAILURE)
 
 #endif /* Eba_crash */
+
+#ifndef EBA_SKIP_SHIFTS
 
 /**********************************************************************/
 /* memcpy */
@@ -145,6 +153,8 @@ void eba_no_stack_free(void *ptr, size_t size);
 #endif
 #endif /* Eba_stack_alloc */
 
+#endif /* ifndef EBA_SKIP_SHIFTS */
+
 /**********************************************************************/
 /* allocation convience functions */
 /**********************************************************************/
@@ -164,7 +174,11 @@ void eba_no_stack_free(void *ptr, size_t size);
 #define "(custom) allocate"
 #endif
 
+#ifndef EBA_SKIP_ENDIAN
 struct eba_s *eba_new(unsigned long num_bits, enum eba_endian endian);
+#else
+struct eba_s *eba_new(unsigned long num_bits);
+#endif
 
 void eba_free(struct eba_s *eba);
 #endif /*EBA_SKIP_EBA_NEW */

@@ -11,6 +11,7 @@ Usage:
 https://github.com/ericherman/libeba/blob/master/demos/sieve-of-eratosthenes.c
 
 There is no magic to the 'eba_new' and 'eba_free', only convience.
+You can make the code marginally smaller by defining "EBA_SKIP_EBA_NEW".
 
 In fact, there is not magic to the 'eba_set' or 'eba_get', rather they
 simply make the indexing a bit in a byte array easier, as well as do the
@@ -20,12 +21,26 @@ If targeting something like an stm or avr chip, the source should be
 easy to drop into a project, then modify to remove references to the C
 standard library.
 
+If you do not need to worry about byte order, you may wish to avoid
+endian-ness checking in order to speed things up by compiling with
+"EBA_SKIP_ENDIAN" defined.
+
 If you wish, and you are confident the calling code never send invalid
 requests, you may compile without a lot of safety options:
 
 #define EBA_SKIP_STRUCT_NULL_CHECK
 #define EBA_SKIP_STRUCT_BITS_NULL_CHECK
 #define EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY
+
+If you never plan to use any of the shifting functions, you can avoid
+compiling any of them by defining "EBA_SKIP_SHIFTS".
+
+If you plan to use the shifting functions, but do not want to use the
+standard C library, you may either define your own "Eba_memcpy" or use
+an dumb one that is provided by defining "EBA_DIY_MEMCPY"
+
+If your platform is weird and you do not wish to reference stddef.h,
+you can define "EBA_CHAR_BIT" to 8 or a larger number.
 
 
 Packaging

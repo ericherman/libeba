@@ -14,7 +14,11 @@ License for more details.
 */
 #include "eba-test-private-utils.h"
 
+#ifndef EBA_SKIP_ENDIAN
 int test_ring_shift(int verbose, enum eba_endian endian)
+#else
+int test_ring_shift(int verbose)
+#endif
 {
 	int failures;
 	size_t i;
@@ -35,7 +39,9 @@ int test_ring_shift(int verbose, enum eba_endian endian)
 
 	eba.bits = bytes;
 	eba.size_bytes = 10;
+#ifndef EBA_SKIP_ENDIAN
 	eba.endian = endian;
+#endif
 
 	start[1] = (1U << 2);
 	start[3] = (1U << 0);
@@ -43,12 +49,15 @@ int test_ring_shift(int verbose, enum eba_endian endian)
 	start[9] = ((1U << 0) | (1U << 4) | (1U << 7));
 
 	shift_amount = 19;
+#ifndef EBA_SKIP_ENDIAN
 	if (endian == eba_endian_little) {
+#endif
 		middle[0] = ((1U << 3) | (1U << 6));
 		middle[1] = ((1U << 0) | (1U << 3) | (1U << 7));
 		middle[2] = (1U << 2);
 		middle[3] = (1U << 5);
 		middle[5] = (1U << 3);
+#ifndef EBA_SKIP_ENDIAN
 	} else {
 		middle[0] = 0x00;
 		middle[1] = 0x08;
@@ -61,6 +70,7 @@ int test_ring_shift(int verbose, enum eba_endian endian)
 		middle[8] = 0x00;
 		middle[9] = 0x20;
 	}
+#endif
 
 	for (i = 0; i < 10; ++i) {
 		bytes[i] = start[i];
@@ -102,7 +112,9 @@ int test_simple_ring_shift(int verbose)
 
 	eba.bits = bytes;
 	eba.size_bytes = 2;
+#ifndef EBA_SKIP_ENDIAN
 	eba.endian = eba_endian_little;
+#endif
 
 	start[0] = 5;
 	start[1] = 8;
@@ -142,8 +154,12 @@ int main(int argc, char **argv)
 
 	failures += test_simple_ring_shift(v);
 
+#ifndef EBA_SKIP_ENDIAN
 	failures += test_ring_shift(v, eba_endian_little);
 	failures += test_ring_shift(v, eba_big_endian);
+#else
+	failures += test_ring_shift(v);
+#endif
 
 	if (failures) {
 		Test_log_error2("%d failures in %s\n", failures, __FILE__);

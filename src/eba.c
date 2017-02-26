@@ -79,7 +79,7 @@ void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2)
 
 /* since we are allocating on the stack, this can not be a function
    and thus must be a macro such that it exists in the same stack frame */
-#define Eba_copy_on_stack(eba, tmp, eba_crash_func) \
+#define Eba_copy_on_stack_inner(eba, tmp, eba_crash_func) \
 	tmp = (struct eba_s *)Eba_stack_alloc(sizeof(struct eba_s)); \
 	if (!tmp) { \
 		Eba_log_error2("could not %s %lu bytes?\n",\
@@ -87,7 +87,6 @@ void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2)
 			       sizeof(struct eba_s)); \
 		eba_crash_func(); \
 	} \
-	tmp->endian = eba->endian; \
 	tmp->size_bytes = 0;	/* not really needed, just clarity */ \
 	tmp->bits = (unsigned char *)Eba_stack_alloc(eba->size_bytes); \
 	if (!tmp->bits) { \
@@ -102,6 +101,15 @@ void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2)
 	} \
 	tmp->size_bytes = eba->size_bytes; \
 	Eba_memcpy(tmp->bits, eba->bits, eba->size_bytes)
+
+#ifndef EBA_SKIP_ENDIAN
+#define Eba_copy_on_stack(eba, tmp, eba_crash_func) \
+	Eba_copy_on_stack_inner(eba, tmp, eba_crash_func); \
+	tmp->endian = eba->endian
+#else
+#define Eba_copy_on_stack(eba, tmp, eba_crash_func) \
+	Eba_copy_on_stack_inner(eba, tmp, eba_crash_func)
+#endif
 
 #define Eba_free_stack_copy(tmp) \
 	if (tmp) { Eba_stack_free(tmp->bits, tmp->size_bytes); } \
@@ -254,7 +262,11 @@ void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
 }
 
 #ifndef EBA_SKIP_EBA_NEW
+#ifndef EBA_SKIP_ENDIAN
 struct eba_s *eba_new(unsigned long num_bits, enum eba_endian endian)
+#else
+struct eba_s *eba_new(unsigned long num_bits)
+#endif
 {
 	struct eba_s *eba;
 
@@ -269,7 +281,9 @@ struct eba_s *eba_new(unsigned long num_bits, enum eba_endian endian)
 	if ((eba->size_bytes * EBA_CHAR_BIT) < num_bits) {
 		eba->size_bytes += 1;
 	}
+#ifndef EBA_SKIP_ENDIAN
 	eba->endian = endian;
+#endif
 
 	eba->bits = Eba_alloc(eba->size_bytes);
 	if (!(eba->bits)) {
@@ -330,9 +344,11 @@ static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
 	}
 #endif /* EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY */
 
+#ifndef EBA_SKIP_ENDIAN
 	if (eba->endian == eba_big_endian) {
 		*byte = (eba->size_bytes - 1) - (*byte);
 	}
+#endif
 
 	return 0;
 }
@@ -365,7 +381,6 @@ void *eba_diy_memcpy(void *dest, const void *src, size_t n)
 	const unsigned char *s;
 
 	if (dest) {
-
 		d = (unsigned char *)dest;
 		s = (const unsigned char *)src;
 		while (n--) {

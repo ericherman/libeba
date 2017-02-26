@@ -28,7 +28,11 @@ int main(int argc, char **argv)
 
 	/* array size is (max+1) because of zero offset */
 	/* any endian-ness is fine: eba->bytes will not be used elsewhere */
+#ifndef EBA_SKIP_ENDIAN
 	eba = eba_new(max + 1, eba_endian_little);
+#else
+	eba = eba_new(max + 1);
+#endif
 	if (!eba) {
 		fprintf(stderr, "eba_new returned NULL\n");
 		return 1;

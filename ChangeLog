@@ -5,6 +5,7 @@
 	generalized the shifting code
 	added macros for avoiding alloca and memcpy
 	use EBA_CHAR_BIT instead of hardcoding 8 bits per byte
+	EBA_SKIP_ENDIAN: endian-ness checking compile-time optional
 
 	* src/eba.h: eba_ring_shift, eba_shift, memcpy, alloca
 	* src/eba.c: eba_ring_shift, eba_shift, eba_diy_memcpy
