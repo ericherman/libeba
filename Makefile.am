@@ -98,7 +98,13 @@ tidy:
 
 sieve-of-eratosthenes:
 	$(CC) $(CSTD_CFLAGS) $(DEBUG_CFLAGS) $(NOISY_CFLAGS) \
-		-o sieve-of-eratosthenes $(libeba_la_SOURCES) \
+		-Wno-unused-parameter \
+		-DEBA_SKIP_ENDIAN \
+		-DEBA_SKIP_STRUCT_NULL_CHECK \
+		-DEBA_SKIP_STRUCT_BITS_NULL_CHECK \
+		-DEBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY \
+		-o sieve-of-eratosthenes \
+		$(libeba_la_SOURCES) \
 		demos/sieve-of-eratosthenes.c
 
 demo: sieve-of-eratosthenes

@@ -27,8 +27,8 @@ int main(int argc, char **argv)
 	max = argc > 1 ? strtoul(argv[1], NULL, 10) : 100;
 
 	/* array size is (max+1) because of zero offset */
-	/* any endian-ness is fine: eba->bytes will not be used elsewhere */
 #ifndef EBA_SKIP_ENDIAN
+	/* any endian-ness is fine: eba->bytes will not be used elsewhere */
 	eba = eba_new(max + 1, eba_endian_little);
 #else
 	eba = eba_new(max + 1);

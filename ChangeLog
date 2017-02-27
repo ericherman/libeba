@@ -1,3 +1,11 @@
+2017-02-27  Eric Herman <eric@freesa.org>
+
+	illustrate turning off endian check in demo
+
+	* Makefile.am: build with -DEBA_SKIP_ENDIAN
+	* demos/sieve-of-eratosthenes.c: adjust comment
+
+
 2017-02-26  Eric Herman <eric@freesa.org>
 
 	added eba_ring_shift_right and _left functions
