@@ -77,6 +77,8 @@ void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2)
 	eba_set(eba, index2, tmp);
 }
 
+#ifndef EBA_SKIP_SHIFTS
+
 /* since we are allocating on the stack, this can not be a function
    and thus must be a macro such that it exists in the same stack frame */
 #define Eba_copy_on_stack_inner(eba, tmp, eba_crash_func) \
@@ -260,6 +262,8 @@ void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
 	eba_inner_shift_left(eba, positions,
 			     fillval ? eba_fill_one : eba_fill_zero);
 }
+
+#endif /* EBA_SKIP_SHIFTS */
 
 #ifndef EBA_SKIP_EBA_NEW
 #ifndef EBA_SKIP_ENDIAN

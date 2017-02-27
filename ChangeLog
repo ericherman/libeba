@@ -2,6 +2,7 @@
 
 	illustrate turning off endian check in demo
 
+	* src/eba.c: EBA_SKIP_SHIFTS should skip shifts
 	* Makefile.am: build with -DEBA_SKIP_ENDIAN
 	* demos/sieve-of-eratosthenes.c: adjust comment
 
