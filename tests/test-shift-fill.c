@@ -51,8 +51,6 @@ int test_shift_fill(int verbose, unsigned char fill)
 	start[8] = ((1U << 0) | (1U << 3) | (1U << 5));
 	start[9] = ((1U << 0) | (1U << 4) | (1U << 7));
 
-	check_byte_array_m(bytes, 10, start, 10, "before");
-
 	shift_amount = 19;
 #ifndef EBA_SKIP_ENDIAN
 	if (endian == eba_endian_little) {
