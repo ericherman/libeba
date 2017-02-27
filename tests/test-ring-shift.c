@@ -124,8 +124,6 @@ int test_simple_ring_shift(int verbose)
 	}
 
 	shift_amount = 2;
-	fprintf(stderr, "calling eba_ring_shift_left(&eba, %lu);\n",
-		shift_amount);
 	eba_ring_shift_left(&eba, shift_amount);
 
 	middle[0] = (5U << 2);
