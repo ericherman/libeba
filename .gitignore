@@ -2,6 +2,7 @@ test-get
 test-set
 test-swap
 test-toggle
+test-shift-fill
 test-ring-shift
 sieve-of-eratosthenes
 

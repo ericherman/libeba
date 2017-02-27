@@ -1,10 +1,13 @@
 2017-02-27  Eric Herman <eric@freesa.org>
 
+	add test test-shift-fill, which revealed a copy-paste bug
 	illustrate turning off endian check in demo
 
-	* src/eba.c: EBA_SKIP_SHIFTS should skip shifts
-	* Makefile.am: build with -DEBA_SKIP_ENDIAN
+	* src/eba.c: fix bug, EBA_SKIP_SHIFTS should skip shifts
+	* tests/test-shift-fill.c: new test
+	* Makefile.am: test-shift-fill, build demo with -DEBA_SKIP_ENDIAN
 	* demos/sieve-of-eratosthenes.c: adjust comment
+	* .gitignore: test-shift-fill
 
 
 2017-02-26  Eric Herman <eric@freesa.org>

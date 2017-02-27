@@ -55,6 +55,7 @@ check_PROGRAMS=\
  test-get \
  test-set \
  test-swap \
+ test-shift-fill \
  test-ring-shift \
  test-toggle
 
@@ -76,6 +77,9 @@ test_swap_LDADD=$(TEST_LDADDS)
 
 test_ring_shift_SOURCES=tests/test-ring-shift.c $(COMMON_TEST_SOURCES)
 test_ring_shift_LDADD=$(TEST_LDADDS)
+
+test_shift_fill_SOURCES=tests/test-shift-fill.c $(COMMON_TEST_SOURCES)
+test_shift_fill_LDADD=$(TEST_LDADDS)
 
 test_toggle_SOURCES=tests/test-toggle.c $(COMMON_TEST_SOURCES)
 test_toggle_LDADD=$(TEST_LDADDS)
@@ -100,6 +104,7 @@ sieve-of-eratosthenes:
 	$(CC) $(CSTD_CFLAGS) $(DEBUG_CFLAGS) $(NOISY_CFLAGS) \
 		-Wno-unused-parameter \
 		-DEBA_SKIP_ENDIAN \
+		-DEBA_SKIP_SHIFTS \
 		-DEBA_SKIP_STRUCT_NULL_CHECK \
 		-DEBA_SKIP_STRUCT_BITS_NULL_CHECK \
 		-DEBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY \
@@ -119,5 +124,6 @@ valgrind: $(check_PROGRAMS)
 	libtool --mode=execute valgrind -q ./test-get
 	libtool --mode=execute valgrind -q ./test-set
 	libtool --mode=execute valgrind -q ./test-swap
+	libtool --mode=execute valgrind -q ./test-shift-fill
 	libtool --mode=execute valgrind -q ./test-ring-shift
 	libtool --mode=execute valgrind -q ./test-toggle

@@ -253,14 +253,14 @@ void eba_shift_left_fill(struct eba_s *eba, unsigned long positions,
 
 void eba_shift_right(struct eba_s *eba, unsigned long positions)
 {
-	eba_inner_shift_left(eba, positions, eba_fill_zero);
+	eba_inner_shift_right(eba, positions, eba_fill_zero);
 }
 
 void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
 			  unsigned char fillval)
 {
-	eba_inner_shift_left(eba, positions,
-			     fillval ? eba_fill_one : eba_fill_zero);
+	eba_inner_shift_right(eba, positions,
+			      fillval ? eba_fill_one : eba_fill_zero);
 }
 
 #endif /* EBA_SKIP_SHIFTS */
