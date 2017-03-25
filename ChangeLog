@@ -1,3 +1,10 @@
+2017-03-15  Eric Herman <eric@freesa.org>
+
+	fix assumption that size_t is unsigned long
+
+	* src/eba.c: cast size_t to unsigned long for printf
+
+
 2017-02-27  Eric Herman <eric@freesa.org>
 
 	add test test-shift-fill, which revealed a copy-paste bug

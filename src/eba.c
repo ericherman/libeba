@@ -86,7 +86,7 @@ void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2)
 	if (!tmp) { \
 		Eba_log_error2("could not %s %lu bytes?\n",\
 			       Eba_stack_alloc_str, \
-			       sizeof(struct eba_s)); \
+			       (unsigned long)sizeof(struct eba_s)); \
 		eba_crash_func(); \
 	} \
 	tmp->size_bytes = 0;	/* not really needed, just clarity */ \
