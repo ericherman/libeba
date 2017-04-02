@@ -117,10 +117,43 @@ int test_shift_fill(int verbose, unsigned char fill)
 	return failures;
 }
 
+#ifndef EBA_SKIP_ENDIAN
+int test_shift_right(int verbose, enum eba_endian endian, unsigned char *in,
+		     size_t len, unsigned shift_amount,
+		     const unsigned char *expected)
+{
+	int failures;
+
+	struct eba_s eba;
+
+	VERBOSE_ANNOUNCE(verbose);
+	failures = 0;
+
+	eba.bits = in;
+	eba.size_bytes = len;
+	eba.endian = endian;
+
+	eba_shift_right(&eba, shift_amount);
+
+	failures += check_byte_array(in, len, expected, len);
+
+	if (failures) {
+		Test_log_error1("%d failures in test_shift_fill\n", failures);
+	}
+
+	return failures;
+}
+#endif
+
 int main(int argc, char **argv)
 {
 	int v, failures;
 	unsigned char fill;
+#ifndef EBA_SKIP_ENDIAN
+	size_t i;
+	unsigned int shift_amount;
+	unsigned char in[20], out[20];
+#endif
 
 	v = (argc > 1) ? atoi(argv[1]) : 0;
 
@@ -134,6 +167,18 @@ int main(int argc, char **argv)
 		failures += test_shift_fill(v, fill);
 #endif
 	}
+
+#ifndef EBA_SKIP_ENDIAN
+	for (i = 0; i < 20; ++i) {
+		in[i] = 0x00;
+		out[i] = 0x00;
+	}
+	in[18] = 0x03;
+	shift_amount = 4;
+	out[19] = 0x30;
+	failures +=
+	    test_shift_right(v, eba_big_endian, in, 20, shift_amount, out);
+#endif
 
 	if (failures) {
 		Test_log_error2("%d failures in %s\n", failures, __FILE__);
