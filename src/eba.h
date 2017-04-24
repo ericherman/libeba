@@ -20,7 +20,11 @@ License for more details.
 extern "C" {
 #endif
 
+#ifdef EBA_SIZE_TYPE
+typedef EBA_SIZE_TYPE size_t;
+#else
 #include <stddef.h>		/* size_t */
+#endif
 
 #ifndef EBA_SKIP_ENDIAN
 enum eba_endian {

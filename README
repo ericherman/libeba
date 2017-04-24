@@ -39,7 +39,10 @@ If you plan to use the shifting functions, but do not want to use the
 standard C library, you may either define your own "Eba_memcpy" or use
 an dumb one that is provided by defining "EBA_DIY_MEMCPY"
 
-If your platform is weird and you do not wish to reference stddef.h,
+If you do not wish to reference stddef.h you must defined
+"EBA_SIZE_TYPE" e.g.: -DEBA_SIZE_TYPE="unsigned long int"
+
+If your platform is weird or you do not wish to reference limits.h,
 you can define "EBA_CHAR_BIT" to 8 or a larger number.
 
 

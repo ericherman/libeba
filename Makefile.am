@@ -24,6 +24,10 @@ DEBUG_CFLAGS=-ggdb -O2 -fomit-frame-pointer
 
 #DEBUG_CFLAGS=-ggdb -O2 -fomit-frame-pointer \
 # -Wno-unused-parameter \
+# -DEBA_CHAR_BIT=8 \
+# -DEBA_DIY_MEMCPY \
+# -DEBA_NO_ALLOCA \
+# -DEBA_SKIP_INCLUDE_STDDEF -DEBA_SIZE_TYPE="unsigned long int" \
 # -DEBA_SKIP_ENDIAN \
 # -DEBA_SKIP_STRUCT_NULL_CHECK \
 # -DEBA_SKIP_STRUCT_BITS_NULL_CHECK \

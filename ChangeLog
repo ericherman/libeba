@@ -1,3 +1,13 @@
+2017-04-23  Eric Herman <eric@freesa.org>
+
+	add EBA_SIZE_TYPE
+
+	 * src/eba.h: only indlude stddef.h if no EBA_SIZE_TYPE
+	 * README: update docs
+	 * Makefile.am: debug example
+	 * misc/pre-tidy.patch: re-spin
+
+
 2017-03-15  Eric Herman <eric@freesa.org>
 
 	fix assumption that size_t is unsigned long
