@@ -15,7 +15,14 @@ License for more details.
 
 #include "eba.h"
 
+#if defined(EBA_SKIP_STRUCT_NULL_CHECK) && \
+ defined(EBA_SKIP_STRUCT_BITS_NULL_CHECK)
+#define Is_eba_null(eba) (0)
+#else
+#define Is_eba_null(eba) is_eba_null(eba)
+#define EBA_NEED_IS_EBA_NULL
 static unsigned char is_eba_null(struct eba_s *eba);
+#endif
 
 static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
 					 size_t *byte, unsigned char *offset);
@@ -130,7 +137,7 @@ void eba_inner_shift_right(struct eba_s *eba, unsigned long positions,
 	unsigned char val;
 	struct eba_s *tmp;
 
-	if (is_eba_null(eba)) {
+	if (Is_eba_null(eba)) {
 		Eba_crash();
 	}
 
@@ -183,7 +190,7 @@ void eba_inner_shift_left(struct eba_s *eba, unsigned long positions,
 	unsigned char val;
 	struct eba_s *tmp;
 
-	if (is_eba_null(eba)) {
+	if (Is_eba_null(eba)) {
 		Eba_crash();
 	}
 
@@ -309,6 +316,7 @@ void eba_free(struct eba_s *eba)
 }
 #endif /* EBA_SKIP_EBA_NEW */
 
+#ifdef EBA_NEED_IS_EBA_NULL
 static unsigned char is_eba_null(struct eba_s *eba)
 {
 #ifndef EBA_SKIP_STRUCT_NULL_CHECK
@@ -327,11 +335,12 @@ static unsigned char is_eba_null(struct eba_s *eba)
 
 	return 0;
 }
+#endif /* EBA_NEED_IS_EBA_NULL */
 
 static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
 					 size_t *byte, unsigned char *offset)
 {
-	if (is_eba_null(eba)) {
+	if (Is_eba_null(eba)) {
 		return 1;
 	}
 
