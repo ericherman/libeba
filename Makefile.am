@@ -42,7 +42,8 @@ NOISY_CFLAGS=-Wall -Wextra -pedantic -Werror
 AM_CFLAGS=$(CSTD_CFLAGS) \
  $(ALLOCA_CFLAGS) \
  $(DEBUG_CFLAGS) \
- $(NOISY_CFLAGS)
+ $(NOISY_CFLAGS) \
+ -pipe
 
 lib_LTLIBRARIES=libeba.la
 include_HEADERS=src/eba.h
