@@ -1,11 +1,23 @@
+2018-08-02  Eric Herman <eric@freesa.org>
+
+	Make private functions static
+	eba_diy_memcpy, eba_do_stack_free, eba_no_stack_free
+
+	* src/eba.h: remove function declarations,
+			add EBA_SKIP_LOG_ERRORS check
+	* src/eba.c: make declarations static
+	* Makefile.am: clarify build options
+	* misc/pre-tidy.patch: re-spin
+
+
 2017-04-23  Eric Herman <eric@freesa.org>
 
 	add EBA_SIZE_TYPE
 
-	 * src/eba.h: only indlude stddef.h if no EBA_SIZE_TYPE
-	 * README: update docs
-	 * Makefile.am: debug example
-	 * misc/pre-tidy.patch: re-spin
+	* src/eba.h: only indlude stddef.h if no EBA_SIZE_TYPE
+	* README: update docs
+	* Makefile.am: debug example
+	* misc/pre-tidy.patch: re-spin
 
 
 2017-03-15  Eric Herman <eric@freesa.org>

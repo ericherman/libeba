@@ -1,6 +1,6 @@
 /*
 eba.c: embedable bit array - hopefully somewhat suitable for small CPUs
-Copyright (C) 2017 Eric Herman <eric@freesa.org>
+Copyright (C) 2017, 2018 Eric Herman <eric@freesa.org>
 
 This work is free software: you can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License as published by
@@ -22,6 +22,18 @@ License for more details.
 #define Is_eba_null(eba) is_eba_null(eba)
 #define EBA_NEED_IS_EBA_NULL
 static unsigned char is_eba_null(struct eba_s *eba);
+#endif
+
+#ifdef EBA_NEED_DO_STACK_FREE
+static void eba_do_stack_free(void *ptr, size_t size);
+#endif
+
+#ifdef EBA_NEED_NO_STACK_FREE
+static void eba_no_stack_free(void *ptr, size_t size);
+#endif
+
+#ifdef EBA_NEED_DIY_MEMCPY
+static void *eba_diy_memcpy(void *dest, const void *src, size_t n);
 #endif
 
 static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
@@ -281,7 +293,7 @@ struct eba_s *eba_new(unsigned long num_bits)
 {
 	struct eba_s *eba;
 
-	eba = Eba_alloc(sizeof(struct eba_s));
+	eba = (struct eba_s *)Eba_alloc(sizeof(struct eba_s));
 	if (!eba) {
 		Eba_log_error2("could not %s %lu bytes?\n", Eba_alloc_str,
 			       (unsigned long)sizeof(struct eba_s));
@@ -296,7 +308,7 @@ struct eba_s *eba_new(unsigned long num_bits)
 	eba->endian = endian;
 #endif
 
-	eba->bits = Eba_alloc(eba->size_bytes);
+	eba->bits = (unsigned char *)Eba_alloc(eba->size_bytes);
 	if (!(eba->bits)) {
 		Eba_log_error2("could not %s %lu bytes?\n", Eba_alloc_str,
 			       (unsigned long)eba->size_bytes);
@@ -367,28 +379,32 @@ static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
 }
 
 #ifdef EBA_NEED_DO_STACK_FREE
-void eba_do_stack_free(void *ptr, size_t size)
+static void eba_do_stack_free(void *ptr, size_t size)
 {
+#ifndef NDEBUG
 	if (size == 0) {
 		Eba_log_error2("size is 0? (%p, %lu)\n", ptr,
 			       (unsigned long)size);
 	}
+#endif /* NDEBUG */
 	free(ptr);
 }
 #endif
 
 #ifdef EBA_NEED_NO_STACK_FREE
-void eba_no_stack_free(void *ptr, size_t size)
+static void eba_no_stack_free(void *ptr, size_t size)
 {
+#ifndef NDEBUG
 	if (size == 0) {
 		Eba_log_error2("size is 0? (%p, %lu)\n", ptr,
 			       (unsigned long)size);
 	}
+#endif /* NDEBUG */
 }
 #endif
 
 #ifdef EBA_NEED_DIY_MEMCPY
-void *eba_diy_memcpy(void *dest, const void *src, size_t n)
+static void *eba_diy_memcpy(void *dest, const void *src, size_t n)
 {
 	unsigned char *d;
 	const unsigned char *s;

@@ -1,6 +1,6 @@
 /*
 eba.h: embedable bit array - hopefully somewhat suitable for small CPUs
-Copyright (C) 2017 Eric Herman <eric@freesa.org>
+Copyright (C) 2017, 2018 Eric Herman <eric@freesa.org>
 
 This work is free software: you can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License as published by
@@ -115,7 +115,6 @@ void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
 #ifndef Eba_memcpy
 #ifdef EBA_DIY_MEMCPY
 #define EBA_NEED_DIY_MEMCPY
-void *eba_diy_memcpy(void *dest, const void *src, size_t n);
 #define Eba_memcpy eba_diy_memcpy
 #else
 #include <string.h>
@@ -145,14 +144,12 @@ void *eba_diy_memcpy(void *dest, const void *src, size_t n);
 #define Eba_stack_alloc malloc
 #define Eba_stack_alloc_str "malloc"
 #define EBA_NEED_DO_STACK_FREE
-void eba_do_stack_free(void *ptr, size_t size);
 #define Eba_stack_free eba_do_stack_free
 #else
 #include <alloca.h>
 #define Eba_stack_alloc alloca
 #define Eba_stack_alloc_str "alloca"
 #define EBA_NEED_NO_STACK_FREE
-void eba_no_stack_free(void *ptr, size_t size);
 #define Eba_stack_free eba_no_stack_free
 #endif
 #endif /* Eba_stack_alloc */
@@ -194,6 +191,16 @@ void eba_free(struct eba_s *eba);
    alternatively define each of:
    Eba_log_error0, Eba_log_error1, Eba_log_error2, Eba_log_error3
 */
+
+#ifdef EBA_SKIP_LOG_ERRORS
+#ifndef Eba_log_nop
+#define Eba_log_nop do { /* nothing */ } while (0)
+#endif
+#define Eba_log_error0(format) Eba_log_nop
+#define Eba_log_error1(format, arg1) Eba_log_nop
+#define Eba_log_error2(format, arg1, arg2) Eba_log_nop
+#define Eba_log_error3(format, arg1, arg2, arg3) Eba_log_nop
+#endif /* EBA_SKIP_LOG_ERRORS */
 
 #ifndef Eba_log_error0
 #define EBA_NEED_GLOBAL_LOG_FILE

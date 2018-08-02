@@ -1,5 +1,5 @@
 # Makefile.am
-# Copyright (C) 2017 Eric Herman <eric@freesa.org>
+# Copyright (C) 2017, 2018 Eric Herman <eric@freesa.org>
 #
 # This work is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published
@@ -19,29 +19,32 @@ ALLOCA_CFLAGS=
 
 CSTD_CFLAGS=-std=c89
 
-DEBUG_CFLAGS=-ggdb -O2 -fomit-frame-pointer
-#DEBUG_CFLAGS=-ggdb -O0
+BUILD_NORMAL_CFLAGS=-ggdb -O2 -fomit-frame-pointer \
+ -DNDEBUG -Wno-unused-parameter
 
-#DEBUG_CFLAGS=-ggdb -O2 -fomit-frame-pointer \
-# -Wno-unused-parameter \
-# -DEBA_CHAR_BIT=8 \
-# -DEBA_DIY_MEMCPY \
-# -DEBA_NO_ALLOCA \
-# -DEBA_SKIP_INCLUDE_STDDEF -DEBA_SIZE_TYPE="unsigned long int" \
-# -DEBA_SKIP_ENDIAN \
-# -DEBA_SKIP_STRUCT_NULL_CHECK \
-# -DEBA_SKIP_STRUCT_BITS_NULL_CHECK \
-# -DEBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY
+BUILD_DEBUG_CFLAGS=-ggdb -O0 -Wno-unused-parameter
 
-#DEBUG_CFLAGS=-ggdb -O2 \
-# -DEBA_DIY_MEMCPY \
-# -DEBA_NO_ALLOCA
+BUILD_FAUX_EMBED_CFLAGS=-ggdb -O2 -fomit-frame-pointer \
+ -DNDEBUG -Wno-unused-parameter \
+ -DEBA_CHAR_BIT=8 \
+ -DEBA_DIY_MEMCPY \
+ -DEBA_NO_ALLOCA \
+ -DEBA_SKIP_EBA_NEW \
+ -DEBA_SKIP_LOG_ERRORS \
+ -DEBA_SKIP_INCLUDE_STDDEF -DEBA_SIZE_TYPE="unsigned long int" \
+ -DEBA_SKIP_ENDIAN \
+ -DEBA_SKIP_STRUCT_NULL_CHECK \
+ -DEBA_SKIP_STRUCT_BITS_NULL_CHECK \
+ -DEBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY
+
+#BUILD_TYPE_CFLAGS=$(BUILD_NORMAL_CFLAGS)
+BUILD_TYPE_CFLAGS=$(BUILD_FAUX_EMBED_CFLAGS)
 
 NOISY_CFLAGS=-Wall -Wextra -pedantic -Werror
 
 AM_CFLAGS=$(CSTD_CFLAGS) \
  $(ALLOCA_CFLAGS) \
- $(DEBUG_CFLAGS) \
+ $(BUILD_TYPE_CFLAGS) \
  $(NOISY_CFLAGS) \
  -pipe
 
