@@ -196,10 +196,12 @@ void eba_free(struct eba_s *eba);
 #ifndef Eba_log_nop
 #define Eba_log_nop do { /* nothing */ } while (0)
 #endif
+#ifndef Eba_log_error0
 #define Eba_log_error0(format) Eba_log_nop
 #define Eba_log_error1(format, arg1) Eba_log_nop
 #define Eba_log_error2(format, arg1, arg2) Eba_log_nop
 #define Eba_log_error3(format, arg1, arg2, arg3) Eba_log_nop
+#endif /* Eba_log_error0 */
 #endif /* EBA_SKIP_LOG_ERRORS */
 
 #ifndef Eba_log_error0

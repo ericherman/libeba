@@ -12,7 +12,7 @@
  
  #ifdef EBA_SIZE_TYPE
  typedef EBA_SIZE_TYPE size_t;
-@@ -232,8 +234,10 @@
+@@ -234,8 +236,10 @@
  
  #endif /* Eba_log_error0 */
  
