@@ -1,3 +1,26 @@
+2018-09-22  Eric Herman <eric@freesa.org>
+
+	add an eba_set_all function
+	add EBA_USE_LIBC and EBA_DIY_MEMSET checks
+	rework the defines to be more explicit
+
+	* configure.ac: bump version number
+	* src/eba.h: reasonable default for Eba_crash()
+	* src/eba.c: eba_set_all, eba_diy_memset
+	* tests/test-set-all.c: new test
+	* demos/sieve-of-eratosthenes.c: demo eba_set_all
+	* tests/test-get.c: #define rework
+	* tests/test-ring-shift.c: #define rework
+	* tests/test-set.c: #define rework
+	* tests/test-shift-fill.c: #define rework
+	* tests/test-swap.c: #define rework
+	* tests/test-toggle.c: #define rework
+	* Makefile.am: #define rework
+	* .gitignore: ignore new file
+	* misc/pre-tidy.patch: re-spin
+
+
+
 2018-08-02  Eric Herman <eric@freesa.org>
 
 	Make private functions static

@@ -15,25 +15,28 @@ License for more details.
 
 #include "eba.h"
 
-#if defined(EBA_SKIP_STRUCT_NULL_CHECK) && \
- defined(EBA_SKIP_STRUCT_BITS_NULL_CHECK)
+#if ((EBA_SKIP_STRUCT_NULL_CHECK) && (EBA_SKIP_STRUCT_BITS_NULL_CHECK))
 #define Is_eba_null(eba) (0)
 #else
 #define Is_eba_null(eba) is_eba_null(eba)
-#define EBA_NEED_IS_EBA_NULL
+#define Eba_need_is_eba_null 1
 static unsigned char is_eba_null(struct eba_s *eba);
 #endif
 
-#ifdef EBA_NEED_DO_STACK_FREE
+#if Eba_need_do_stack_free
 static void eba_do_stack_free(void *ptr, size_t size);
 #endif
 
-#ifdef EBA_NEED_NO_STACK_FREE
+#if Eba_need_no_stack_free
 static void eba_no_stack_free(void *ptr, size_t size);
 #endif
 
-#ifdef EBA_NEED_DIY_MEMCPY
+#if Eba_need_diy_memcpy
 static void *eba_diy_memcpy(void *dest, const void *src, size_t n);
+#endif
+
+#if Eba_need_diy_memset
+static void *eba_diy_memset(void *dest, int val, size_t n);
 #endif
 
 static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
@@ -45,7 +48,7 @@ static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
 #define Get_byte_and_offset_uc(eba, index, byte, offset) \
  if (get_byte_and_offset(eba, index, byte, offset)) { Eba_crash_uc(); }
 
-#ifdef EBA_NEED_GLOBAL_LOG_FILE
+#if Eba_need_global_log_file
 FILE *eba_global_log_file = NULL;
 #endif
 
@@ -77,6 +80,18 @@ unsigned char eba_get(struct eba_s *eba, unsigned long index)
 	return (eba->bits[byte] >> offset) & 1;
 }
 
+void eba_set_all(struct eba_s *eba, unsigned char val)
+{
+	int all_vals;
+
+	if (Is_eba_null(eba)) {
+		Eba_crash();
+	}
+
+	all_vals = val ? -1 : 0;
+	Eba_memset(eba->bits, all_vals, eba->size_bytes);
+}
+
 void eba_toggle(struct eba_s *eba, unsigned long index)
 {
 	size_t byte;
@@ -96,7 +111,7 @@ void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2)
 	eba_set(eba, index2, tmp);
 }
 
-#ifndef EBA_SKIP_SHIFTS
+#if Eba_need_shifts
 
 /* since we are allocating on the stack, this can not be a function
    and thus must be a macro such that it exists in the same stack frame */
@@ -123,7 +138,7 @@ void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2)
 	tmp->size_bytes = eba->size_bytes; \
 	Eba_memcpy(tmp->bits, eba->bits, eba->size_bytes)
 
-#ifndef EBA_SKIP_ENDIAN
+#if Eba_need_endian
 #define Eba_copy_on_stack(eba, tmp, eba_crash_func) \
 	Eba_copy_on_stack_inner(eba, tmp, eba_crash_func); \
 	tmp->endian = eba->endian
@@ -284,12 +299,8 @@ void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
 
 #endif /* EBA_SKIP_SHIFTS */
 
-#ifndef EBA_SKIP_EBA_NEW
-#ifndef EBA_SKIP_ENDIAN
-struct eba_s *eba_new(unsigned long num_bits, enum eba_endian endian)
-#else
+#if Eba_need_new
 struct eba_s *eba_new(unsigned long num_bits)
-#endif
 {
 	struct eba_s *eba;
 
@@ -304,8 +315,8 @@ struct eba_s *eba_new(unsigned long num_bits)
 	if ((eba->size_bytes * EBA_CHAR_BIT) < num_bits) {
 		eba->size_bytes += 1;
 	}
-#ifndef EBA_SKIP_ENDIAN
-	eba->endian = endian;
+#if Eba_need_endian
+	eba->endian = eba_endian_little;
 #endif
 
 	eba->bits = (unsigned char *)Eba_alloc(eba->size_bytes);
@@ -315,39 +326,58 @@ struct eba_s *eba_new(unsigned long num_bits)
 		Eba_free(eba);
 		return NULL;
 	}
+
 	return eba;
 }
+
+#if Eba_need_endian
+struct eba_s *eba_new_endian(unsigned long num_bits, enum eba_endian endian)
+{
+	struct eba_s *eba;
+
+	eba = eba_new(num_bits);
+	if (eba) {
+		eba->endian = endian;
+	}
+
+	return eba;
+}
+#endif
 
 void eba_free(struct eba_s *eba)
 {
 	if (!eba) {
 		return;
 	}
-	Eba_free(eba->bits);
+	if (eba->bits) {
+		Eba_free(eba->bits);
+	} else {
+		Eba_log_error0("eba->bits is NULL\n");
+	}
 	Eba_free(eba);
 }
-#endif /* EBA_SKIP_EBA_NEW */
+#endif /* Eba_need_new */
 
-#ifdef EBA_NEED_IS_EBA_NULL
+#if Eba_need_is_eba_null
 static unsigned char is_eba_null(struct eba_s *eba)
 {
-#ifndef EBA_SKIP_STRUCT_NULL_CHECK
+#if Eba_need_struct_null_check
 	if (!eba) {
 		Eba_log_error0("eba struct is NULL\n");
 		return 1;
 	}
-#endif /* EBA_SKIP_STRUCT_NULL_CHECK */
+#endif /* Eba_need_struct_null_check */
 
-#ifndef EBA_SKIP_STRUCT_BITS_NULL_CHECK
+#if Eba_need_struct_bits_null_check
 	if (!eba->bits) {
 		Eba_log_error0("eba->bits is NULL\n");
 		return 1;
 	}
-#endif /* EBA_SKIP_STRUCT_BITS_NULL_CHECK */
+#endif /* Eba_need_struct_bits_null_check */
 
 	return 0;
 }
-#endif /* EBA_NEED_IS_EBA_NULL */
+#endif /* Eba_need_is_eba_null */
 
 static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
 					 size_t *byte, unsigned char *offset)
@@ -360,16 +390,16 @@ static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
 	*byte = index / EBA_CHAR_BIT;
 	*offset = index % EBA_CHAR_BIT;
 
-#ifndef EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY
+#if Eba_need_array_index_overrun_safety
 	if ((*byte) >= eba->size_bytes) {
 		Eba_log_error3("bit index %lu is position %lu, size is %lu\n",
 			       (unsigned long)index, (unsigned long)(*byte),
 			       (unsigned long)eba->size_bytes);
 		return 1;
 	}
-#endif /* EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY */
+#endif /* Eba_need_array_index_overrun_safety */
 
-#ifndef EBA_SKIP_ENDIAN
+#if Eba_need_endian
 	if (eba->endian == eba_big_endian) {
 		*byte = (eba->size_bytes - 1) - (*byte);
 	}
@@ -378,10 +408,10 @@ static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
 	return 0;
 }
 
-#ifdef EBA_NEED_DO_STACK_FREE
+#if Eba_need_do_stack_free
 static void eba_do_stack_free(void *ptr, size_t size)
 {
-#ifndef NDEBUG
+#if (!(NDEBUG))
 	if (size == 0) {
 		Eba_log_error2("size is 0? (%p, %lu)\n", ptr,
 			       (unsigned long)size);
@@ -391,7 +421,7 @@ static void eba_do_stack_free(void *ptr, size_t size)
 }
 #endif
 
-#ifdef EBA_NEED_NO_STACK_FREE
+#if Eba_need_no_stack_free
 static void eba_no_stack_free(void *ptr, size_t size)
 {
 #ifndef NDEBUG
@@ -403,7 +433,7 @@ static void eba_no_stack_free(void *ptr, size_t size)
 }
 #endif
 
-#ifdef EBA_NEED_DIY_MEMCPY
+#if Eba_need_diy_memcpy
 static void *eba_diy_memcpy(void *dest, const void *src, size_t n)
 {
 	unsigned char *d;
@@ -414,6 +444,23 @@ static void *eba_diy_memcpy(void *dest, const void *src, size_t n)
 		s = (const unsigned char *)src;
 		while (n--) {
 			d[n] = s[n];
+		}
+	}
+	return dest;
+}
+#endif
+
+#if Eba_need_diy_memset
+static void *eba_diy_memset(void *dest, int val, size_t n)
+{
+	unsigned char *d;
+	unsigned char v;
+
+	if (dest) {
+		d = (unsigned char *)dest;
+		v = (unsigned char)val;
+		while (n--) {
+			d[n] = v;
 		}
 	}
 	return dest;

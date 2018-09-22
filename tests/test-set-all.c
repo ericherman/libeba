@@ -1,6 +1,6 @@
 /*
-test-swap.c
-Copyright (C) 2017 Eric Herman <eric@freesa.org>
+test-set-all.c
+Copyright (C) 2018 Eric Herman <eric@freesa.org>
 
 This work is free software: you can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License as published by
@@ -15,25 +15,19 @@ License for more details.
 #include "eba-test-private-utils.h"
 
 #if EBA_SKIP_ENDIAN
-int test_swap_endianness(int verbose)
+int test_set_all(int verbose)
 #else
-int test_swap_endianness(int verbose, enum eba_endian endian)
+int test_set_all(int verbose, enum eba_endian endian)
 #endif
 {
 	int failures;
-	size_t i, j;
+	size_t i;
 	unsigned char bytes[10];
 	unsigned char expected[10];
 	struct eba_s eba;
-	unsigned int index1, index2;
 
 	VERBOSE_ANNOUNCE(verbose);
 	failures = 0;
-
-	for (i = 0; i < 10; ++i) {
-		bytes[i] = 0;
-		expected[i] = 0;
-	}
 
 	eba.bits = bytes;
 	eba.size_bytes = 10;
@@ -41,24 +35,16 @@ int test_swap_endianness(int verbose, enum eba_endian endian)
 	eba.endian = endian;
 #endif
 
-	expected[1] = 251;
-	expected[3] = 255;
-	expected[8] = 6;
-	expected[9] = 4;
-
-	bytes[0] = 4;
-	bytes[1] = 6;
-	bytes[6] = 255;
-	bytes[8] = 251;
-
-	for (i = 0; i < 5; ++i) {
-		for (j = 0; j < 8; ++j) {
-			index1 = (i * 8) + j;
-			index2 = ((9 * 8) - (i * 8)) + j;
-			eba_swap(&eba, index1, index2);
-		}
+	eba_set_all(&eba, 0x00);
+	for (i = 0; i < 10; ++i) {
+		expected[i] = 0;
 	}
+	failures += check_byte_array(bytes, 10, expected, 10);
 
+	eba_set_all(&eba, 0x07);
+	for (i = 0; i < 10; ++i) {
+		expected[i] = 0xFF;
+	}
 	failures += check_byte_array(bytes, 10, expected, 10);
 
 	if (failures) {
@@ -77,10 +63,10 @@ int main(int argc, char **argv)
 	failures = 0;
 
 #if EBA_SKIP_ENDIAN
-	failures += test_swap_endianness(v);
+	failures += test_set_all(v);
 #else
-	failures += test_swap_endianness(v, eba_endian_little);
-	failures += test_swap_endianness(v, eba_big_endian);
+	failures += test_set_all(v, eba_endian_little);
+	failures += test_set_all(v, eba_big_endian);
 #endif
 
 	if (failures) {

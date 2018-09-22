@@ -1,5 +1,6 @@
 test-get
 test-set
+test-set-all
 test-swap
 test-toggle
 test-shift-fill

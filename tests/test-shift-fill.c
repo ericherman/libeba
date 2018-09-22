@@ -14,10 +14,10 @@ License for more details.
 */
 #include "eba-test-private-utils.h"
 
-#ifndef EBA_SKIP_ENDIAN
-int test_shift_fill(int verbose, unsigned char fill, enum eba_endian endian)
-#else
+#if EBA_SKIP_ENDIAN
 int test_shift_fill(int verbose, unsigned char fill)
+#else
+int test_shift_fill(int verbose, unsigned char fill, enum eba_endian endian)
 #endif
 {
 	int failures;
@@ -41,7 +41,7 @@ int test_shift_fill(int verbose, unsigned char fill)
 
 	eba.bits = bytes;
 	eba.size_bytes = 10;
-#ifndef EBA_SKIP_ENDIAN
+#if Eba_need_endian
 	eba.endian = endian;
 #endif
 
@@ -52,7 +52,7 @@ int test_shift_fill(int verbose, unsigned char fill)
 	start[9] = ((1U << 0) | (1U << 4) | (1U << 7));
 
 	shift_amount = 19;
-#ifndef EBA_SKIP_ENDIAN
+#if Eba_need_endian
 	if (endian == eba_endian_little) {
 #endif
 		if (fill) {
@@ -74,7 +74,7 @@ int test_shift_fill(int verbose, unsigned char fill)
 			end[8] = 0xFF;
 			end[7] = (end[7] | (1U << 5) | (1U << 6) | (1U << 7));
 		}
-#ifndef EBA_SKIP_ENDIAN
+#if Eba_need_endian
 	} else {
 		if (fill) {
 			middle[9] |= 0xFF;
@@ -117,7 +117,7 @@ int test_shift_fill(int verbose, unsigned char fill)
 	return failures;
 }
 
-#ifndef EBA_SKIP_ENDIAN
+#if Eba_need_endian
 int test_shift_right(int verbose, enum eba_endian endian, unsigned char *in,
 		     size_t len, unsigned shift_amount,
 		     const unsigned char *expected)
@@ -149,7 +149,7 @@ int main(int argc, char **argv)
 {
 	int v, failures;
 	unsigned char fill;
-#ifndef EBA_SKIP_ENDIAN
+#if Eba_need_endian
 	size_t i;
 	unsigned int shift_amount;
 	unsigned char in[20], out[20];
@@ -160,15 +160,15 @@ int main(int argc, char **argv)
 	failures = 0;
 
 	for (fill = 0; fill < 2; ++fill) {
-#ifndef EBA_SKIP_ENDIAN
+#if EBA_SKIP_ENDIAN
+		failures += test_shift_fill(v, fill);
+#else
 		failures += test_shift_fill(v, fill, eba_endian_little);
 		failures += test_shift_fill(v, fill, eba_big_endian);
-#else
-		failures += test_shift_fill(v, fill);
 #endif
 	}
 
-#ifndef EBA_SKIP_ENDIAN
+#if Eba_need_endian
 	for (i = 0; i < 20; ++i) {
 		in[i] = 0x00;
 		out[i] = 0x00;

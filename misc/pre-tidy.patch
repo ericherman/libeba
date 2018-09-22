@@ -2,7 +2,7 @@
 +++ tidy/src/eba.h
 @@ -16,9 +16,11 @@
  #ifndef EBA_H
- #define EBA_H
+ #define EBA_H 1
  
 +/*
  #ifdef __cplusplus
@@ -10,9 +10,9 @@
  #endif
 +*/
  
- #ifdef EBA_SIZE_TYPE
- typedef EBA_SIZE_TYPE size_t;
-@@ -234,8 +236,10 @@
+ #ifndef EBA_SKIP_ENDIAN
+ #define EBA_SKIP_ENDIAN 0
+@@ -369,8 +371,10 @@
  
  #endif /* Eba_log_error0 */
  

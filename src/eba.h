@@ -14,11 +14,78 @@ License for more details.
 */
 
 #ifndef EBA_H
-#define EBA_H
+#define EBA_H 1
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#ifndef EBA_SKIP_ENDIAN
+#define EBA_SKIP_ENDIAN 0
+#endif
+
+#define Eba_need_endian (!(EBA_SKIP_ENDIAN))
+
+#ifndef EBA_SKIP_SET_ALL
+#define EBA_SKIP_SET_ALL 0
+#endif
+
+#define Eba_need_set_all (!(EBA_SKIP_SET_ALL))
+
+#ifndef EBA_SKIP_SHIFTS
+#define EBA_SKIP_SHIFTS 0
+#endif
+
+#define Eba_need_shifts (!(EBA_SKIP_SHIFTS))
+
+#ifndef EBA_SKIP_NEW
+#define EBA_SKIP_NEW 0
+#endif
+
+#define Eba_need_new (!(EBA_SKIP_NEW))
+
+#ifndef EBA_SKIP_STRUCT_NULL_CHECK
+#define EBA_SKIP_STRUCT_NULL_CHECK 0
+#endif
+
+#define EBA_need_struct_null_check (!(EBA_SKIP_STRUCT_NULL_CHECK)
+
+#ifndef EBA_SKIP_STRUCT_BITS_NULL_CHECK
+#define EBA_SKIP_STRUCT_BITS_NULL_CHECK 0
+#endif
+
+#define Eba_need_struct_bits_null_check (!(EBA_SKIP_STRUCT_BITS_NULL_CHECK))
+
+#ifndef EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY
+#define EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY 0
+#endif
+
+#define Eba_need_array_index_overrun_safety \
+	(!(EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY))
+
+/**********************************************************************/
+/* Standard C library available? */
+/**********************************************************************/
+/*
+ * When compiling to embedded environments, __STDC_HOSTED__ can be
+ * defined to be 1, however due to the increased size of the firmware
+ * it may be desirable to _not_ use anything from the libc.
+ *
+ * If Eba_use_libc is defined to be zero, then hopefully using EBA
+ * will not result in pulling in a bunch of bloat from libc.
+ */
+#ifndef EBA_SKIP_LIBC
+#ifdef __STDC_HOSTED__
+#define EBA_SKIP_LIBC !(__STDC_HOSTED__)
+#else
+/* guess that we are hosted */
+#define EBA_SKIP_LIBC 1
+#endif /*  __STDC_HOSTED__ */
+#endif /* EBA_SKIP_LIBC */
+
+#define Eba_use_libc (!(EBA_SKIP_LIBC))
+
+/**********************************************************************/
 
 #ifdef EBA_SIZE_TYPE
 typedef EBA_SIZE_TYPE size_t;
@@ -26,45 +93,7 @@ typedef EBA_SIZE_TYPE size_t;
 #include <stddef.h>		/* size_t */
 #endif
 
-#ifndef EBA_SKIP_ENDIAN
-enum eba_endian {
-	eba_endian_little,
-	eba_big_endian
-};
-#endif
-
-/* embedable bit vector */
-struct eba_s {
-	unsigned char *bits;
-	size_t size_bytes;
-#ifndef EBA_SKIP_ENDIAN
-	enum eba_endian endian;
-#endif
-};
-
-void eba_set(struct eba_s *eba, unsigned long index, unsigned char val);
-
-unsigned char eba_get(struct eba_s *eba, unsigned long index);
-
-void eba_toggle(struct eba_s *eba, unsigned long index);
-
-void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2);
-
-#ifndef EBA_SKIP_SHIFTS
-void eba_ring_shift_left(struct eba_s *eba, unsigned long positions);
-
-void eba_ring_shift_right(struct eba_s *eba, unsigned long positions);
-
-void eba_shift_left(struct eba_s *eba, unsigned long positions);
-
-void eba_shift_right(struct eba_s *eba, unsigned long positions);
-
-void eba_shift_left_fill(struct eba_s *eba, unsigned long positions,
-			 unsigned char fillval);
-
-void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
-			  unsigned char fillval);
-#endif
+/**********************************************************************/
 
 /**********************************************************************/
 /* bits in a byte */
@@ -74,6 +103,9 @@ void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
  * but a char *may* be more ...
  * thus use CHAR_BIT from limits.h
  * unless compiled with -DEBA_CHAR_BIT=8 or similar
+ * POSIX insists that CHAR_BIT is 8, and all modern OSes this is true
+ * of ... however the embedded space is not 100% uniform. Searching
+ * for "#define CHARBIT 16" and "CHARBIT 32" has a few hits ....
  */
 #ifndef EBA_CHAR_BIT
 #ifdef CHAR_BIT
@@ -90,21 +122,96 @@ void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
 #endif
 
 /**********************************************************************/
+
+#if Eba_need_endian
+enum eba_endian {
+	eba_endian_little,
+	eba_big_endian
+};
+#endif
+
+/* embedable bit vector */
+struct eba_s {
+	unsigned char *bits;
+	size_t size_bytes;
+#if Eba_need_endian
+	enum eba_endian endian;
+#endif
+};
+
+void eba_set(struct eba_s *eba, unsigned long index, unsigned char val);
+
+unsigned char eba_get(struct eba_s *eba, unsigned long index);
+
+#if Eba_need_set_all
+void eba_set_all(struct eba_s *eba, unsigned char val);
+#endif
+
+void eba_toggle(struct eba_s *eba, unsigned long index);
+
+void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2);
+
+#if Eba_need_shifts
+void eba_ring_shift_left(struct eba_s *eba, unsigned long positions);
+
+void eba_ring_shift_right(struct eba_s *eba, unsigned long positions);
+
+void eba_shift_left(struct eba_s *eba, unsigned long positions);
+
+void eba_shift_right(struct eba_s *eba, unsigned long positions);
+
+void eba_shift_left_fill(struct eba_s *eba, unsigned long positions,
+			 unsigned char fillval);
+
+void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
+			  unsigned char fillval);
+#endif
+
+/**********************************************************************/
 /* failure handling macros */
 /**********************************************************************/
 /* if no Eba_crash macro is defined, we use standard C lib */
 #ifndef Eba_crash
-#include <stdlib.h>
 
 /* called in functions which return void */
+#if Eba_use_libc
+#include <stdlib.h>
 #define Eba_crash() exit(EXIT_FAILURE)
 
 /* called in functions which return unsigned char */
 #define Eba_crash_uc() exit(EXIT_FAILURE)
+#else /* Eba_use_libc */
+/* Cast NULL to an int-pointer, then write to it: BOOM! (we hope) */
+#define Eba_crash()	do { *((int *)0)= 1; } while (0)
+#define Eba_crash_uc()	do { *((int *)0)= 1; return 1; } while (0)
+#endif /* Eba_use_libc */
 
 #endif /* Eba_crash */
 
-#ifndef EBA_SKIP_SHIFTS
+/**********************************************************************/
+/* memset */
+/**********************************************************************/
+/* if you wish, you can define your own memset
+ * alternatively you may define EBA_DIY_MEMSET to avoid standard C lib
+ * the default is to simply use memset from the standard C lib */
+#ifndef EBA_DIY_MEMSET
+#define EBA_DIY_MEMSET 0
+#endif
+
+#ifndef Eba_memset
+#if (EBA_DIY_MEMSET || EBA_SKIP_LIBC)
+#define Eba_need_diy_memset Eba_need_set_all
+#define Eba_memset eba_diy_memset
+#else
+#include <string.h>
+#define Eba_need_diy_memset 0
+#define Eba_memset memset
+#endif
+#endif /* Eba_memset */
+
+#ifndef Eba_need_diy_memset
+#define Eba_need_diy_memset 0
+#endif
 
 /**********************************************************************/
 /* memcpy */
@@ -112,15 +219,24 @@ void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
 /* if you wish, you can define your own memcpy
  * alternatively you may define EBA_DIY_MEMCPY to avoid standard C lib
  * the default is to simply use memcpy from the standard C lib */
+#ifndef EBA_DIY_MEMCPY
+#define EBA_DIY_MEMCPY 0
+#endif
+
 #ifndef Eba_memcpy
-#ifdef EBA_DIY_MEMCPY
-#define EBA_NEED_DIY_MEMCPY
+#if ((EBA_DIY_MEMCPY) || EBA_SKIP_LIBC)
+#define Eba_need_diy_memcpy Eba_need_shifts
 #define Eba_memcpy eba_diy_memcpy
 #else
 #include <string.h>
+#define Eba_need_diy_memcpy 0
 #define Eba_memcpy memcpy
 #endif
 #endif /* Eba_memcpy */
+
+#ifndef Eba_need_diy_memcpy
+#define Eba_need_diy_memcpy 0
+#endif
 
 /**********************************************************************/
 /* internal (stack) allocation functions */
@@ -138,28 +254,46 @@ void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
  * This whole Eba_stack_alloc idea should be replaced with something
  * better, but I am out of ideas at the moment.
  */
+#if Eba_need_shifts
 #ifndef Eba_stack_alloc
-#ifdef EBA_NO_ALLOCA
+#if ((Eba_use_libc) && (EBA_NO_ALLOCA || __STDC_NO_VLA__))
 #include <stdlib.h>
 #define Eba_stack_alloc malloc
 #define Eba_stack_alloc_str "malloc"
-#define EBA_NEED_DO_STACK_FREE
+#define Eba_need_do_stack_free 1
+#define Eba_need_no_stack_free 0
 #define Eba_stack_free eba_do_stack_free
-#else
+#else /* ((Eba_use_libc) && (EBA_NO_ALLOCA || __STDC_NO_VLA__)) */
 #include <alloca.h>
 #define Eba_stack_alloc alloca
 #define Eba_stack_alloc_str "alloca"
-#define EBA_NEED_NO_STACK_FREE
+#define Eba_need_no_stack_free 1
+#define Eba_need_do_stack_free 0
 #define Eba_stack_free eba_no_stack_free
-#endif
+#endif /* ((Eba_use_libc) && (EBA_NO_ALLOCA || __STDC_NO_VLA__)) */
 #endif /* Eba_stack_alloc */
-
-#endif /* ifndef EBA_SKIP_SHIFTS */
+#else /* Eba_need_shifts */
+#define Eba_need_no_stack_free 0
+#define Eba_need_do_stack_free 0
+#endif /* Eba_need_shifts */
 
 /**********************************************************************/
-/* allocation convience functions */
+/* constructors */
 /**********************************************************************/
-#ifndef EBA_SKIP_EBA_NEW
+#if Eba_need_new
+struct eba_s *eba_new(unsigned long num_bits);
+
+#if Eba_need_endian
+struct eba_s *eba_new_endian(unsigned long num_bits, enum eba_endian endian);
+#endif
+
+void eba_free(struct eba_s *eba);
+#endif /* Eba_need_new */
+
+/**********************************************************************/
+/* allocation functions */
+/**********************************************************************/
+#if ((Eba_use_libc) && (Eba_need_new))
 
 /* #define Eba_alloc and Eba_free to use something other than malloc/free */
 /* #define Eba_alloc_str for using in error message log lines */
@@ -172,17 +306,10 @@ void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
 #endif
 
 #ifndef Eba_alloc_str
-#define "(custom) allocate"
+#define Eba_alloc_str "(custom) allocate"
 #endif
 
-#ifndef EBA_SKIP_ENDIAN
-struct eba_s *eba_new(unsigned long num_bits, enum eba_endian endian);
-#else
-struct eba_s *eba_new(unsigned long num_bits);
-#endif
-
-void eba_free(struct eba_s *eba);
-#endif /*EBA_SKIP_EBA_NEW */
+#endif /* ((Eba_use_libc) && (Eba_need_new)) */
 
 /**********************************************************************/
 /* logging macros and functions */
@@ -191,8 +318,11 @@ void eba_free(struct eba_s *eba);
    alternatively define each of:
    Eba_log_error0, Eba_log_error1, Eba_log_error2, Eba_log_error3
 */
+#ifndef EBA_SKIP_LOG_ERRORS
+#define EBA_SKIP_LOG_ERRORS 0
+#endif
 
-#ifdef EBA_SKIP_LOG_ERRORS
+#if (EBA_SKIP_LOG_ERRORS || EBA_SKIP_LIBC)
 #ifndef Eba_log_nop
 #define Eba_log_nop do { /* nothing */ } while (0)
 #endif
@@ -202,10 +332,11 @@ void eba_free(struct eba_s *eba);
 #define Eba_log_error2(format, arg1, arg2) Eba_log_nop
 #define Eba_log_error3(format, arg1, arg2, arg3) Eba_log_nop
 #endif /* Eba_log_error0 */
-#endif /* EBA_SKIP_LOG_ERRORS */
+#endif /* (EBA_SKIP_LOG_ERRORS || EBA_SKIP_LIBC ) */
 
 #ifndef Eba_log_error0
-#define EBA_NEED_GLOBAL_LOG_FILE
+
+#define Eba_need_global_log_file 1
 #include <stdio.h>		/* FILE */
 extern FILE *eba_global_log_file;
 
@@ -231,6 +362,10 @@ extern FILE *eba_global_log_file;
  fprintf(Eba_log_file(), "%s:%d: ", __FILE__, __LINE__); \
  fprintf(Eba_log_file(), format, arg1, arg2, arg3); \
  fprintf(Eba_log_file(), "\n")
+
+#else
+
+#define Eba_need_global_log_file 0
 
 #endif /* Eba_log_error0 */
 

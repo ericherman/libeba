@@ -24,21 +24,24 @@ BUILD_NORMAL_CFLAGS=-ggdb -O2 -fomit-frame-pointer \
 
 BUILD_DEBUG_CFLAGS=-ggdb -O0 -Wno-unused-parameter
 
+#-DEBA_NO_ALLOCA=1 \
 BUILD_FAUX_EMBED_CFLAGS=-ggdb -O2 -fomit-frame-pointer \
  -DNDEBUG -Wno-unused-parameter \
+ -DEBA_SKIP_LIBC=1 \
+ -DEBA_SKIP_INCLUDE_STDDEF=1 -DEBA_SIZE_TYPE="unsigned long int" \
  -DEBA_CHAR_BIT=8 \
- -DEBA_DIY_MEMCPY \
- -DEBA_NO_ALLOCA \
- -DEBA_SKIP_EBA_NEW \
- -DEBA_SKIP_LOG_ERRORS \
- -DEBA_SKIP_INCLUDE_STDDEF -DEBA_SIZE_TYPE="unsigned long int" \
- -DEBA_SKIP_ENDIAN \
- -DEBA_SKIP_STRUCT_NULL_CHECK \
- -DEBA_SKIP_STRUCT_BITS_NULL_CHECK \
- -DEBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY
+ -DEBA_NO_ALLOCA=0 \
+ -DEBA_DIY_MEMCPY=1 \
+ -DEBA_DIY_MEMSET=1 \
+ -DEBA_SKIP_EBA_NEW=1 \
+ -DEBA_SKIP_LOG_ERRORS=1 \
+ -DEBA_SKIP_ENDIAN=1 \
+ -DEBA_SKIP_STRUCT_NULL_CHECK=1 \
+ -DEBA_SKIP_STRUCT_BITS_NULL_CHECK=1 \
+ -DEBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY=1
 
-#BUILD_TYPE_CFLAGS=$(BUILD_NORMAL_CFLAGS)
-BUILD_TYPE_CFLAGS=$(BUILD_FAUX_EMBED_CFLAGS)
+#BUILD_TYPE_CFLAGS=$(BUILD_FAUX_EMBED_CFLAGS)
+BUILD_TYPE_CFLAGS=$(BUILD_NORMAL_CFLAGS)
 
 NOISY_CFLAGS=-Wall -Wextra -pedantic -Werror
 
@@ -62,6 +65,7 @@ TESTS=$(check_PROGRAMS)
 check_PROGRAMS=\
  test-get \
  test-set \
+ test-set-all \
  test-swap \
  test-shift-fill \
  test-ring-shift \
@@ -79,6 +83,9 @@ test_set_LDADD=$(TEST_LDADDS)
 
 test_get_SOURCES=tests/test-get.c $(COMMON_TEST_SOURCES)
 test_get_LDADD=$(TEST_LDADDS)
+
+test_set_all_SOURCES=tests/test-set-all.c $(COMMON_TEST_SOURCES)
+test_set_all_LDADD=$(TEST_LDADDS)
 
 test_swap_SOURCES=tests/test-swap.c $(COMMON_TEST_SOURCES)
 test_swap_LDADD=$(TEST_LDADDS)
@@ -108,15 +115,16 @@ tidy:
 		`find src tests demos -name '*.h' -o -name '*.c'`
 	patch -Rp1 -i misc/pre-tidy.patch
 
-sieve-of-eratosthenes:
+sieve-of-eratosthenes: $(libeba_la_SOURCES) demos/sieve-of-eratosthenes.c
 	$(CC) $(CSTD_CFLAGS) $(DEBUG_CFLAGS) $(NOISY_CFLAGS) \
 		-Wno-unused-parameter \
-		-DEBA_SKIP_ENDIAN \
-		-DEBA_SKIP_SHIFTS \
-		-DEBA_SKIP_STRUCT_NULL_CHECK \
-		-DEBA_SKIP_STRUCT_BITS_NULL_CHECK \
-		-DEBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY \
+		-DEBA_SKIP_ENDIAN=1 \
+		-DEBA_SKIP_SHIFTS=1 \
+		-DEBA_SKIP_STRUCT_NULL_CHECK=1 \
+		-DEBA_SKIP_STRUCT_BITS_NULL_CHECK=1 \
+		-DEBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY=1 \
 		-o sieve-of-eratosthenes \
+		-I./src/ \
 		$(libeba_la_SOURCES) \
 		demos/sieve-of-eratosthenes.c
 
@@ -131,6 +139,7 @@ spotless:
 valgrind: $(check_PROGRAMS)
 	libtool --mode=execute valgrind -q ./test-get
 	libtool --mode=execute valgrind -q ./test-set
+	libtool --mode=execute valgrind -q ./test-set-all
 	libtool --mode=execute valgrind -q ./test-swap
 	libtool --mode=execute valgrind -q ./test-shift-fill
 	libtool --mode=execute valgrind -q ./test-ring-shift

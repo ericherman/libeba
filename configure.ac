@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([libeba], [0.0.1-dev], [eric@freesa.org])
+AC_INIT([libeba], [1.0.1-dev], [eric@freesa.org])
 AC_CONFIG_SRCDIR([src/eba.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_AUX_DIR([build-aux])

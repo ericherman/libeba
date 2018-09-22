@@ -27,25 +27,18 @@ int main(int argc, char **argv)
 	max = argc > 1 ? strtoul(argv[1], NULL, 10) : 100;
 
 	/* array size is (max+1) because of zero offset */
-#ifndef EBA_SKIP_ENDIAN
-	/* any endian-ness is fine: eba->bytes will not be used elsewhere */
-	eba = eba_new(max + 1, eba_endian_little);
-#else
 	eba = eba_new(max + 1);
-#endif
 	if (!eba) {
 		fprintf(stderr, "eba_new returned NULL\n");
 		return 1;
 	}
 
+	/* but start with guessing everything else is prime */
+	eba_set_all(eba, 0x01);
+
 	/* zero and one are not prime */
 	eba_set(eba, 0, 0);
 	eba_set(eba, 1, 0);
-
-	/* but start with guessing everything else is prime */
-	for (i = 2; i <= max; ++i) {
-		eba_set(eba, i, 1);
-	}
 
 	/* now walk the array looking for primes */
 	for (i = 2; (i * 2) <= max; ++i) {

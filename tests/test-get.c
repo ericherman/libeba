@@ -30,7 +30,7 @@ int test_get_el(int verbose)
 
 	eba.bits = bytes;
 	eba.size_bytes = 10;
-#ifndef EBA_SKIP_ENDIAN
+#if Eba_need_endian
 	eba.endian = eba_endian_little;
 #endif
 
@@ -136,7 +136,7 @@ int test_get_el(int verbose)
 	return failures;
 }
 
-#ifndef EBA_SKIP_ENDIAN
+#if Eba_need_endian
 int test_get_be(int verbose)
 {
 	int failures;
@@ -267,7 +267,7 @@ int main(int argc, char **argv)
 	failures = 0;
 
 	failures += test_get_el(v);
-#ifndef EBA_SKIP_ENDIAN
+#if Eba_need_endian
 	failures += test_get_be(v);
 #endif
 
