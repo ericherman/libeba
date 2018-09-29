@@ -162,20 +162,27 @@ void eba_inner_shift_right(struct eba_s *eba, unsigned long positions,
 {
 	unsigned long i, j, size_bits;
 	unsigned char val;
+	int all_vals;
 	struct eba_s *tmp;
 
 	if (Is_eba_null(eba)) {
 		Eba_crash();
 	}
 
+	if (positions == 0) {
+		return;
+	}
+
 	size_bits = eba->size_bytes * EBA_CHAR_BIT;
 
 	if (positions >= size_bits) {
-		positions = positions % size_bits;
-	}
-
-	if (positions == 0) {
-		return;
+		if (fill == eba_fill_ring) {
+			positions = positions % size_bits;
+		} else {
+			all_vals = (fill == eba_fill_zero) ? 0 : -1;
+			Eba_memset(eba->bits, all_vals, eba->size_bytes);
+			return;
+		}
 	}
 
 	Eba_copy_on_stack(eba, tmp, Eba_crash);
@@ -215,20 +222,27 @@ void eba_inner_shift_left(struct eba_s *eba, unsigned long positions,
 {
 	unsigned long i, j, size_bits;
 	unsigned char val;
+	int all_vals;
 	struct eba_s *tmp;
 
 	if (Is_eba_null(eba)) {
 		Eba_crash();
 	}
 
+	if (positions == 0) {
+		return;
+	}
+
 	size_bits = eba->size_bytes * EBA_CHAR_BIT;
 
 	if (positions >= size_bits) {
-		positions = positions % size_bits;
-	}
-
-	if (positions == 0) {
-		return;
+		if (fill == eba_fill_ring) {
+			positions = positions % size_bits;
+		} else {
+			all_vals = (fill == eba_fill_zero) ? 0 : -1;
+			Eba_memset(eba->bits, all_vals, eba->size_bytes);
+			return;
+		}
 	}
 
 	Eba_copy_on_stack(eba, tmp, Eba_crash);

@@ -149,8 +149,8 @@ int main(int argc, char **argv)
 {
 	int v, failures;
 	unsigned char fill;
+	unsigned int len;
 #if Eba_need_endian
-	size_t i;
 	unsigned int shift_amount;
 	unsigned char in[20], out[20];
 #endif
@@ -158,6 +158,7 @@ int main(int argc, char **argv)
 	v = (argc > 1) ? atoi(argv[1]) : 0;
 
 	failures = 0;
+	len = 20;
 
 	for (fill = 0; fill < 2; ++fill) {
 #if EBA_SKIP_ENDIAN
@@ -169,15 +170,31 @@ int main(int argc, char **argv)
 	}
 
 #if Eba_need_endian
-	for (i = 0; i < 20; ++i) {
-		in[i] = 0x00;
-		out[i] = 0x00;
-	}
+
+	memset(in, 0x00, len);
+	memset(out, 0x00, len);
 	in[18] = 0x03;
 	shift_amount = 4;
 	out[19] = 0x30;
 	failures +=
-	    test_shift_right(v, eba_big_endian, in, 20, shift_amount, out);
+	    test_shift_right(v, eba_big_endian, in, len, shift_amount, out);
+
+	memset(in, 0x00, len);
+	memset(out, 0x00, len);
+	in[18] = 0x03;
+	shift_amount = 4;
+	out[17] = 0x30;
+	failures +=
+	    test_shift_right(v, eba_endian_little, in, len, shift_amount, out);
+
+	memset(in, 0x00, len);
+	memset(out, 0x00, len);
+	in[12] = 0x13;
+	in[17] = 0x03;
+	in[18] = 0x05;
+	shift_amount = (len * CHAR_BIT) + 7;
+	failures +=
+	    test_shift_right(v, eba_endian_little, in, len, shift_amount, out);
 #endif
 
 	if (failures) {

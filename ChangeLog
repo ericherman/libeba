@@ -1,3 +1,12 @@
+2018-09-29  Eric Herman <eric@freesa.org>
+
+	shift right/left greater than number of bits should just fill
+	the bit array with the fill value
+
+	* src/eba.c: deal with shiftval greater than bits_len value
+	* tests/test-shift-fill.c: test greater than bits_len
+
+
 2018-09-22  Eric Herman <eric@freesa.org>
 
 	add an eba_set_all function
