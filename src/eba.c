@@ -115,7 +115,7 @@ void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2)
 
 /* since we are allocating on the stack, this can not be a function
    and thus must be a macro such that it exists in the same stack frame */
-#define Eba_copy_on_stack_inner(eba, tmp, eba_crash_func) \
+#define Eba_copy_on_stack_inner(eba, tmp, eba_crash_func) do { \
 	tmp = (struct eba_s *)Eba_stack_alloc(sizeof(struct eba_s)); \
 	if (!tmp) { \
 		Eba_log_error2("could not %s %lu bytes?\n",\
@@ -136,20 +136,25 @@ void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2)
 		eba_crash_func(); \
 	} \
 	tmp->size_bytes = eba->size_bytes; \
-	Eba_memcpy(tmp->bits, eba->bits, eba->size_bytes)
+	Eba_memcpy(tmp->bits, eba->bits, eba->size_bytes); \
+	} while (0)
 
 #if Eba_need_endian
-#define Eba_copy_on_stack(eba, tmp, eba_crash_func) \
+#define Eba_copy_on_stack(eba, tmp, eba_crash_func) do {\
 	Eba_copy_on_stack_inner(eba, tmp, eba_crash_func); \
-	tmp->endian = eba->endian
+	tmp->endian = eba->endian; \
+	} while (0)
 #else
 #define Eba_copy_on_stack(eba, tmp, eba_crash_func) \
 	Eba_copy_on_stack_inner(eba, tmp, eba_crash_func)
 #endif
 
-#define Eba_free_stack_copy(tmp) \
-	if (tmp) { Eba_stack_free(tmp->bits, tmp->size_bytes); } \
-	Eba_stack_free(tmp, sizeof(struct eba_s))
+#define Eba_free_stack_copy(tmp) do { \
+	if (tmp) { \
+		Eba_stack_free(tmp->bits, tmp->size_bytes); \
+		Eba_stack_free(tmp, sizeof(struct eba_s)); \
+	} \
+	} while (0)
 
 enum eba_shift_fill_val {
 	eba_fill_zero = 0,
