@@ -121,6 +121,11 @@ int test_shift_fill(int verbose, unsigned char fill, enum eba_endian endian)
 int test_shift_right(int verbose, enum eba_endian endian, unsigned char *in,
 		     size_t len, unsigned shift_amount,
 		     const unsigned char *expected)
+#else
+int test_shift_right(int verbose, unsigned char *in,
+		     size_t len, unsigned shift_amount,
+		     const unsigned char *expected)
+#endif
 {
 	int failures;
 
@@ -131,7 +136,9 @@ int test_shift_right(int verbose, enum eba_endian endian, unsigned char *in,
 
 	eba.bits = in;
 	eba.size_bytes = len;
+#if Eba_need_endian
 	eba.endian = endian;
+#endif
 
 	eba_shift_right(&eba, shift_amount);
 
@@ -143,7 +150,6 @@ int test_shift_right(int verbose, enum eba_endian endian, unsigned char *in,
 
 	return failures;
 }
-#endif
 
 int main(int argc, char **argv)
 {
@@ -170,7 +176,6 @@ int main(int argc, char **argv)
 	}
 
 #if Eba_need_endian
-
 	memset(in, 0x00, len);
 	memset(out, 0x00, len);
 	in[18] = 0x03;
@@ -178,14 +183,19 @@ int main(int argc, char **argv)
 	out[19] = 0x30;
 	failures +=
 	    test_shift_right(v, eba_big_endian, in, len, shift_amount, out);
+#endif
 
 	memset(in, 0x00, len);
 	memset(out, 0x00, len);
 	in[18] = 0x03;
 	shift_amount = 4;
 	out[17] = 0x30;
+#if Eba_need_endian
 	failures +=
 	    test_shift_right(v, eba_endian_little, in, len, shift_amount, out);
+#else
+	failures += test_shift_right(v, in, len, shift_amount, out);
+#endif
 
 	memset(in, 0x00, len);
 	memset(out, 0x00, len);
@@ -193,8 +203,11 @@ int main(int argc, char **argv)
 	in[17] = 0x03;
 	in[18] = 0x05;
 	shift_amount = (len * CHAR_BIT) + 7;
+#if Eba_need_endian
 	failures +=
 	    test_shift_right(v, eba_endian_little, in, len, shift_amount, out);
+#else
+	failures += test_shift_right(v, in, len, shift_amount, out);
 #endif
 
 	if (failures) {

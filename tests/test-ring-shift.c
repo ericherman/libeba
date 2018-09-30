@@ -21,7 +21,6 @@ int test_ring_shift(int verbose, enum eba_endian endian)
 #endif
 {
 	int failures;
-	size_t i;
 	unsigned char bytes[10];
 	unsigned char start[10];
 	unsigned char middle[10];
@@ -31,11 +30,9 @@ int test_ring_shift(int verbose, enum eba_endian endian)
 	VERBOSE_ANNOUNCE(verbose);
 	failures = 0;
 
-	for (i = 0; i < 10; ++i) {
-		bytes[i] = 0;
-		start[i] = 0;
-		middle[i] = 0;
-	}
+	memset(bytes, 0x00, 10);
+	memset(start, 0x00, 10);
+	memset(middle, 0x00, 10);
 
 	eba.bits = bytes;
 	eba.size_bytes = 10;
@@ -72,9 +69,7 @@ int test_ring_shift(int verbose, enum eba_endian endian)
 	}
 #endif
 
-	for (i = 0; i < 10; ++i) {
-		bytes[i] = start[i];
-	}
+	memcpy(bytes, start, 10);
 
 	eba_ring_shift_left(&eba, shift_amount);
 
