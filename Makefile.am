@@ -67,6 +67,8 @@ check_PROGRAMS=\
  test-set \
  test-set-all \
  test-swap \
+ test-shift-left \
+ test-shift-right \
  test-shift-fill \
  test-ring-shift \
  test-toggle
@@ -95,6 +97,12 @@ test_ring_shift_LDADD=$(TEST_LDADDS)
 
 test_shift_fill_SOURCES=tests/test-shift-fill.c $(COMMON_TEST_SOURCES)
 test_shift_fill_LDADD=$(TEST_LDADDS)
+
+test_shift_left_SOURCES=tests/test-shift-left.c $(COMMON_TEST_SOURCES)
+test_shift_left_LDADD=$(TEST_LDADDS)
+
+test_shift_right_SOURCES=tests/test-shift-right.c $(COMMON_TEST_SOURCES)
+test_shift_right_LDADD=$(TEST_LDADDS)
 
 test_toggle_SOURCES=tests/test-toggle.c $(COMMON_TEST_SOURCES)
 test_toggle_LDADD=$(TEST_LDADDS)
@@ -141,6 +149,8 @@ valgrind: $(check_PROGRAMS)
 	libtool --mode=execute valgrind -q ./test-set
 	libtool --mode=execute valgrind -q ./test-set-all
 	libtool --mode=execute valgrind -q ./test-swap
+	libtool --mode=execute valgrind -q ./test-shift-left
+	libtool --mode=execute valgrind -q ./test-shift-right
 	libtool --mode=execute valgrind -q ./test-shift-fill
 	libtool --mode=execute valgrind -q ./test-ring-shift
 	libtool --mode=execute valgrind -q ./test-toggle

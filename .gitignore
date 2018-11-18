@@ -3,6 +3,8 @@ test-set
 test-set-all
 test-swap
 test-toggle
+test-shift-left
+test-shift-right
 test-shift-fill
 test-ring-shift
 sieve-of-eratosthenes
