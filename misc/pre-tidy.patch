@@ -12,7 +12,7 @@
  
  #ifndef EBA_SKIP_ENDIAN
  #define EBA_SKIP_ENDIAN 0
-@@ -369,8 +371,10 @@
+@@ -371,8 +373,10 @@
  
  #endif /* Eba_log_error0 */
  

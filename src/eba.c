@@ -485,3 +485,54 @@ static void *eba_diy_memset(void *dest, int val, size_t n)
 	return dest;
 }
 #endif
+
+char *eba_to_string(struct eba_s *eba, char *buf, size_t len)
+{
+	size_t i, pos, size_bits;
+
+	if (!buf) {
+		return NULL;
+	}
+	if (!len) {
+		return NULL;
+	}
+	buf[0] = '\0';
+
+	if (Is_eba_null(eba)) {
+		return buf;
+	}
+
+	size_bits = eba->size_bytes * EBA_CHAR_BIT;
+	pos = 0;
+
+#if Eba_need_endian
+	if (eba->endian == eba_endian_little) {
+#endif
+		for (i = 0; pos < (len - 1) && i < size_bits; ++i) {
+			buf[pos++] = eba_get(eba, i) ? '1' : '0';
+			if (i % 8 == 0 && i > 0 && i < (size_bits - 1)
+			    && pos < (len - 1)) {
+				buf[pos++] = ' ';
+			}
+		}
+#if Eba_need_endian
+	} else {
+		for (i = size_bits; pos < (len - 1) && i; --i) {
+			buf[pos++] = eba_get(eba, (i - 1)) ? '1' : '0';
+			if ((size_bits - i) % 8 == 0 && i != size_bits
+			    && (i - 1) && pos < (len - 1)) {
+				buf[pos++] = ' ';
+			}
+		}
+	}
+#endif
+	if (pos < len) {
+		buf[pos] = '\0';
+	} else {
+		if (len > 1) {
+			buf[len - 2] = '!';
+		}
+		buf[len - 1] = '\0';
+	}
+	return buf;
+}

@@ -139,6 +139,8 @@ struct eba_s {
 #endif
 };
 
+char *eba_to_string(struct eba_s *eba, char *buf, size_t len);
+
 void eba_set(struct eba_s *eba, unsigned long index, unsigned char val);
 
 unsigned char eba_get(struct eba_s *eba, unsigned long index);
