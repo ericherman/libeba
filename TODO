@@ -1,0 +1,6 @@
+* rework little endian shifting to not require bytes[] reversals
+* consider a #define or typedef a type for eba_size_bits
+  - size_t is the longest an array can be, and can be smaller than uint32_t
+  - however the number of bits = (size_bytes * CHAR_BIT)
+  - if a the embedded machine has size_t of 2^16, and we have 2^10 of that
+    in a giant bit field, then size_bits will be 2^18 (larger than size_t)
