@@ -1,3 +1,10 @@
+2018-11-20  Eric Herman <eric@freesa.org>
+
+	shift right/left now are byte-wise rather than bitwise
+
+	* src/eba.c: eba_to_string, improve shift performance
+
+
 2018-09-29  Eric Herman <eric@freesa.org>
 
 	shift right/left greater than number of bits should just fill
