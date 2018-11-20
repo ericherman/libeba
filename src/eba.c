@@ -31,14 +31,6 @@ static void eba_do_stack_free(void *ptr, size_t size);
 static void eba_no_stack_free(void *ptr, size_t size);
 #endif
 
-#if Eba_need_diy_memcpy
-static void *eba_diy_memcpy(void *dest, const void *src, size_t n);
-#endif
-
-#if Eba_need_diy_memset
-static void *eba_diy_memset(void *dest, int val, size_t n);
-#endif
-
 static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
 					 size_t *byte, unsigned char *offset);
 
@@ -624,7 +616,7 @@ static void eba_no_stack_free(void *ptr, size_t size)
 #endif
 
 #if Eba_need_diy_memcpy
-static void *eba_diy_memcpy(void *dest, const void *src, size_t n)
+void *eba_diy_memcpy(void *dest, const void *src, size_t n)
 {
 	unsigned char *d;
 	const unsigned char *s;
@@ -641,7 +633,7 @@ static void *eba_diy_memcpy(void *dest, const void *src, size_t n)
 #endif
 
 #if Eba_need_diy_memset
-static void *eba_diy_memset(void *dest, int val, size_t n)
+void *eba_diy_memset(void *dest, int val, size_t n)
 {
 	unsigned char *d;
 	unsigned char v;

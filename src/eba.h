@@ -202,7 +202,7 @@ void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
 
 #ifndef Eba_memset
 #if (EBA_DIY_MEMSET || EBA_SKIP_LIBC)
-#define Eba_need_diy_memset Eba_need_set_all
+#define Eba_need_diy_memset 1
 #define Eba_memset eba_diy_memset
 #else
 #include <string.h>
@@ -213,6 +213,10 @@ void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
 
 #ifndef Eba_need_diy_memset
 #define Eba_need_diy_memset 0
+#endif
+
+#if Eba_need_diy_memset
+void *eba_diy_memset(void *dest, int val, size_t n);
 #endif
 
 /**********************************************************************/
@@ -227,7 +231,7 @@ void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
 
 #ifndef Eba_memcpy
 #if ((EBA_DIY_MEMCPY) || EBA_SKIP_LIBC)
-#define Eba_need_diy_memcpy Eba_need_shifts
+#define Eba_need_diy_memcpy 1
 #define Eba_memcpy eba_diy_memcpy
 #else
 #include <string.h>
@@ -238,6 +242,10 @@ void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
 
 #ifndef Eba_need_diy_memcpy
 #define Eba_need_diy_memcpy 0
+#endif
+
+#if Eba_need_diy_memcpy
+void *eba_diy_memcpy(void *dest, const void *src, size_t n);
 #endif
 
 /**********************************************************************/

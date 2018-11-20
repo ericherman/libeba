@@ -2,9 +2,12 @@
 
 	make default endian-ness be eba_big_endian
 	add eba_to_string
+	Eba_memset and Eba_memcpy can be used externally in embedded
+	projects now that the eba_diy_ versions are non-static
 	improve shift performance (shift right/left now are byte-wise
 	rather than bitwise)
 
+	* src/eba.h: eba_to_string, eba_diy_memset, eba_diy_memcpy
 	* src/eba.c: eba_to_string, improve shift performance
 	* tests/test-get.c: default eba_big_endian
 	* tests/test-ring-shift.c: default eba_big_endian
