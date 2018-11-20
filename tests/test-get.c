@@ -14,6 +14,7 @@ License for more details.
 */
 #include "eba-test-private-utils.h"
 
+#if Eba_need_endian
 int test_get_el(int verbose)
 {
 	int failures;
@@ -30,9 +31,7 @@ int test_get_el(int verbose)
 
 	eba.bits = bytes;
 	eba.size_bytes = 10;
-#if Eba_need_endian
 	eba.endian = eba_endian_little;
-#endif
 
 	bytes[0] = 4;
 	bytes[1] = 6;
@@ -135,8 +134,8 @@ int test_get_el(int verbose)
 
 	return failures;
 }
+#endif
 
-#if Eba_need_endian
 int test_get_be(int verbose)
 {
 	int failures;
@@ -256,7 +255,6 @@ int test_get_be(int verbose)
 
 	return failures;
 }
-#endif
 
 int main(int argc, char **argv)
 {
@@ -266,9 +264,9 @@ int main(int argc, char **argv)
 
 	failures = 0;
 
-	failures += test_get_el(v);
-#if Eba_need_endian
 	failures += test_get_be(v);
+#if Eba_need_endian
+	failures += test_get_el(v);
 #endif
 
 	if (failures) {

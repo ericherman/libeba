@@ -54,7 +54,6 @@ int test_shift_fill(int verbose, unsigned char fill, enum eba_endian endian)
 	shift_amount = 19;
 #if Eba_need_endian
 	if (endian == eba_endian_little) {
-#endif
 		if (fill) {
 			middle[0] |= 0xFF;
 			middle[1] |= 0xFF;
@@ -74,8 +73,8 @@ int test_shift_fill(int verbose, unsigned char fill, enum eba_endian endian)
 			end[8] = 0xFF;
 			end[7] = (end[7] | (1U << 5) | (1U << 6) | (1U << 7));
 		}
-#if Eba_need_endian
 	} else {
+#endif
 		if (fill) {
 			middle[9] |= 0xFF;
 			middle[8] |= 0xFF;
@@ -95,6 +94,7 @@ int test_shift_fill(int verbose, unsigned char fill, enum eba_endian endian)
 			end[1] = 0xFF;
 			end[2] = (end[7] | (1U << 5) | (1U << 6) | (1U << 7));
 		}
+#if Eba_need_endian
 	}
 #endif
 
@@ -175,39 +175,37 @@ int main(int argc, char **argv)
 #endif
 	}
 
-#if Eba_need_endian
 	memset(in, 0x00, len);
 	memset(out, 0x00, len);
 	in[18] = 0x03;
 	shift_amount = 4;
 	out[19] = 0x30;
+#if Eba_need_endian
 	failures +=
 	    test_shift_right(v, eba_big_endian, in, len, shift_amount, out);
+#else
+	failures += test_shift_right(v, in, len, shift_amount, out);
 #endif
 
+#if Eba_need_endian
 	memset(in, 0x00, len);
 	memset(out, 0x00, len);
 	in[18] = 0x03;
 	shift_amount = 4;
 	out[17] = 0x30;
-#if Eba_need_endian
 	failures +=
 	    test_shift_right(v, eba_endian_little, in, len, shift_amount, out);
-#else
-	failures += test_shift_right(v, in, len, shift_amount, out);
 #endif
 
+#if Eba_need_endian
 	memset(in, 0x00, len);
 	memset(out, 0x00, len);
 	in[12] = 0x13;
 	in[17] = 0x03;
 	in[18] = 0x05;
 	shift_amount = (len * CHAR_BIT) + 7;
-#if Eba_need_endian
 	failures +=
 	    test_shift_right(v, eba_endian_little, in, len, shift_amount, out);
-#else
-	failures += test_shift_right(v, in, len, shift_amount, out);
 #endif
 
 	if (failures) {

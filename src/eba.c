@@ -302,11 +302,11 @@ static void eba_inner_shift_right(struct eba_s *eba, unsigned long positions,
 	}
 #if Eba_need_endian
 	if (eba->endian == eba_endian_little) {
-#endif
 		eba_inner_shift_right_el(eba, positions, fill);
-#if Eba_need_endian
 	} else {
+#endif
 		eba_inner_shift_right_be(eba, positions, fill);
+#if Eba_need_endian
 	}
 #endif
 }
@@ -444,11 +444,11 @@ static void eba_inner_shift_left(struct eba_s *eba, unsigned long positions,
 	}
 #if Eba_need_endian
 	if (eba->endian == eba_endian_little) {
-#endif
 		eba_inner_shift_left_el(eba, positions, fill);
-#if Eba_need_endian
 	} else {
+#endif
 		eba_inner_shift_left_be(eba, positions, fill);
+#if Eba_need_endian
 	}
 #endif
 }
@@ -495,7 +495,7 @@ void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
 struct eba_s *eba_new_endian(unsigned long num_bits, enum eba_endian endian)
 #else
 struct eba_s *eba_new(unsigned long num_bits)
-#endif				/* Eba_need_endian */
+#endif
 {
 	struct eba_s *eba;
 
@@ -528,7 +528,7 @@ struct eba_s *eba_new(unsigned long num_bits)
 #if Eba_need_endian
 struct eba_s *eba_new(unsigned long num_bits)
 {
-	return eba_new_endian(num_bits, eba_endian_little);
+	return eba_new_endian(num_bits, eba_big_endian);
 }
 #endif
 
@@ -589,7 +589,9 @@ static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
 
 #if Eba_need_endian
 	if (eba->endian == eba_big_endian) {
+#endif
 		*byte = (eba->size_bytes - 1) - (*byte);
+#if Eba_need_endian
 	}
 #endif
 
@@ -677,7 +679,6 @@ char *eba_to_string(struct eba_s *eba, char *buf, size_t len)
 
 #if Eba_need_endian
 	if (eba->endian == eba_endian_little) {
-#endif
 		for (i = 0; pos < (len - 1) && i < size_bits; ++i) {
 			++done;
 			buf[pos++] = eba_get(eba, i) ? '1' : '0';
@@ -686,8 +687,8 @@ char *eba_to_string(struct eba_s *eba, char *buf, size_t len)
 				buf[pos++] = ' ';
 			}
 		}
-#if Eba_need_endian
 	} else {
+#endif
 		for (i = size_bits; pos < (len - 1) && i; --i) {
 			++done;
 			buf[pos++] = eba_get(eba, (i - 1)) ? '1' : '0';
@@ -695,6 +696,7 @@ char *eba_to_string(struct eba_s *eba, char *buf, size_t len)
 				buf[pos++] = ' ';
 			}
 		}
+#if Eba_need_endian
 	}
 #endif
 	if ((pos < len) && (done == size_bits)) {

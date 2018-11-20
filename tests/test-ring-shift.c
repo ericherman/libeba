@@ -48,14 +48,13 @@ int test_ring_shift(int verbose, enum eba_endian endian)
 	shift_amount = 19;
 #if Eba_need_endian
 	if (endian == eba_endian_little) {
-#endif
 		middle[0] = ((1U << 3) | (1U << 6));
 		middle[1] = ((1U << 0) | (1U << 3) | (1U << 7));
 		middle[2] = (1U << 2);
 		middle[3] = (1U << 5);
 		middle[5] = (1U << 3);
-#if Eba_need_endian
 	} else {
+#endif
 		middle[0] = 0x00;
 		middle[1] = 0x08;
 		middle[2] = 0x00;
@@ -66,6 +65,7 @@ int test_ring_shift(int verbose, enum eba_endian endian)
 		middle[7] = 0x88;
 		middle[8] = 0x00;
 		middle[9] = 0x20;
+#if Eba_need_endian
 	}
 #endif
 
@@ -86,7 +86,8 @@ int test_ring_shift(int verbose, enum eba_endian endian)
 	return failures;
 }
 
-int test_simple_ring_shift(int verbose)
+#if Eba_need_endian
+int test_simple_ring_shift_le(int verbose)
 {
 	int failures;
 	size_t i;
@@ -107,9 +108,7 @@ int test_simple_ring_shift(int verbose)
 
 	eba.bits = bytes;
 	eba.size_bytes = 2;
-#if Eba_need_endian
 	eba.endian = eba_endian_little;
-#endif
 
 	start[0] = 5;
 	start[1] = 8;
@@ -136,6 +135,7 @@ int test_simple_ring_shift(int verbose)
 
 	return failures;
 }
+#endif
 
 int main(int argc, char **argv)
 {
@@ -145,13 +145,12 @@ int main(int argc, char **argv)
 
 	failures = 0;
 
-	failures += test_simple_ring_shift(v);
-
-#if EBA_SKIP_ENDIAN
-	failures += test_ring_shift(v);
-#else
+#if Eba_need_endian
+	failures += test_simple_ring_shift_le(v);
 	failures += test_ring_shift(v, eba_endian_little);
 	failures += test_ring_shift(v, eba_big_endian);
+#else
+	failures += test_ring_shift(v);
 #endif
 
 	if (failures) {

@@ -42,17 +42,17 @@ int test_set(int verbose, enum eba_endian endian)
 
 #if Eba_need_endian
 	if (endian == eba_big_endian) {
+#endif
 		expected[9] = 4;
 		expected[8] = 6;
 		expected[3] = 255;
 		expected[1] = 251;
+#if Eba_need_endian
 	} else {
-#endif
 		expected[0] = 4;
 		expected[1] = 6;
 		expected[6] = 255;
 		expected[8] = 251;
-#if Eba_need_endian
 	}
 #endif
 

@@ -124,7 +124,7 @@ tidy:
 	patch -Rp1 -i misc/pre-tidy.patch
 
 sieve-of-eratosthenes: $(libeba_la_SOURCES) demos/sieve-of-eratosthenes.c
-	$(CC) $(CSTD_CFLAGS) $(DEBUG_CFLAGS) $(NOISY_CFLAGS) \
+	$(CC) $(CSTD_CFLAGS) $(BUILD_TYPE_CFLAGS) $(NOISY_CFLAGS) \
 		-Wno-unused-parameter \
 		-DEBA_SKIP_ENDIAN=1 \
 		-DEBA_SKIP_SHIFTS=1 \

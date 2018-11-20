@@ -53,21 +53,21 @@ int test_shift_left(int verbose, uint16_t u16, uint8_t shift_val,
 	expect_val = (u16 << shift_val);
 #if Eba_need_endian
 	if (endian == eba_endian_little) {
-#endif
 		bytes[0] = u16 & 0xFF;
 		bytes[1] = (u16 >> 8) & 0xFF;
 
 		expect_bytes[0] = expect_val & 0xFF;
 		expect_bytes[1] = (expect_val >> 8) & 0xFF;
 		eba_to_string(&expect, expect_buf, 40);
-#if Eba_need_endian
 	} else {
+#endif
 		bytes[1] = u16 & 0xFF;
 		bytes[0] = (u16 >> 8) & 0xFF;
 
 		expect_bytes[1] = expect_val & 0xFF;
 		expect_bytes[0] = (expect_val >> 8) & 0xFF;
 		eba_to_string(&expect, expect_buf, 40);
+#if Eba_need_endian
 	}
 #endif
 

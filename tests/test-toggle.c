@@ -42,8 +42,8 @@ int test_toggle(int verbose, enum eba_endian endian)
 	expected[(endian == eba_big_endian) ? 0 : 1] =
 	    ((1U << (9 - 8)) | (1U << (10 - 8)));
 #else
-	expected[0] = (1U << 7);
-	expected[1] = ((1U << (9 - 8)) | (1U << (10 - 8)));
+	expected[1] = (1U << 7);
+	expected[0] = ((1U << (9 - 8)) | (1U << (10 - 8)));
 #endif
 
 	failures += check_int(eba_get(&eba, 0), 0);
