@@ -28,7 +28,11 @@ static void eba_do_stack_free(void *ptr, size_t size);
 #endif
 
 #if Eba_need_no_stack_free
+#if (!(NDEBUG))
 static void eba_no_stack_free(void *ptr, size_t size);
+#else
+#define eba_no_stack_free(ptr, size) ((void)0)
+#endif /* (!(NDEBUG)) */
 #endif
 
 static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
@@ -603,15 +607,13 @@ static void eba_do_stack_free(void *ptr, size_t size)
 }
 #endif
 
-#if Eba_need_no_stack_free
+#if ((Eba_need_no_stack_free) && (!(NDEBUG)))
 static void eba_no_stack_free(void *ptr, size_t size)
 {
-#ifndef NDEBUG
 	if (size == 0) {
 		Eba_log_error2("size is 0? (%p, %lu)\n", ptr,
 			       (unsigned long)size);
 	}
-#endif /* NDEBUG */
 }
 #endif
 
