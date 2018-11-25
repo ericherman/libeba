@@ -81,6 +81,64 @@ int test_shift_left(int verbose, uint16_t u16, uint8_t shift_val,
 	return failures;
 }
 
+#if EBA_SKIP_ENDIAN
+int test_shift_left_bug(int verbose)
+#else
+int test_shift_left_bug(int verbose, enum eba_endian endian)
+#endif
+{
+	int failures;
+	unsigned char bytes[20];
+	unsigned char expect_bytes[20];
+	struct eba_s eba;
+	struct eba_s expect;
+	char msg[1024];
+	char eba_buf[255];
+	char expect_buf[255];
+
+	VERBOSE_ANNOUNCE(verbose);
+	failures = 0;
+	msg[0] = '\0';
+	eba_buf[0] = '\0';
+	expect_buf[0] = '\0';
+
+	eba.bits = bytes;
+	eba.size_bytes = 20;
+	memset(eba.bits, 0x00, eba.size_bytes);
+#if Eba_need_endian
+	eba.endian = endian;
+#endif
+	expect.bits = expect_bytes;
+	expect.size_bytes = 20;
+	memset(expect.bits, 0x00, expect.size_bytes);
+#if Eba_need_endian
+	expect.endian = endian;
+#endif
+
+#if Eba_need_endian
+	if (endian == eba_endian_little) {
+		bytes[0] = 0x03;
+		expect_bytes[1] = 0x03;
+		eba_to_string(&expect, expect_buf, 255);
+	} else {
+#endif
+		bytes[eba.size_bytes - 1] = 0x03;
+		expect_bytes[expect.size_bytes - 2] = 0x03;
+		eba_to_string(&expect, expect_buf, 255);
+#if Eba_need_endian
+	}
+#endif
+
+	eba_shift_left(&eba, EBA_CHAR_BIT);
+	eba_to_string(&eba, eba_buf, 255);
+
+	sprintf(msg, "%u << %u == %u (0b%s)", (unsigned)0x03,
+		(unsigned)EBA_CHAR_BIT, (unsigned)0x0300, expect_buf);
+	failures += check_str_m(eba_buf, expect_buf, msg);
+
+	return failures;
+}
+
 int main(int argc, char **argv)
 {
 	int v, failures;
@@ -104,5 +162,11 @@ int main(int argc, char **argv)
 		}
 	}
 
+#if EBA_SKIP_ENDIAN
+	failures += test_shift_left_bug(v);
+#else
+	failures += test_shift_left_bug(v, eba_big_endian);
+	failures += test_shift_left_bug(v, eba_endian_little);
+#endif
 	return cap_failures(failures);
 }

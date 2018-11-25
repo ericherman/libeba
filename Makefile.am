@@ -145,12 +145,12 @@ spotless:
 	pushd tests && rm -rf `cat ../.gitignore | sed -e 's/#.*//'`; popd
 
 valgrind: $(check_PROGRAMS)
-	libtool --mode=execute valgrind -q ./test-get
-	libtool --mode=execute valgrind -q ./test-set
-	libtool --mode=execute valgrind -q ./test-set-all
-	libtool --mode=execute valgrind -q ./test-swap
-	libtool --mode=execute valgrind -q ./test-shift-left
-	libtool --mode=execute valgrind -q ./test-shift-right
-	libtool --mode=execute valgrind -q ./test-shift-fill
-	libtool --mode=execute valgrind -q ./test-ring-shift
-	libtool --mode=execute valgrind -q ./test-toggle
+	./libtool --mode=execute valgrind -q ./test-get
+	./libtool --mode=execute valgrind -q ./test-set
+	./libtool --mode=execute valgrind -q ./test-set-all
+	./libtool --mode=execute valgrind -q ./test-swap
+	./libtool --mode=execute valgrind -q ./test-shift-left
+	./libtool --mode=execute valgrind -q ./test-shift-right
+	./libtool --mode=execute valgrind -q ./test-shift-fill
+	./libtool --mode=execute valgrind -q ./test-ring-shift
+	./libtool --mode=execute valgrind -q ./test-toggle

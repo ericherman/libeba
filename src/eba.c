@@ -335,10 +335,10 @@ static void eba_inner_shift_left_be(struct eba_s *eba, unsigned long positions,
 	Eba_create_2x_eba_on_stack(eba, tmp, Eba_crash);
 	switch (fill) {
 	case eba_fill_zero:
-		Eba_memset(tmp->bits + eba->size_bytes, 0, tmp->size_bytes);
+		Eba_memset(tmp->bits + eba->size_bytes, 0, eba->size_bytes);
 		break;
 	case eba_fill_one:
-		Eba_memset(tmp->bits + eba->size_bytes, -1, tmp->size_bytes);
+		Eba_memset(tmp->bits + eba->size_bytes, -1, eba->size_bytes);
 		break;
 	case eba_fill_ring:
 		Eba_memcpy(tmp->bits + eba->size_bytes, eba->bits,
