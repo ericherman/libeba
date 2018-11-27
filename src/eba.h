@@ -268,18 +268,18 @@ void *eba_diy_memcpy(void *dest, const void *src, size_t n);
 #ifndef Eba_stack_alloc
 #if ((Eba_use_libc) && (EBA_NO_ALLOCA || __STDC_NO_VLA__))
 #include <stdlib.h>
-#define Eba_stack_alloc malloc
+#define Eba_stack_alloc(len) malloc(len)
 #define Eba_stack_alloc_str "malloc"
 #define Eba_need_do_stack_free 1
 #define Eba_need_no_stack_free 0
-#define Eba_stack_free eba_do_stack_free
+#define Eba_stack_free(p, len) eba_do_stack_free(p, len)
 #else /* ((Eba_use_libc) && (EBA_NO_ALLOCA || __STDC_NO_VLA__)) */
 #include <alloca.h>
-#define Eba_stack_alloc alloca
+#define Eba_stack_alloc(len) alloca(len)
 #define Eba_stack_alloc_str "alloca"
 #define Eba_need_no_stack_free 1
 #define Eba_need_do_stack_free 0
-#define Eba_stack_free eba_no_stack_free
+#define Eba_stack_free(p, len) eba_no_stack_free(p, len)
 #endif /* ((Eba_use_libc) && (EBA_NO_ALLOCA || __STDC_NO_VLA__)) */
 #endif /* Eba_stack_alloc */
 #else /* Eba_need_shifts */
@@ -310,9 +310,9 @@ void eba_free(struct eba_s *eba);
 
 #ifndef Eba_alloc
 #include <stdlib.h>
-#define Eba_alloc malloc
+#define Eba_alloc(len) malloc(len)
 #define Eba_alloc_str "malloc"
-#define Eba_free free
+#define Eba_free(len) free(len)
 #endif
 
 #ifndef Eba_alloc_str
