@@ -111,13 +111,13 @@ void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2)
 
 /* since we are allocating on the stack, this can not be a function
    and thus must be a macro such that it exists in the same stack frame */
-#define Eba_create_2x_eba_on_stack_inner(eba, tmp, eba_crash_func) do { \
+#define Eba_create_2x_eba_on_stack_inner(eba, tmp) do { \
 	tmp = (struct eba_s *)Eba_stack_alloc(sizeof(struct eba_s)); \
 	if (!tmp) { \
 		Eba_log_error2("could not %s %lu bytes?\n",\
 			       Eba_stack_alloc_str, \
 			       (unsigned long)sizeof(struct eba_s)); \
-		eba_crash_func(); \
+		Eba_crash(); \
 	} \
 	tmp->size_bytes = 0;	/* not really needed, just clarity */ \
 	tmp->bits = (unsigned char *)Eba_stack_alloc(2 * eba->size_bytes); \
@@ -129,20 +129,20 @@ void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2)
 		/* Eba_crash may be implemented something like: */ \
 		/* { GlobalErr = 1; return; } */ \
 		Eba_stack_free(tmp, sizeof(struct eba_s)); \
-		eba_crash_func(); \
+		Eba_crash(); \
 	} \
 	tmp->size_bytes = 2 * eba->size_bytes; \
 	/* Eba_memset(tmp->bits, 0, tmp->size_bytes); */ \
 	} while (0)
 
 #if Eba_need_endian
-#define Eba_create_2x_eba_on_stack(eba, tmp, eba_crash_func) do {\
-	Eba_create_2x_eba_on_stack_inner(eba, tmp, eba_crash_func); \
+#define Eba_create_2x_eba_on_stack(eba, tmp) do {\
+	Eba_create_2x_eba_on_stack_inner(eba, tmp); \
 	tmp->endian = eba->endian; \
 	} while (0)
 #else
-#define Eba_create_2x_eba_on_stack(eba, tmp, eba_crash_func) \
-	Eba_create_2x_eba_on_stack_inner(eba, tmp, eba_crash_func)
+#define Eba_create_2x_eba_on_stack(eba, tmp) \
+	Eba_create_2x_eba_on_stack_inner(eba, tmp)
 #endif
 
 #define Eba_free_stack_copy(tmp) do { \
@@ -195,7 +195,7 @@ static void eba_inner_shift_right_be(struct eba_s *eba, unsigned long positions,
 		}
 	}
 
-	Eba_create_2x_eba_on_stack(eba, tmp, Eba_crash);
+	Eba_create_2x_eba_on_stack(eba, tmp);
 	switch (fill) {
 	case eba_fill_zero:
 		Eba_memset(tmp->bits, 0, eba->size_bytes);
@@ -255,7 +255,7 @@ static void eba_inner_shift_right_el(struct eba_s *eba, unsigned long positions,
 		}
 	}
 
-	Eba_create_2x_eba_on_stack(eba, tmp, Eba_crash);
+	Eba_create_2x_eba_on_stack(eba, tmp);
 	switch (fill) {
 	case eba_fill_zero:
 		Eba_memset(tmp->bits + eba->size_bytes, 0, eba->size_bytes);
@@ -336,7 +336,7 @@ static void eba_inner_shift_left_be(struct eba_s *eba, unsigned long positions,
 		}
 	}
 
-	Eba_create_2x_eba_on_stack(eba, tmp, Eba_crash);
+	Eba_create_2x_eba_on_stack(eba, tmp);
 	switch (fill) {
 	case eba_fill_zero:
 		Eba_memset(tmp->bits + eba->size_bytes, 0, eba->size_bytes);
@@ -398,7 +398,7 @@ static void eba_inner_shift_left_el(struct eba_s *eba, unsigned long positions,
 		}
 	}
 
-	Eba_create_2x_eba_on_stack(eba, tmp, Eba_crash);
+	Eba_create_2x_eba_on_stack(eba, tmp);
 	switch (fill) {
 	case eba_fill_zero:
 		Eba_memset(tmp->bits, 0, eba->size_bytes);
