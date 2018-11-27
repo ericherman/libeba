@@ -39,10 +39,18 @@ static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
 					 size_t *byte, unsigned char *offset);
 
 #define Get_byte_and_offset(eba, index, byte, offset) \
- if (get_byte_and_offset(eba, index, byte, offset)) { Eba_crash(); }
+	do { \
+		if (get_byte_and_offset(eba, index, byte, offset)) { \
+			Eba_crash(); \
+		} \
+	} while (0)
 
 #define Get_byte_and_offset_uc(eba, index, byte, offset) \
- if (get_byte_and_offset(eba, index, byte, offset)) { Eba_crash_uc(); }
+	do { \
+		if (get_byte_and_offset(eba, index, byte, offset)) { \
+			Eba_crash_uc(); \
+		} \
+	} while (0)
 
 #if Eba_need_global_log_file
 FILE *eba_global_log_file = NULL;
