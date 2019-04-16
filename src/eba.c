@@ -15,13 +15,7 @@ License for more details.
 
 #include "eba.h"
 
-#if ((EBA_SKIP_STRUCT_NULL_CHECK) && (EBA_SKIP_STRUCT_BITS_NULL_CHECK))
-#define Is_eba_null(eba) (0)
-#else
-#define Is_eba_null(eba) is_eba_null(eba)
-#define Eba_need_is_eba_null 1
 static unsigned char is_eba_null(struct eba_s *eba);
-#endif
 
 #if Eba_need_do_stack_free
 static void eba_do_stack_free(void *ptr, size_t size);
@@ -88,7 +82,7 @@ void eba_set_all(struct eba_s *eba, unsigned char val)
 {
 	int all_vals;
 
-	if (Is_eba_null(eba)) {
+	if (is_eba_null(eba)) {
 		Eba_crash();
 	}
 
@@ -159,6 +153,11 @@ void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2)
 		Eba_stack_free(tmp, sizeof(struct eba_s)); \
 	} \
 	} while (0)
+
+static int eba_is_endian_little(struct eba_s *eba)
+{
+	return (Eba_need_endian && eba->endian == eba_endian_little) ? 1 : 0;
+}
 
 enum eba_shift_fill_val {
 	eba_fill_zero = 0,
@@ -244,7 +243,7 @@ static void eba_inner_shift_right_el(struct eba_s *eba, unsigned long positions,
 	unsigned int u16_a, u16_b;
 	struct eba_s *tmp;
 
-	if (Is_eba_null(eba)) {
+	if (is_eba_null(eba)) {
 		Eba_crash();
 	}
 
@@ -301,18 +300,14 @@ static void eba_inner_shift_right_el(struct eba_s *eba, unsigned long positions,
 static void eba_inner_shift_right(struct eba_s *eba, unsigned long positions,
 				  enum eba_shift_fill_val fill)
 {
-	if (Is_eba_null(eba)) {
+	if (is_eba_null(eba)) {
 		Eba_crash();
 	}
-#if Eba_need_endian
-	if (eba->endian == eba_endian_little) {
+	if (eba_is_endian_little(eba)) {
 		eba_inner_shift_right_el(eba, positions, fill);
 	} else {
-#endif
 		eba_inner_shift_right_be(eba, positions, fill);
-#if Eba_need_endian
 	}
-#endif
 }
 
 static void eba_inner_shift_left_be(struct eba_s *eba, unsigned long positions,
@@ -325,7 +320,7 @@ static void eba_inner_shift_left_be(struct eba_s *eba, unsigned long positions,
 	unsigned int u16_a, u16_b;
 	struct eba_s *tmp;
 
-	if (Is_eba_null(eba)) {
+	if (is_eba_null(eba)) {
 		Eba_crash();
 	}
 
@@ -386,7 +381,7 @@ static void eba_inner_shift_left_el(struct eba_s *eba, unsigned long positions,
 	unsigned int u16_a, u16_b;
 	struct eba_s *tmp;
 
-	if (Is_eba_null(eba)) {
+	if (is_eba_null(eba)) {
 		Eba_crash();
 	}
 
@@ -443,18 +438,14 @@ static void eba_inner_shift_left_el(struct eba_s *eba, unsigned long positions,
 static void eba_inner_shift_left(struct eba_s *eba, unsigned long positions,
 				 enum eba_shift_fill_val fill)
 {
-	if (Is_eba_null(eba)) {
+	if (is_eba_null(eba)) {
 		Eba_crash();
 	}
-#if Eba_need_endian
-	if (eba->endian == eba_endian_little) {
+	if (eba_is_endian_little(eba)) {
 		eba_inner_shift_left_el(eba, positions, fill);
 	} else {
-#endif
 		eba_inner_shift_left_be(eba, positions, fill);
-#if Eba_need_endian
 	}
-#endif
 }
 
 void eba_ring_shift_right(struct eba_s *eba, unsigned long positions)
@@ -550,31 +541,25 @@ void eba_free(struct eba_s *eba)
 }
 #endif /* Eba_need_new */
 
-#if Eba_need_is_eba_null
 static unsigned char is_eba_null(struct eba_s *eba)
 {
-#if Eba_need_struct_null_check
-	if (!eba) {
+	if (!(EBA_SKIP_STRUCT_NULL_CHECK) && !eba) {
 		Eba_log_error0("eba struct is NULL\n");
 		return 1;
 	}
-#endif /* Eba_need_struct_null_check */
 
-#if Eba_need_struct_bits_null_check
-	if (!eba->bits) {
+	if (!(EBA_SKIP_STRUCT_BITS_NULL_CHECK) && !eba->bits) {
 		Eba_log_error0("eba->bits is NULL\n");
 		return 1;
 	}
-#endif /* Eba_need_struct_bits_null_check */
 
 	return 0;
 }
-#endif /* Eba_need_is_eba_null */
 
 static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
 					 size_t *byte, unsigned char *offset)
 {
-	if (Is_eba_null(eba)) {
+	if (is_eba_null(eba)) {
 		return 1;
 	}
 
@@ -591,13 +576,9 @@ static unsigned char get_byte_and_offset(struct eba_s *eba, unsigned long index,
 	}
 #endif /* Eba_need_array_index_overrun_safety */
 
-#if Eba_need_endian
-	if (eba->endian == eba_big_endian) {
-#endif
+	if (!eba_is_endian_little(eba)) {
 		*byte = (eba->size_bytes - 1) - (*byte);
-#if Eba_need_endian
 	}
-#endif
 
 	return 0;
 }
@@ -671,7 +652,7 @@ char *eba_to_string(struct eba_s *eba, char *buf, size_t len)
 	}
 	buf[0] = '\0';
 
-	if (Is_eba_null(eba)) {
+	if (!eba || !eba->bits) {
 		return buf;
 	}
 
@@ -679,8 +660,7 @@ char *eba_to_string(struct eba_s *eba, char *buf, size_t len)
 	pos = 0;
 	done = 0;
 
-#if Eba_need_endian
-	if (eba->endian == eba_endian_little) {
+	if (eba_is_endian_little(eba)) {
 		for (i = 0; pos < (len - 1) && i < size_bits; ++i) {
 			++done;
 			buf[pos++] = eba_get(eba, i) ? '1' : '0';
@@ -690,7 +670,6 @@ char *eba_to_string(struct eba_s *eba, char *buf, size_t len)
 			}
 		}
 	} else {
-#endif
 		for (i = size_bits; pos < (len - 1) && i; --i) {
 			++done;
 			buf[pos++] = eba_get(eba, (i - 1)) ? '1' : '0';
@@ -698,9 +677,8 @@ char *eba_to_string(struct eba_s *eba, char *buf, size_t len)
 				buf[pos++] = ' ';
 			}
 		}
-#if Eba_need_endian
 	}
-#endif
+
 	if ((pos < len) && (done == size_bits)) {
 		buf[pos] = '\0';
 		return buf;
