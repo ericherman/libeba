@@ -1,3 +1,30 @@
+2019-04-20  Eric Herman <eric@freesa.org>
+
+	version 2.0.0-dev
+
+	This re-work is aimed at reducing the complexity of the library
+	for embedded use, and notes that the only usage of printf was
+	for printing error messages which were primarly useful in debug
+	situtions, and proved useless in embedded.
+
+	The re-worked API now makes previous checks calls to assert.
+
+	For now, these are the main changes:
+	- always reserve space for endian-ness, avoid API complexity
+	- remove Eba_crash macro, which was irritating to use in embedded
+	- for hosted, no longer call printf, nor have global error file
+	- replace EBA_SIZE_TYPE with EBA_SIZE_T_TYPEDEFINED
+	- move EBA_CHAR_BIT from eba.h to eba.c (surely nobody needs this)
+
+	* src/eba.h: API update
+	* src/eba.c: fix all the API changes, return rather than crash
+	* tests/test-shift-fill.c: remove EBA_CHAR_BIT from test
+	* tests/test-shift-left.c: remove EBA_CHAR_BIT from test
+	* configure.ac: version bump to 2.0.0-dev
+	* Makefile.am: -DNDEBUG implies -Wno-unused-parameter
+	* misc/pre-tidy.patch: respin
+
+
 2018-11-20  Eric Herman <eric@freesa.org>
 
 	make default endian-ness be eba_big_endian
@@ -48,7 +75,6 @@
 	* Makefile.am: #define rework
 	* .gitignore: ignore new file
 	* misc/pre-tidy.patch: re-spin
-
 
 
 2018-08-02  Eric Herman <eric@freesa.org>

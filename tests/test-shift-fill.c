@@ -13,6 +13,7 @@ FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 */
 #include "eba-test-private-utils.h"
+#include <limits.h>		/* CHAR_BIT */
 
 #if EBA_SKIP_ENDIAN
 int test_shift_fill(int verbose, unsigned char fill)

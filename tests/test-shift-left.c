@@ -129,11 +129,11 @@ int test_shift_left_bug(int verbose, enum eba_endian endian)
 	}
 #endif
 
-	eba_shift_left(&eba, EBA_CHAR_BIT);
+	eba_shift_left(&eba, CHAR_BIT);
 	eba_to_string(&eba, eba_buf, 255);
 
 	sprintf(msg, "%u << %u == %u (0b%s)", (unsigned)0x03,
-		(unsigned)EBA_CHAR_BIT, (unsigned)0x0300, expect_buf);
+		(unsigned)CHAR_BIT, (unsigned)0x0300, expect_buf);
 	failures += check_str_m(eba_buf, expect_buf, msg);
 
 	return failures;

@@ -12,9 +12,9 @@
  
  #ifndef EBA_SKIP_ENDIAN
  #define EBA_SKIP_ENDIAN 0
-@@ -379,8 +381,10 @@
+@@ -257,8 +259,10 @@
  
- #endif /* Eba_log_error0 */
+ #endif /* ((Eba_use_libc) && (Eba_need_new)) */
  
 +/*
  #ifdef __cplusplus
