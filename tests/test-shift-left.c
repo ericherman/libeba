@@ -16,12 +16,8 @@ License for more details.
 #include <limits.h>
 #include <stdint.h>
 
-#if EBA_SKIP_ENDIAN
-int test_shift_left(int verbose, uint16_t u16, uint8_t shift_val)
-#else
 int test_shift_left(int verbose, uint16_t u16, uint8_t shift_val,
 		    enum eba_endian endian)
-#endif
 {
 	int failures;
 	unsigned char bytes[2];
@@ -41,17 +37,13 @@ int test_shift_left(int verbose, uint16_t u16, uint8_t shift_val,
 
 	eba.bits = bytes;
 	eba.size_bytes = 2;
-#if Eba_need_endian
 	eba.endian = endian;
-#endif
+
 	expect.bits = expect_bytes;
 	expect.size_bytes = 2;
-#if Eba_need_endian
 	expect.endian = endian;
-#endif
 
 	expect_val = (u16 << shift_val);
-#if Eba_need_endian
 	if (endian == eba_endian_little) {
 		bytes[0] = u16 & 0xFF;
 		bytes[1] = (u16 >> 8) & 0xFF;
@@ -60,16 +52,13 @@ int test_shift_left(int verbose, uint16_t u16, uint8_t shift_val,
 		expect_bytes[1] = (expect_val >> 8) & 0xFF;
 		eba_to_string(&expect, expect_buf, 40);
 	} else {
-#endif
 		bytes[1] = u16 & 0xFF;
 		bytes[0] = (u16 >> 8) & 0xFF;
 
 		expect_bytes[1] = expect_val & 0xFF;
 		expect_bytes[0] = (expect_val >> 8) & 0xFF;
 		eba_to_string(&expect, expect_buf, 40);
-#if Eba_need_endian
 	}
-#endif
 
 	eba_shift_left(&eba, shift_val);
 	eba_to_string(&eba, eba_buf, 40);
@@ -81,11 +70,7 @@ int test_shift_left(int verbose, uint16_t u16, uint8_t shift_val,
 	return failures;
 }
 
-#if EBA_SKIP_ENDIAN
-int test_shift_left_bug(int verbose)
-#else
 int test_shift_left_bug(int verbose, enum eba_endian endian)
-#endif
 {
 	int failures;
 	unsigned char bytes[20];
@@ -105,29 +90,22 @@ int test_shift_left_bug(int verbose, enum eba_endian endian)
 	eba.bits = bytes;
 	eba.size_bytes = 20;
 	memset(eba.bits, 0x00, eba.size_bytes);
-#if Eba_need_endian
 	eba.endian = endian;
-#endif
+
 	expect.bits = expect_bytes;
 	expect.size_bytes = 20;
 	memset(expect.bits, 0x00, expect.size_bytes);
-#if Eba_need_endian
 	expect.endian = endian;
-#endif
 
-#if Eba_need_endian
 	if (endian == eba_endian_little) {
 		bytes[0] = 0x03;
 		expect_bytes[1] = 0x03;
 		eba_to_string(&expect, expect_buf, 255);
 	} else {
-#endif
 		bytes[eba.size_bytes - 1] = 0x03;
 		expect_bytes[expect.size_bytes - 2] = 0x03;
 		eba_to_string(&expect, expect_buf, 255);
-#if Eba_need_endian
 	}
-#endif
 
 	eba_shift_left(&eba, CHAR_BIT);
 	eba_to_string(&eba, eba_buf, 255);
@@ -150,22 +128,18 @@ int main(int argc, char **argv)
 	failures = 0;
 	for (u16 = UINT16_MAX; !failures && u16; --u16) {
 		for (shift_val = 16; shift_val; --shift_val) {
-#if EBA_SKIP_ENDIAN
-			failures += test_shift_left(v, u16, shift_val);
-#else
+#if Eba_need_endian
 			failures +=
 			    test_shift_left(v, u16, shift_val,
 					    eba_endian_little);
+#endif
 			failures +=
 			    test_shift_left(v, u16, shift_val, eba_big_endian);
-#endif
 		}
 	}
 
-#if EBA_SKIP_ENDIAN
-	failures += test_shift_left_bug(v);
-#else
 	failures += test_shift_left_bug(v, eba_big_endian);
+#if Eba_need_endian
 	failures += test_shift_left_bug(v, eba_endian_little);
 #endif
 	return cap_failures(failures);

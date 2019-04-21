@@ -14,11 +14,7 @@ License for more details.
 */
 #include "eba-test-private-utils.h"
 
-#if EBA_SKIP_ENDIAN
-int test_set_all(int verbose)
-#else
 int test_set_all(int verbose, enum eba_endian endian)
-#endif
 {
 	int failures;
 	size_t i;
@@ -31,9 +27,7 @@ int test_set_all(int verbose, enum eba_endian endian)
 
 	eba.bits = bytes;
 	eba.size_bytes = 10;
-#if Eba_need_endian
 	eba.endian = endian;
-#endif
 
 	eba_set_all(&eba, 0x00);
 	for (i = 0; i < 10; ++i) {
@@ -62,11 +56,10 @@ int main(int argc, char **argv)
 
 	failures = 0;
 
-#if EBA_SKIP_ENDIAN
-	failures += test_set_all(v);
-#else
-	failures += test_set_all(v, eba_endian_little);
 	failures += test_set_all(v, eba_big_endian);
+
+#if !(EBA_SKIP_ENDIAN)
+	failures += test_set_all(v, eba_endian_little);
 #endif
 
 	if (failures) {

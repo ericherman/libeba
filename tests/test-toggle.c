@@ -14,11 +14,7 @@ License for more details.
 */
 #include "eba-test-private-utils.h"
 
-#if EBA_SKIP_ENDIAN
-int test_toggle(int verbose)
-#else
 int test_toggle(int verbose, enum eba_endian endian)
-#endif
 {
 	int failures;
 	size_t i;
@@ -35,16 +31,11 @@ int test_toggle(int verbose, enum eba_endian endian)
 
 	eba.bits = bytes;
 	eba.size_bytes = 2;
-#if Eba_need_endian
 	eba.endian = endian;
 
 	expected[(endian == eba_big_endian) ? 1 : 0] = (1U << 7);
 	expected[(endian == eba_big_endian) ? 0 : 1] =
 	    ((1U << (9 - 8)) | (1U << (10 - 8)));
-#else
-	expected[1] = (1U << 7);
-	expected[0] = ((1U << (9 - 8)) | (1U << (10 - 8)));
-#endif
 
 	failures += check_int(eba_get(&eba, 0), 0);
 	failures += check_int(eba_get(&eba, 1), 0);
@@ -168,7 +159,7 @@ int test_toggle(int verbose, enum eba_endian endian)
 	return failures;
 }
 
-int test_toggle_all(int verbose)
+int test_toggle_all_el(int verbose)
 {
 	int failures;
 	size_t i;
@@ -186,9 +177,7 @@ int test_toggle_all(int verbose)
 
 	eba.bits = bytes;
 	eba.size_bytes = 10;
-#if Eba_need_endian
 	eba.endian = eba_endian_little;
-#endif
 
 	expected[0] = 4;
 	expected[1] = 6;
@@ -219,13 +208,12 @@ int main(int argc, char **argv)
 
 	failures = 0;
 
-#if EBA_SKIP_ENDIAN
-	failures += test_toggle(v);
-#else
-	failures += test_toggle(v, eba_endian_little);
 	failures += test_toggle(v, eba_big_endian);
+
+#if Eba_need_endian
+	failures += test_toggle(v, eba_endian_little);
+	failures += test_toggle_all_el(v);
 #endif
-	failures += test_toggle_all(v);
 
 	if (failures) {
 		Test_log_error2("%d failures in %s\n", failures, __FILE__);

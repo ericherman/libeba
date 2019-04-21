@@ -14,7 +14,6 @@ License for more details.
 */
 #include "eba-test-private-utils.h"
 
-#if Eba_need_endian
 int test_get_el(int verbose)
 {
 	int failures;
@@ -134,7 +133,6 @@ int test_get_el(int verbose)
 
 	return failures;
 }
-#endif
 
 int test_get_be(int verbose)
 {
