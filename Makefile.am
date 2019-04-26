@@ -28,17 +28,12 @@ BUILD_DEBUG_CFLAGS=-ggdb -O0
 BUILD_FAUX_EMBED_CFLAGS=-ggdb -O2 -fomit-frame-pointer \
  -DNDEBUG -Wno-unused-parameter \
  -DEBA_SKIP_LIBC=1 \
- -DEBA_SKIP_INCLUDE_STDDEF=1 -DEBA_SIZE_TYPE="unsigned long int" \
  -DEBA_CHAR_BIT=8 \
- -DEBA_NO_ALLOCA=0 \
  -DEBA_DIY_MEMCPY=1 \
  -DEBA_DIY_MEMSET=1 \
  -DEBA_SKIP_EBA_NEW=1 \
- -DEBA_SKIP_LOG_ERRORS=1 \
- -DEBA_SKIP_ENDIAN=1 \
- -DEBA_SKIP_STRUCT_NULL_CHECK=1 \
- -DEBA_SKIP_STRUCT_BITS_NULL_CHECK=1 \
- -DEBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY=1
+ -DEBA_SKIP_TO_STRING=1 \
+ -DEBA_SKIP_ENDIAN=1
 
 #BUILD_TYPE_CFLAGS=$(BUILD_DEBUG_CFLAGS)
 #BUILD_TYPE_CFLAGS=$(BUILD_FAUX_EMBED_CFLAGS)
@@ -110,28 +105,25 @@ test_toggle_LDADD=$(TEST_LDADDS)
 
 ACLOCAL_AMFLAGS=-I m4 --install
 
-EXTRA_DIST=COPYING.GPL3 misc
+EXTRA_DIST=COPYING COPYING.LESSER
 
 # extracted from https://github.com/torvalds/linux/blob/master/scripts/Lindent
 LINDENT=indent -npro -kr -i8 -ts8 -sob -l80 -ss -ncs -cp1 -il0
 
 tidy:
-	patch -Np1 -i misc/pre-tidy.patch
 	$(LINDENT) \
 		-T size_t \
 		-T FILE \
 		-T eba_s \
 		`find src tests demos -name '*.h' -o -name '*.c'`
-	patch -Rp1 -i misc/pre-tidy.patch
 
 sieve-of-eratosthenes: $(libeba_la_SOURCES) demos/sieve-of-eratosthenes.c
 	$(CC) $(CSTD_CFLAGS) $(BUILD_TYPE_CFLAGS) $(NOISY_CFLAGS) \
-		-Wno-unused-parameter \
 		-DEBA_SKIP_ENDIAN=1 \
 		-DEBA_SKIP_SHIFTS=1 \
-		-DEBA_SKIP_STRUCT_NULL_CHECK=1 \
-		-DEBA_SKIP_STRUCT_BITS_NULL_CHECK=1 \
-		-DEBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY=1 \
+		-DEBA_SKIP_TO_STRING=1 \
+		-DEBA_SKIP_TOGGLE=1 \
+		-DEBA_SKIP_SWAP=1 \
 		-o sieve-of-eratosthenes \
 		-I./src/ \
 		$(libeba_la_SOURCES) \

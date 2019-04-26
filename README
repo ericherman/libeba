@@ -25,13 +25,6 @@ If you do not need to worry about byte order, you may wish to avoid
 endian-ness checking in order to speed things up by compiling with
 "EBA_SKIP_ENDIAN" defined.
 
-If you wish, and you are confident the calling code never send invalid
-requests, you may compile without a lot of safety options:
-
-#define EBA_SKIP_STRUCT_NULL_CHECK
-#define EBA_SKIP_STRUCT_BITS_NULL_CHECK
-#define EBA_SKIP_ARRAY_INDEX_OVERRUN_SAFETY
-
 If you never plan to use any of the shifting functions, you can avoid
 compiling any of them by defining "EBA_SKIP_SHIFTS".
 

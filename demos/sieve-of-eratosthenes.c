@@ -40,8 +40,13 @@ int main(int argc, char **argv)
 	eba_set(eba, 0, 0);
 	eba_set(eba, 1, 0);
 
-	/* now walk the array looking for primes */
-	for (i = 2; (i * 2) <= max; ++i) {
+	/* set all multiples of 2 as non-prime */
+	for (i = 4; (i * 2) <= max; i += 2) {
+		eba_set(eba, i, 0);
+	}
+
+	/* now walk the odd numbers in the array looking for primes */
+	for (i = 3; (i * 2) <= max; i += 1) {
 		/* if prime */
 		if (eba_get(eba, i)) {
 			/* mark all multiples as non-prime */

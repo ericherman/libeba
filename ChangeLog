@@ -1,3 +1,12 @@
+2019-04-26  Eric Herman <eric@freesa.org>
+
+	version 2.0.1
+
+	* src/eba.h: re-arrange order, functions at the end
+	* configure.ac: version 2.0.1
+	* Makefile.am: remove pre-tidy.patch
+	* misc/pre-tidy.patch: delete
+
 2019-04-20  Eric Herman <eric@freesa.org>
 
 	version 2.0.0-dev
