@@ -1,6 +1,6 @@
 /*
 libecheck: "E(asy)Check" boiler-plate to make simple testing easier
-Copyright (C) 2016, 2017 Eric Herman <eric@freesa.org>
+Copyright (C) 2016, 2017, 2018, 2019 Eric Herman <eric@freesa.org>
 
 This work is free software: you can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License as published by
@@ -11,6 +11,9 @@ This work is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
+
+	https://www.gnu.org/licenses/lgpl-3.0.txt
+	https://www.gnu.org/licenses/gpl-3.0.txt
 */
 #include "echeck.h"
 #include <string.h>
@@ -140,6 +143,41 @@ fail:
 		fprintf(err, "expected[%lu]=%02x\n", (unsigned long)i,
 			expected[i]);
 	}
+	return 1;
+}
+
+#include <stdio.h>
+
+int echeck_double_m(FILE *err, const char *func, const char *file, int line,
+		    double actual, double expected, double epsilon,
+		    const char *msg)
+{
+	double from, to, swap;
+
+	if (actual == expected) {
+		return 0;
+	}
+
+	epsilon = (epsilon < 0.0) ? -epsilon : epsilon;
+	from = expected + epsilon;
+	to = expected - epsilon;
+	if (from > to) {
+		swap = from;
+		from = to;
+		to = swap;
+	}
+
+	if (actual >= from && actual <= to) {
+		return 0;
+	}
+
+	if (err == NULL) {
+		err = stderr;
+	}
+	fprintf(err, "FAIL: %s%sExpected %f but was %f (%f) [%s%s%s:%d]\n",
+		(msg == NULL) ? "" : msg, (msg == NULL) ? "" : " ", expected,
+		actual, (epsilon), (func == NULL) ? "" : func,
+		(func == NULL) ? "" : " at ", file, line);
 	return 1;
 }
 
