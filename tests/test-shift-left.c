@@ -1,17 +1,7 @@
-/*
-test-shift-left.c
-Copyleft (C) 2018 Eric Herman <eric@freesa.org>
+/* SPDX-License-Identifier: LGPL-3.0-or-later */
+/* test-shift-left.c */
+/* Copyright (C) 2018, 2019 Eric Herman <eric@freesa.org> */
 
-This work is free software: you can redistribute it and/or modify it
-under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or (at
-your option) any later version.
-
-This work is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-License for more details.
-*/
 #include "eba-test-private-utils.h"
 #include <limits.h>
 #include <stdint.h>

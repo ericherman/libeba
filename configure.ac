@@ -1,8 +1,9 @@
-#                                               -*- Autoconf -*-
+# SPDX-License-Identifier: LGPL-3.0-or-later
+# Copyright (C) 2017, 2019 Eric Herman <eric@freesa.org>
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([libeba], [2.0.1], [eric@freesa.org])
+AC_INIT([libeba], [2.0.2], [eric@freesa.org])
 AC_CONFIG_SRCDIR([src/eba.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_AUX_DIR([build-aux])
