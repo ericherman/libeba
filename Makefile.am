@@ -43,6 +43,7 @@ include_HEADERS=src/eba.h
 
 libeba_la_SOURCES=\
  src/eba.h \
+ src/eba-internal.h \
  src/eba.c
 
 libeba_la_LIBADD=
@@ -60,7 +61,9 @@ check_PROGRAMS=\
  test-ring-shift \
  test-toggle
 
-COMMON_TEST_SOURCES=src/eba.h \
+COMMON_TEST_SOURCES=\
+ src/eba.h \
+ src/eba-internal.h \
  tests/echeck.h \
  tests/echeck.c \
  tests/eba-test-private-utils.h
