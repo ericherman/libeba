@@ -1,3 +1,23 @@
+2019-08-28  Eric Herman <eric@freesa.org>
+
+	Cleanup debug defines and code.
+
+	* src/eba-internal.h: simplify; remove "len" from stack_free
+	* src/eba.c: simplify debug code
+	* Makefile.am: remove -Wno-unused-parameter
+
+
+2019-08-27  Eric Herman <eric@freesa.org>
+
+	Extracted eba-internal.h, which is useful in some special cases,
+	for example using Eba_memcpy elsewhere in an embedded project.
+	The contents of eba-internal.h are *so* ugly that it's hard to
+	put them in eba.h, but maybe that will happen instead soon.
+
+	* src/eba-internal.h: extracted from eba.c
+	* src/eba.c: removed extracted bits
+	* Makefile.am: add reference to eba-internal.h
+
 2019-08-20  Eric Herman <eric@freesa.org>
 
 	SPDX-License-Identifier: LGPL-3.0-or-later

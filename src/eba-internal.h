@@ -12,6 +12,7 @@
 #else
 #define Eba_no_debug 0
 #endif
+#define Eba_debug (!(Eba_no_debug))
 
 #ifndef EBA_SKIP_NEW
 #define Eba_need_new 1
@@ -36,12 +37,6 @@
 #else
 #define Eba_need_swap (Eba_need_shifts)
 #endif
-
-#define Eba_need_struct_null_check (!(Eba_no_debug))
-
-#define Eba_need_struct_bits_null_check (!(Eba_no_debug))
-
-#define Eba_need_array_index_overrun_safety (!(Eba_no_debug))
 
 #ifndef EBA_SKIP_LIBC
 #define Eba_use_libc __STDC_HOSTED__
@@ -116,13 +111,13 @@
 #define Eba_stack_alloc(len) Eba_alloc(len)
 #define Eba_need_do_stack_free 1
 #define Eba_need_no_stack_free 0
-#define Eba_stack_free(p, len) eba_do_stack_free_(p, len)
+#define Eba_stack_free(p) eba_do_stack_free_(p)
 #else /* ((Eba_use_libc) && (EBA_NO_ALLOCA || __STDC_NO_VLA__)) */
 #define Eba_need_alloca_h 1
 #define Eba_stack_alloc(len) alloca(len)
 #define Eba_need_no_stack_free 1
 #define Eba_need_do_stack_free 0
-#define Eba_stack_free(p, len) eba_no_stack_free_(p, len)
+#define Eba_stack_free(p) eba_no_stack_free_(p)
 #endif /* ((Eba_use_libc) && (EBA_NO_ALLOCA || __STDC_NO_VLA__)) */
 #endif /* Eba_stack_alloc */
 #else /* Eba_need_shifts */

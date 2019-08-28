@@ -8,23 +8,27 @@
 static int eba_is_endian_little_(struct eba_s *eba);
 
 #if Eba_need_do_stack_free
-static void eba_do_stack_free_(void *ptr, size_t size);
+static void eba_do_stack_free_(void *ptr);
 #endif
 
 #if Eba_need_no_stack_free
-#if (!(Eba_no_debug))
-static void eba_no_stack_free_(void *ptr, size_t size);
+#if (Eba_debug)
+static void eba_no_stack_free_(void *ptr);
 #else
-#define eba_no_stack_free_(ptr, size) ((void)0)
-#endif /* (!(Eba_no_debug)) */
+#define eba_no_stack_free_(ptr) EBA_NOP
+#endif /* (Eba_debug) */
 #endif
 
+#if (Eba_debug)
 static void eba_assert_not_null_(struct eba_s *eba)
 {
 	eba_assert(eba);
 	eba_assert(eba->bits);
 	eba_assert(eba->size_bytes);
 }
+#else
+#define eba_assert_not_null_(eba) EBA_NOP
+#endif
 
 static void eba_get_byte_and_offset_(struct eba_s *eba, unsigned long index,
 				     size_t *byte, unsigned char *offset);
@@ -117,8 +121,8 @@ void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2)
 
 #define Eba_free_stack_copy(tmp) do { \
 	if (tmp) { \
-		Eba_stack_free(tmp->bits, tmp->size_bytes); \
-		Eba_stack_free(tmp, sizeof(struct eba_s)); \
+		Eba_stack_free(tmp->bits); \
+		Eba_stack_free(tmp); \
 	} \
 	} while (0)
 
@@ -498,18 +502,17 @@ static void eba_get_byte_and_offset_(struct eba_s *eba, unsigned long index,
 }
 
 #if Eba_need_do_stack_free
-static void eba_do_stack_free_(void *ptr, size_t size)
+static void eba_do_stack_free_(void *ptr)
 {
-	eba_assert(size > 0);
+	eba_assert(ptr);
 	free(ptr);
 }
 #endif
 
-#if ((Eba_need_no_stack_free) && (!(Eba_no_debug)))
-static void eba_no_stack_free_(void *ptr, size_t size)
+#if ((Eba_need_no_stack_free) && (Eba_debug))
+static void eba_no_stack_free_(void *ptr)
 {
 	eba_assert(ptr);
-	eba_assert(size > 0);
 }
 #endif
 

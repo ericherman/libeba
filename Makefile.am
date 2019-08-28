@@ -10,14 +10,13 @@ ALLOCA_CFLAGS=
 
 CSTD_CFLAGS=-std=c89
 
-BUILD_NORMAL_CFLAGS=-ggdb -O2 -fomit-frame-pointer \
- -DNDEBUG -Wno-unused-parameter
+BUILD_NORMAL_CFLAGS=-ggdb -O2 -fomit-frame-pointer -DNDEBUG
 
 BUILD_DEBUG_CFLAGS=-ggdb -O0
 
 #-DEBA_NO_ALLOCA=1 \
 BUILD_FAUX_EMBED_CFLAGS=-ggdb -O2 -fomit-frame-pointer \
- -DNDEBUG -Wno-unused-parameter \
+ -DNDEBUG \
  -DEBA_SKIP_LIBC=1 \
  -DEBA_CHAR_BIT=8 \
  -DEBA_DIY_MEMCPY=1 \
