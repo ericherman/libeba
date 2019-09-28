@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 	eba_set(eba, 1, 0);
 
 	/* set all multiples of 2 as non-prime */
-	for (i = 4; (i * 2) <= max; i += 2) {
+	for (i = 4; i <= max; i += 2) {
 		eba_set(eba, i, 0);
 	}
 
