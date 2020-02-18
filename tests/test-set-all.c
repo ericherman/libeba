@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 
 	failures += test_set_all(v, eba_big_endian);
 
-#if !(EBA_SKIP_ENDIAN)
+#if (!(EBA_SKIP_ENDIAN))
 	failures += test_set_all(v, eba_endian_little);
 #endif
 

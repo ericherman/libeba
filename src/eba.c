@@ -606,12 +606,6 @@ char *eba_to_string(struct eba_s *eba, char *buf, size_t len)
 		return buf;
 	}
 
-	if (pos < (len - 1)) {
-		buf[pos++] = '!';
-		buf[pos] = '\0';
-		return buf;
-	}
-
 	buf[len - 2] = '!';
 	buf[len - 1] = '\0';
 	return buf;

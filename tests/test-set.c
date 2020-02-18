@@ -82,7 +82,7 @@ int main(int argc, char **argv)
 	failures = 0;
 
 	failures += test_set(v, eba_big_endian);
-#if !(EBA_SKIP_ENDIAN)
+#if (!(EBA_SKIP_ENDIAN))
 	failures += test_set(v, eba_endian_little);
 #endif
 

@@ -200,7 +200,7 @@ int main(int argc, char **argv)
 
 	failures += test_toggle(v, eba_big_endian);
 
-#if Eba_need_endian
+#if (!(EBA_SKIP_ENDIAN))
 	failures += test_toggle(v, eba_endian_little);
 	failures += test_toggle_all_el(v);
 #endif

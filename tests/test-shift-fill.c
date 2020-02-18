@@ -139,7 +139,7 @@ int main(int argc, char **argv)
 
 	for (fill = 0; fill < 2; ++fill) {
 		failures += test_shift_fill(v, fill, eba_big_endian);
-#if Eba_need_endian
+#if (!(EBA_SKIP_ENDIAN))
 		failures += test_shift_fill(v, fill, eba_endian_little);
 #endif
 	}
@@ -152,7 +152,7 @@ int main(int argc, char **argv)
 	failures +=
 	    test_shift_right(v, eba_big_endian, in, len, shift_amount, out);
 
-#if Eba_need_endian
+#if (!(EBA_SKIP_ENDIAN))
 	memset(in, 0x00, len);
 	memset(out, 0x00, len);
 	in[18] = 0x03;
@@ -162,7 +162,7 @@ int main(int argc, char **argv)
 	    test_shift_right(v, eba_endian_little, in, len, shift_amount, out);
 #endif
 
-#if Eba_need_endian
+#if (!(EBA_SKIP_ENDIAN))
 	memset(in, 0x00, len);
 	memset(out, 0x00, len);
 	in[12] = 0x13;

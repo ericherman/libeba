@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 
 	failures = 0;
 
-#if Eba_need_endian
+#if (!(EBA_SKIP_ENDIAN))
 	failures += test_swap_endianness(v, eba_endian_little);
 #endif
 	failures += test_swap_endianness(v, eba_big_endian);

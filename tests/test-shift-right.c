@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 	failures = 0;
 	for (u16 = UINT16_MAX; !failures && u16; --u16) {
 		for (shift_val = 16; shift_val; --shift_val) {
-#if Eba_need_endian
+#if (!(EBA_SKIP_ENDIAN))
 			failures +=
 			    test_shift_right(v, u16, shift_val,
 					     eba_endian_little);

@@ -253,7 +253,7 @@ int main(int argc, char **argv)
 	failures = 0;
 
 	failures += test_get_be(v);
-#if Eba_need_endian
+#if (!(EBA_SKIP_ENDIAN))
 	failures += test_get_el(v);
 #endif
 

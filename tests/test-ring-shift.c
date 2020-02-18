@@ -125,7 +125,7 @@ int main(int argc, char **argv)
 
 	failures += test_ring_shift(v, eba_big_endian);
 
-#if Eba_need_endian
+#if (!(EBA_SKIP_ENDIAN))
 	failures += test_simple_ring_shift_le(v);
 	failures += test_ring_shift(v, eba_endian_little);
 #endif

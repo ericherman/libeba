@@ -10,9 +10,17 @@ ALLOCA_CFLAGS=
 
 CSTD_CFLAGS=-std=c89
 
-BUILD_NORMAL_CFLAGS=-ggdb -O2 -fomit-frame-pointer -DNDEBUG
-
-BUILD_DEBUG_CFLAGS=-ggdb -O0
+if DEBUG
+BUILD_TYPE_CFLAGS=-ggdb -O0 \
+	-fno-inline-small-functions \
+	-fkeep-inline-functions \
+	-fkeep-static-functions \
+	--coverage
+BUILD_TYPE_LDFLAGS=--coverage
+else
+BUILD_TYPE_CFLAGS=-ggdb -O2 -DNDEBUG -Wno-unused-parameter -fomit-frame-pointer
+BUILD_TYPE_LDFLAGS=
+endif
 
 #-DEBA_NO_ALLOCA=1 \
 BUILD_FAUX_EMBED_CFLAGS=-ggdb -O2 -fomit-frame-pointer \
@@ -24,10 +32,6 @@ BUILD_FAUX_EMBED_CFLAGS=-ggdb -O2 -fomit-frame-pointer \
  -DEBA_SKIP_EBA_NEW=1 \
  -DEBA_SKIP_TO_STRING=1 \
  -DEBA_SKIP_ENDIAN=1
-
-#BUILD_TYPE_CFLAGS=$(BUILD_DEBUG_CFLAGS)
-#BUILD_TYPE_CFLAGS=$(BUILD_FAUX_EMBED_CFLAGS)
-BUILD_TYPE_CFLAGS=$(BUILD_NORMAL_CFLAGS)
 
 NOISY_CFLAGS=-Wall -Wextra -pedantic -Werror
 
@@ -46,7 +50,7 @@ libeba_la_SOURCES=\
  src/eba.c
 
 libeba_la_LIBADD=
-AM_LDFLAGS=-rdynamic
+AM_LDFLAGS=-rdynamic $(BUILD_TYPE_LDFLAGS)
 
 TESTS=$(check_PROGRAMS)
 check_PROGRAMS=\
@@ -58,6 +62,8 @@ check_PROGRAMS=\
  test-shift-right \
  test-shift-fill \
  test-ring-shift \
+ test-new \
+ test-to-string \
  test-toggle
 
 COMMON_TEST_SOURCES=\
@@ -95,6 +101,12 @@ test_shift_right_LDADD=$(TEST_LDADDS)
 
 test_toggle_SOURCES=tests/test-toggle.c $(COMMON_TEST_SOURCES)
 test_toggle_LDADD=$(TEST_LDADDS)
+
+test_new_SOURCES=tests/test-new.c $(COMMON_TEST_SOURCES)
+test_new_LDADD=$(TEST_LDADDS)
+
+test_to_string_SOURCES=tests/test-to-string.c $(COMMON_TEST_SOURCES)
+test_to_string_LDADD=$(TEST_LDADDS)
 
 ACLOCAL_AMFLAGS=-I m4 --install
 
@@ -140,3 +152,5 @@ valgrind: $(check_PROGRAMS)
 	./libtool --mode=execute valgrind -q ./test-shift-fill
 	./libtool --mode=execute valgrind -q ./test-ring-shift
 	./libtool --mode=execute valgrind -q ./test-toggle
+	./libtool --mode=execute valgrind -q ./test-new
+	./libtool --mode=execute valgrind -q ./test-to-string
