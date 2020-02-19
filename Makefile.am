@@ -12,6 +12,8 @@ CSTD_CFLAGS=-std=c89
 
 if DEBUG
 BUILD_TYPE_CFLAGS=-ggdb -O0 \
+	-DEBA_DIY_MEMSET=1 \
+	-DEBA_DIY_MEMCPY=1 \
 	-fno-inline-small-functions \
 	-fkeep-inline-functions \
 	-fkeep-static-functions \

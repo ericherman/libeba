@@ -115,6 +115,64 @@ int test_simple_ring_shift_le(int verbose)
 	return failures;
 }
 
+int test_round_the_world_shift_be(void)
+{
+	int failures = 0;
+	struct eba_s *eba;
+	char buf[40];
+	size_t bits_size = 16;
+
+	eba = eba_new_endian(bits_size, eba_big_endian);
+	if (!eba) {
+		return 1;
+	}
+
+	eba_set(eba, 1, 1);
+	eba_set(eba, 2, 1);
+	eba_set(eba, 3, 1);
+	eba_set(eba, 5, 1);
+	eba_set(eba, 8, 1);
+
+	eba_to_string(eba, buf, 40);
+	failures += check_str(buf, "00000001 00101110");
+	eba_ring_shift_left(eba, bits_size + 3);
+	eba_ring_shift_right(eba, bits_size + 5);
+	eba_to_string(eba, buf, 40);
+	failures += check_str(buf, "10000000 01001011");
+
+	eba_free(eba);
+	return failures;
+}
+
+int test_round_the_world_shift_el(void)
+{
+	int failures = 0;
+	struct eba_s *eba;
+	char buf[40];
+	size_t bits_size = 16;
+
+	eba = eba_new_endian(bits_size, eba_endian_little);
+	if (!eba) {
+		return 1;
+	}
+
+	eba_set(eba, 1, 1);
+	eba_set(eba, 2, 1);
+	eba_set(eba, 3, 1);
+	eba_set(eba, 5, 1);
+	eba_set(eba, 8, 1);
+
+	eba_to_string(eba, buf, 40);
+	failures += check_str(buf, "01110100 10000000");
+	eba_ring_shift_left(eba, bits_size + 3);
+	eba_ring_shift_right(eba, bits_size + 5);
+	eba_to_string(eba, buf, 40);
+	failures += check_str(buf, "11010010 00000001");
+
+	eba_free(eba);
+	return failures;
+}
+
 int main(int argc, char **argv)
 {
 	int v, failures;
@@ -128,6 +186,11 @@ int main(int argc, char **argv)
 #if (!(EBA_SKIP_ENDIAN))
 	failures += test_simple_ring_shift_le(v);
 	failures += test_ring_shift(v, eba_endian_little);
+#endif
+
+	failures += test_round_the_world_shift_be();
+#if (!(EBA_SKIP_ENDIAN))
+	failures += test_round_the_world_shift_el();
 #endif
 
 	if (failures) {

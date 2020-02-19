@@ -67,7 +67,7 @@
 #endif
 
 #ifndef Eba_memcpy
-#ifdef EBA_DIY_MEMSET
+#ifdef EBA_DIY_MEMCPY
 #define Eba_need_diy_memcpy 1
 #define Eba_memcpy eba_diy_memcpy
 #endif
