@@ -261,6 +261,5 @@ int main(int argc, char **argv)
 		Test_log_error2("%d failures in %s\n", failures, __FILE__);
 	}
 
-	fprintf(stderr, "falures: %d(%d)\n", failures, cap_failures(failures));
 	return cap_failures(failures);
 }

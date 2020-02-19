@@ -106,6 +106,42 @@ int test_to_string_error_2(void)
 	return failures;
 }
 
+int test_to_string_invalid(void)
+{
+	int failures = 0;
+	struct eba_s eba;
+	unsigned char bytes[2];
+	char buf[40];
+	char *rv;
+
+	eba.bits = bytes;
+	eba.size_bytes = 2;
+	eba.endian = eba_big_endian;
+
+	memset(buf, 'Z', 39);
+	buf[39] = '\0';
+
+	rv = eba_to_string(&eba, NULL, 40);
+	failures += check_ptr(rv, NULL);
+
+	rv = eba_to_string(&eba, buf, 0);
+	failures += check_ptr(rv, NULL);
+
+	rv = eba_to_string(&eba, buf, 1);
+	failures += check_ptr(rv, NULL);
+
+	rv = eba_to_string(NULL, buf, 40);
+	failures += check_ptr(rv, buf);
+	failures += check_str(buf, "");
+
+	eba.bits = NULL;
+	rv = eba_to_string(NULL, buf, 40);
+	failures += check_ptr(rv, buf);
+	failures += check_str(buf, "");
+
+	return failures;
+}
+
 int main(int argc, char **argv)
 {
 	int verbose, failures;
@@ -122,6 +158,7 @@ int main(int argc, char **argv)
 
 	failures += test_to_string_error_1();
 	failures += test_to_string_error_2();
+	failures += test_to_string_invalid();
 
 	if (failures) {
 		Test_log_error2("%d failures in %s\n", failures, __FILE__);
