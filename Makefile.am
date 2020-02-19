@@ -14,6 +14,7 @@ if DEBUG
 BUILD_TYPE_CFLAGS=-ggdb -O0 \
 	-DEBA_DIY_MEMSET=1 \
 	-DEBA_DIY_MEMCPY=1 \
+	-fsanitize=address,leak,undefined \
 	-fno-inline-small-functions \
 	-fkeep-inline-functions \
 	-fkeep-static-functions \
@@ -144,15 +145,40 @@ spotless:
 	pushd src && rm -rf `cat ../.gitignore | sed -e 's/#.*//'`; popd
 	pushd tests && rm -rf `cat ../.gitignore | sed -e 's/#.*//'`; popd
 
-valgrind: $(check_PROGRAMS)
+
+vg-test-get: test-get
 	./libtool --mode=execute valgrind -q ./test-get
+
+vg-test-set: test-set
 	./libtool --mode=execute valgrind -q ./test-set
+
+vg-test-set-all: test-set-all
 	./libtool --mode=execute valgrind -q ./test-set-all
+
+vg-test-swap: test-swap
 	./libtool --mode=execute valgrind -q ./test-swap
+
+vg-test-shift-left: test-shift-left
 	./libtool --mode=execute valgrind -q ./test-shift-left
+
+vg-test-shift-right: test-shift-right
 	./libtool --mode=execute valgrind -q ./test-shift-right
+
+vg-test-shift-fill: test-shift-fill
 	./libtool --mode=execute valgrind -q ./test-shift-fill
+
+vg-test-ring-shift: test-ring-shift
 	./libtool --mode=execute valgrind -q ./test-ring-shift
+
+vg-test-toggle: test-toggle
 	./libtool --mode=execute valgrind -q ./test-toggle
+
+vg-test-new: test-new
 	./libtool --mode=execute valgrind -q ./test-new
+
+vg-test-to-string: test-to-string
 	./libtool --mode=execute valgrind -q ./test-to-string
+
+valgrind: vg-test-get vg-test-set vg-test-set-all vg-test-swap \
+		vg-test-shift-left vg-test-shift-right vg-test-shift-fill \
+		vg-test-ring-shift vg-test-toggle vg-test-new vg-test-to-string
