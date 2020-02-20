@@ -1,3 +1,16 @@
+2020-02-20:  Eric Herman <eric@freesa.org>
+
+	Use git submodules to replace copies of echeck files.
+
+	* submodules/libecheck: add latest libecheck
+	* .gitmodules: https://github.com/ericherman/libeba.git
+	* Makefile.am: new locations of echeck files
+	* configure.ac: 2.0.2 -> 2.0.3
+	* tests/eba-test-private-utils.h: new locations of echeck files
+	* tests/echeck.h: copy deleted
+	* tests/echeck.c: copy deleted
+
+
 2019-08-28  Eric Herman <eric@freesa.org>
 
 	Cleanup debug defines and code.

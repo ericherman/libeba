@@ -39,6 +39,16 @@ If your platform is weird or you do not wish to reference limits.h,
 you can define "EBA_CHAR_BIT" to 8 or a larger number.
 
 
+Cloning
+-------
+git clone -o upstream https://github.com/ericherman/libeba.git &&
+ cd libeba &&
+ git submodule update --init --recursive &&
+ autoreconf -iv &&
+ ./configure &&
+ make -j check
+
+
 Packaging
 ---------
 autoreconf -iv &&

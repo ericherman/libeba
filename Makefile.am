@@ -72,48 +72,65 @@ check_PROGRAMS=\
 COMMON_TEST_SOURCES=\
  src/eba.h \
  src/eba-internal.h \
- tests/echeck.h \
- tests/echeck.c \
+ submodules/libecheck/src/echeck.h \
+ submodules/libecheck/src/echeck.c \
  tests/eba-test-private-utils.h
 
 TEST_LDADDS=-leba
+TEST_CFLAGS=-I ./submodules/libecheck/src
 
 test_set_SOURCES=tests/test-set.c $(COMMON_TEST_SOURCES)
 test_set_LDADD=$(TEST_LDADDS)
+test_set_CFLAGS=$(AM_CFLAGS) $(TEST_CFLAGS)
 
 test_get_SOURCES=tests/test-get.c $(COMMON_TEST_SOURCES)
 test_get_LDADD=$(TEST_LDADDS)
+test_get_CFLAGS=$(AM_CFLAGS) $(TEST_CFLAGS)
 
 test_set_all_SOURCES=tests/test-set-all.c $(COMMON_TEST_SOURCES)
 test_set_all_LDADD=$(TEST_LDADDS)
+test_set_all_CFLAGS=$(AM_CFLAGS) $(TEST_CFLAGS)
 
 test_swap_SOURCES=tests/test-swap.c $(COMMON_TEST_SOURCES)
 test_swap_LDADD=$(TEST_LDADDS)
+test_swap_CFLAGS=$(AM_CFLAGS) $(TEST_CFLAGS)
 
 test_ring_shift_SOURCES=tests/test-ring-shift.c $(COMMON_TEST_SOURCES)
 test_ring_shift_LDADD=$(TEST_LDADDS)
+test_ring_shift_CFLAGS=$(AM_CFLAGS) $(TEST_CFLAGS)
 
 test_shift_fill_SOURCES=tests/test-shift-fill.c $(COMMON_TEST_SOURCES)
 test_shift_fill_LDADD=$(TEST_LDADDS)
+test_shift_fill_CFLAGS=$(AM_CFLAGS) $(TEST_CFLAGS)
 
 test_shift_left_SOURCES=tests/test-shift-left.c $(COMMON_TEST_SOURCES)
 test_shift_left_LDADD=$(TEST_LDADDS)
+test_shift_left_CFLAGS=$(AM_CFLAGS) $(TEST_CFLAGS)
 
 test_shift_right_SOURCES=tests/test-shift-right.c $(COMMON_TEST_SOURCES)
 test_shift_right_LDADD=$(TEST_LDADDS)
+test_shift_right_CFLAGS=$(AM_CFLAGS) $(TEST_CFLAGS)
 
 test_toggle_SOURCES=tests/test-toggle.c $(COMMON_TEST_SOURCES)
 test_toggle_LDADD=$(TEST_LDADDS)
+test_toggle_CFLAGS=$(AM_CFLAGS) $(TEST_CFLAGS)
 
 test_new_SOURCES=tests/test-new.c $(COMMON_TEST_SOURCES)
 test_new_LDADD=$(TEST_LDADDS)
+test_new_CFLAGS=$(AM_CFLAGS) $(TEST_CFLAGS)
 
 test_to_string_SOURCES=tests/test-to-string.c $(COMMON_TEST_SOURCES)
 test_to_string_LDADD=$(TEST_LDADDS)
+test_to_string_CFLAGS=$(AM_CFLAGS) $(TEST_CFLAGS)
 
 ACLOCAL_AMFLAGS=-I m4 --install
 
-EXTRA_DIST=COPYING COPYING.LESSER
+EXTRA_DIST=COPYING COPYING.LESSER \
+	demos/sieve-of-eratosthenes.c \
+	submodules/libecheck/COPYING \
+	submodules/libecheck/COPYING.LESSER \
+	submodules/libecheck/src/echeck.h \
+	submodules/libecheck/src/echeck.c
 
 # extracted from https://github.com/torvalds/linux/blob/master/scripts/Lindent
 LINDENT=indent -npro -kr -i8 -ts8 -sob -l80 -ss -ncs -cp1 -il0
@@ -144,6 +161,11 @@ spotless:
 	rm -rf `cat .gitignore | sed -e 's/#.*//'`
 	pushd src && rm -rf `cat ../.gitignore | sed -e 's/#.*//'`; popd
 	pushd tests && rm -rf `cat ../.gitignore | sed -e 's/#.*//'`; popd
+	pushd demos && rm -rf `cat ../.gitignore | sed -e 's/#.*//'`; popd
+	pushd submodules/libecheck && \
+		rm -rf `cat ../../.gitignore | sed -e 's/#.*//'` \
+		rm -rf `cat .gitignore | sed -e 's/#.*//'`; \
+		popd
 
 
 vg-test-get: test-get

@@ -6,7 +6,7 @@
 #define EBA_TEST_PRIVATE_UTILS_H
 
 #include "../src/eba.h"
-#include "echeck.h"
+#include "../submodules/libecheck/src/echeck.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
