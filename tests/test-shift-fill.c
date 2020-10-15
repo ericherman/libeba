@@ -13,7 +13,7 @@ int test_shift_fill(int verbose, unsigned char fill, enum eba_endian endian)
 	unsigned char start[10];
 	unsigned char middle[10];
 	unsigned char end[10];
-	struct eba_s eba;
+	struct eba eba;
 	unsigned int shift_amount;
 
 	VERBOSE_ANNOUNCE(verbose);
@@ -92,7 +92,7 @@ int test_shift_fill(int verbose, unsigned char fill, enum eba_endian endian)
 	failures += check_byte_array_m(bytes, 10, end, 10, "second");
 
 	if (failures) {
-		Test_log_error1("%d failures in test_shift_fill\n", failures);
+		Test_log_error(failures, "test_shift_fill");
 	}
 
 	return failures;
@@ -104,7 +104,7 @@ int test_shift_right(int verbose, enum eba_endian endian, unsigned char *in,
 {
 	int failures;
 
-	struct eba_s eba;
+	struct eba eba;
 
 	VERBOSE_ANNOUNCE(verbose);
 	failures = 0;
@@ -118,7 +118,7 @@ int test_shift_right(int verbose, enum eba_endian endian, unsigned char *in,
 	failures += check_byte_array(in, len, expected, len);
 
 	if (failures) {
-		Test_log_error1("%d failures in test_shift_fill\n", failures);
+		Test_log_error(failures, "test_shift_right");
 	}
 
 	return failures;
@@ -139,42 +139,36 @@ int main(int argc, char **argv)
 
 	for (fill = 0; fill < 2; ++fill) {
 		failures += test_shift_fill(v, fill, eba_big_endian);
-#if (!(EBA_SKIP_ENDIAN))
 		failures += test_shift_fill(v, fill, eba_endian_little);
-#endif
 	}
 
-	memset(in, 0x00, len);
-	memset(out, 0x00, len);
+	eba_memset(in, 0x00, len);
+	eba_memset(out, 0x00, len);
 	in[18] = 0x03;
 	shift_amount = 4;
 	out[19] = 0x30;
 	failures +=
 	    test_shift_right(v, eba_big_endian, in, len, shift_amount, out);
 
-#if (!(EBA_SKIP_ENDIAN))
-	memset(in, 0x00, len);
-	memset(out, 0x00, len);
+	eba_memset(in, 0x00, len);
+	eba_memset(out, 0x00, len);
 	in[18] = 0x03;
 	shift_amount = 4;
 	out[17] = 0x30;
 	failures +=
 	    test_shift_right(v, eba_endian_little, in, len, shift_amount, out);
-#endif
 
-#if (!(EBA_SKIP_ENDIAN))
-	memset(in, 0x00, len);
-	memset(out, 0x00, len);
+	eba_memset(in, 0x00, len);
+	eba_memset(out, 0x00, len);
 	in[12] = 0x13;
 	in[17] = 0x03;
 	in[18] = 0x05;
 	shift_amount = (len * CHAR_BIT) + 7;
 	failures +=
 	    test_shift_right(v, eba_endian_little, in, len, shift_amount, out);
-#endif
 
 	if (failures) {
-		Test_log_error2("%d failures in %s\n", failures, __FILE__);
+		Test_log_error(failures, __FILE__);
 	}
 
 	return cap_failures(failures);

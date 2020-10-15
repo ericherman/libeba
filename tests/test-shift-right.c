@@ -12,16 +12,14 @@ int test_shift_right(int verbose, uint16_t u16, uint8_t shift_val,
 	int failures;
 	unsigned char bytes[2];
 	unsigned char expect_bytes[2];
-	struct eba_s eba;
-	struct eba_s expect;
+	struct eba eba;
+	struct eba expect;
 	uint16_t expect_val;
-	char msg[255];
 	char eba_buf[40];
 	char expect_buf[40];
 
 	VERBOSE_ANNOUNCE(verbose);
 	failures = 0;
-	msg[0] = '\0';
 	eba_buf[0] = '\0';
 	expect_buf[0] = '\0';
 
@@ -53,9 +51,11 @@ int test_shift_right(int verbose, uint16_t u16, uint8_t shift_val,
 	eba_shift_right(&eba, shift_val);
 	eba_to_string(&eba, eba_buf, 40);
 
-	sprintf(msg, "%u >> %u == %u (0b%s)", (unsigned)u16,
-		(unsigned)shift_val, (unsigned)expect_val, expect_buf);
-	failures += check_str_m(eba_buf, expect_buf, msg);
+	failures += check_str(eba_buf, expect_buf);
+
+	if (failures) {
+		Test_log_error(failures, "test_shift_right");
+	}
 
 	return failures;
 }
@@ -71,15 +71,16 @@ int main(int argc, char **argv)
 	failures = 0;
 	for (u16 = UINT16_MAX; !failures && u16; --u16) {
 		for (shift_val = 16; shift_val; --shift_val) {
-#if (!(EBA_SKIP_ENDIAN))
 			failures +=
 			    test_shift_right(v, u16, shift_val,
 					     eba_endian_little);
-#endif
 			failures +=
 			    test_shift_right(v, u16, shift_val, eba_big_endian);
 		}
 	}
 
+	if (failures) {
+		Test_log_error(failures, __FILE__);
+	}
 	return cap_failures(failures);
 }

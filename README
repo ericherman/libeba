@@ -1,42 +1,158 @@
 LibEBA Embedable Bit Array
+--------------------------
 
-Toying with making an implementation suitable for small cpus.
-
-This is just a learning exercise, although perhaps it may be useful.
+An implementation suitable for small CPUs.
 
 
 Usage:
 ------
 
-https://github.com/ericherman/libeba/blob/master/demos/sieve-of-eratosthenes.c
+	/* create a bit array for our 16 bit flags: */
+	struct eba *eba = NULL;
+	eba = eba_new(16);
 
+	/* alternatively, choose an endian-ness of the bits */
+	eba *eba_new_endian(15, eba_big_endian);
+
+	/* set bits 2 and 5 to 1 */
+	eba_set(eba, 2, 1);
+	eba_set(eba, 5, 1);
+
+	/* check a value */
+	if (eba_get(eba, index)) { printf("index is set\n"); }
+
+	/* swap the values at two index locations */
+	eba_swap(eba, index_a, index_b);
+
+	/* change the value at a location */
+	eba_toggle(eab, index);
+
+	/* shift all bits down by 3, filling with zero */
+	eba_shift_right(eba, 3);
+
+	/* shift all bits up by 5, filling with zero */
+	eba_shift_left(eba, 4);
+
+	/* shift all bits down by 8, filling with a specific value */
+	unsigned char fill_with = eba_get(15);
+	eba_shift_right_fill(eba, 8, fill_with);
+
+	/* rotate the bits, bits shifted off the top will go to bottom */
+	eba_rotate_left(eba, 7);
+
+	/* fill the buffer with a string representation of the bits */
+	printf("the bits: %s\n", eba_to_string(eba, buf, buf_len));
+
+	/* reset all of the bits to 0 */
+	eba_set_all(eba, 0);
+
+	/* free the struct */
+	eba_free(eba);
+
+
+Usage Notes
+-----------
 There is no magic to the 'eba_new' and 'eba_free', only convience.
-You can make the code marginally smaller by defining "EBA_SKIP_EBA_NEW".
+The caller can do the initialziation by hand:
 
-In fact, there is not magic to the 'eba_set' or 'eba_get', rather they
-simply make the indexing a bit in a byte array easier, as well as do the
-bit-fiddling so I don't have to look it up or think hard.
+	unsigned char flags[4];
+	struct eba my_eba;
+
+	eba.bits = flags;
+	eba.size_bytes = 4;
+	eba.endian = eba_endian_little;
+
+In fact, there is not magic to the 'eba_set' or 'eba_get', rather
+they simply make the indexing a bit in a byte array easier, as well
+as do the bit-fiddling so the reader doesn't have to look it up or
+think hard.
 
 If targeting something like an stm or avr chip, the source should be
-easy to drop into a project, then modify to remove references to the C
-standard library.
+easy to drop into a project, possibly modifying to remove functions,
+and defineing EBA_HOSTED to 0.
 
-If you do not need to worry about byte order, you may wish to avoid
-endian-ness checking in order to speed things up by compiling with
-"EBA_SKIP_ENDIAN" defined.
 
-If you never plan to use any of the shifting functions, you can avoid
-compiling any of them by defining "EBA_SKIP_SHIFTS".
+Example Usage
+-------------
+An example can be be found in the demo directory:
 
-If you plan to use the shifting functions, but do not want to use the
-standard C library, you may either define your own "Eba_memcpy" or use
-an dumb one that is provided by defining "EBA_DIY_MEMCPY"
+demos/sieve-of-eratosthenes.c
 
-If you do not wish to reference stddef.h you must defined
-"EBA_SIZE_TYPE" e.g.: -DEBA_SIZE_TYPE="unsigned long int"
+The tests/ directory also may shed some light.
 
-If your platform is weird or you do not wish to reference limits.h,
-you can define "EBA_CHAR_BIT" to 8 or a larger number.
+
+Reducing firmware size
+----------------------
+If EBA_HOSTED is defined to be non-zero, the function pointers
+eba_memset, eba_memcpy, eba_alloc, and eba_mfree naturally point to
+the standard C library functions, however if EBA_HOSTED is 0,
+alternative implementations are provided, and these pointers default
+to simple versions, or no-op versions. To instead initialize these
+pointers to NULL, and avoid building the default versions, define
+the following:
+
+#define EBA_SKIP_DIY_MEMCPY 1
+#define EBA_SKIP_DIY_MEMSET 1
+#define EBA_SKIP_NO_MALLOC 1
+#define EBA_SKIP_NO_PRINT 1
+
+Additionally, other functions can be skipped, and the firmware made
+marginally samller, with the following defines:
+
+#define EBA_SKIP_NEW 1
+#define EBA_SKIP_SET_ALL 1
+#define EBA_SKIP_SHIFTS 1
+#define EBA_SKIP_SWAP 1
+#define EBA_SKIP_TOGGLE 1
+
+
+A note on stack usage
+---------------------
+Most of the Embedable Bit Array functions are very light with
+regards to stack demands.  The shift and rotate functions allocate
+temporary space, typically this is done with calls to 'alloca' to
+obtain the space needed to make a copy of the incoming eba_struct
+from the stack. In rare situations, like very large arrays or very
+stack constrained environments, this may not be desirable. The build
+can be tuned to address this.
+
+Calls to alloca can be replaced with calls to eba_alloc by defining
+EBA_NO_ALLOCA when compiling eba.c.  Typically calls to alloca are
+resolved to a compiler, built-in; in some situations it may be
+advantageous to call alloca, but _not_ include <alloca.h>, this can
+be accomplished by defining EBA_SKIP_ALLOCA_H to 1.
+
+
+Bugs
+----
+If a bug is encountered, it may be useful to recompile with
+debugging, by defining EBA_DEBUG to 1. When EBA_DEBUG is defined to
+non-zero, assertions are added to the code.
+
+
+Debug for embedded
+-----------------
+If EBA_DEBUG is non-zero and EBA_HOSTED is non-zero, rather than
+including <assert.h>, eba_assert is defined to be a macro which
+makes use of function pointers for printing error information. To
+get useful information from the assertion failures, assign suitable
+printing behavior to the following functions:
+
+	void (*eba_debug_print_z)(size_t z);
+	void (*eba_debug_print_s)(const char *s);
+	void (*eba_debug_print_eol)(void);
+	void (*eba_debug_die)(void);
+
+
+CHAR_BIT weird-ness
+-------------------
+POSIX and Windows define CHAR_BIT to 8. Most people never work on a
+system where CHAR_BIT is defined to anything other than 8.  However,
+rare DSPs and some emultors of very old hardware define CHAR_BIT to
+values like 9, 16, 24, 32, or 36.  Effort has been made to try to
+suport weird platforms, but this is largely un-tested.  If your
+platform is weird or you do not wish to reference limits.h, you can
+define "EBA_CHAR_BIT" to 8 or a larger number.
 
 
 Cloning
@@ -47,6 +163,14 @@ git clone -o upstream https://github.com/ericherman/libeba.git &&
  autoreconf -iv &&
  ./configure &&
  make -j check
+
+
+Contributing
+------------
+This codebase started as a learning exercise, although it proved
+itself useful.  No doubt there is much that could still be improved.
+Please feel free to give suggestions, in the form of comments, bug
+reports, feedback, or code.
 
 
 Packaging

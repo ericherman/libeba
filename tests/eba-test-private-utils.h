@@ -6,37 +6,41 @@
 #define EBA_TEST_PRIVATE_UTILS_H
 
 #include "../src/eba.h"
+
+#ifdef ARDUINO
+#ifndef EBA_HOSTED
+#define EBA_HOSTED 0
+#endif
+#ifndef EBA_DEBUG
+#define EBA_DEBUG 0
+#endif
+#endif /* ARDUINO */
+
+#ifndef EBA_HOSTED
+#define EBA_HOSTED __STDC_HOSTED__
+#endif
+
 #include "../submodules/libecheck/src/echeck.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
-#define TEST_FUNC \
-	((ECHECK_FUNC == NULL) ? "" : ECHECK_FUNC)
-
-#define STDERR_FILE_LINE_FUNC \
-	fprintf(stderr, "%s:%d%s%s%s: ", __FILE__, __LINE__, \
-	(ECHECK_FUNC == NULL) ? "" : ":", \
-	TEST_FUNC, \
-	(ECHECK_FUNC == NULL) ? "" : "()")
-
-#define Test_log_error(format) \
-	STDERR_FILE_LINE_FUNC; fprintf(stderr, format)
-
-#define Test_log_error1(format, arg) \
-	STDERR_FILE_LINE_FUNC; fprintf(stderr, format, arg)
-
-#define Test_log_error2(format, arg1, arg2) \
-	STDERR_FILE_LINE_FUNC; fprintf(stderr, format, arg1, arg2)
-
-#define Test_log_error3(format, arg1, arg2, arg3) \
-	STDERR_FILE_LINE_FUNC; fprintf(stderr, format, arg1, arg2, arg3)
-
-#define Test_log_error4(format, arg1, arg2, arg3, arg4) \
-	STDERR_FILE_LINE_FUNC; fprintf(stderr, format, arg1, arg2, arg3, arg4)
+#define Test_log_error(num_errors, in_what) \
+	do { \
+		eba_debug_print_s(__FILE__); \
+		eba_debug_print_s(":"); \
+		eba_debug_print_z(__LINE__); \
+		eba_debug_print_s(" "); \
+		eba_debug_print_z(num_errors); \
+		eba_debug_print_s(" failures in "); \
+		eba_debug_print_s(in_what); \
+		eba_debug_print_eol(); \
+	} while (0)
 
 #define VERBOSE_ANNOUNCE(verbose) \
-	if (verbose) { fprintf(stderr, "starting %s\n", TEST_FUNC); }
+	do { \
+		if (verbose) { \
+			eba_debug_print_s("starting"); \
+			eba_debug_print_eol(); \
+		} \
+	} while (0)
 
 #define cap_failures(failures) \
 	((failures > 127) ? 127 : ((failures < -128) ? -128 : failures))

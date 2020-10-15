@@ -6,7 +6,7 @@ test-toggle
 test-shift-left
 test-shift-right
 test-shift-fill
-test-ring-shift
+test-rotate
 test-new
 test-to-string
 sieve-of-eratosthenes

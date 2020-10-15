@@ -10,7 +10,7 @@ int test_toggle(int verbose, enum eba_endian endian)
 	size_t i;
 	unsigned char bytes[2];
 	unsigned char expected[2];
-	struct eba_s eba;
+	struct eba eba;
 
 	VERBOSE_ANNOUNCE(verbose);
 	failures = 0;
@@ -143,7 +143,7 @@ int test_toggle(int verbose, enum eba_endian endian)
 	failures += check_byte_array(bytes, 2, expected, 2);
 
 	if (failures) {
-		Test_log_error1("%d failures in test_toggle2\n", failures);
+		Test_log_error(failures, "test_toggle");
 	}
 
 	return failures;
@@ -155,7 +155,7 @@ int test_toggle_all_el(int verbose)
 	size_t i;
 	unsigned char bytes[10];
 	unsigned char expected[10];
-	struct eba_s eba;
+	struct eba eba;
 
 	VERBOSE_ANNOUNCE(verbose);
 	failures = 0;
@@ -184,7 +184,7 @@ int test_toggle_all_el(int verbose)
 	failures += check_byte_array(bytes, 10, expected, 10);
 
 	if (failures) {
-		Test_log_error1("%d failures in test_toggle\n", failures);
+		Test_log_error(failures, "test_toggle_all_el");
 	}
 
 	return failures;
@@ -199,14 +199,11 @@ int main(int argc, char **argv)
 	failures = 0;
 
 	failures += test_toggle(v, eba_big_endian);
-
-#if (!(EBA_SKIP_ENDIAN))
 	failures += test_toggle(v, eba_endian_little);
 	failures += test_toggle_all_el(v);
-#endif
 
 	if (failures) {
-		Test_log_error2("%d failures in %s\n", failures, __FILE__);
+		Test_log_error(failures, __FILE__);
 	}
 
 	return cap_failures(failures);

@@ -10,7 +10,7 @@ int test_set_all(int verbose, enum eba_endian endian)
 	size_t i;
 	unsigned char bytes[10];
 	unsigned char expected[10];
-	struct eba_s eba;
+	struct eba eba;
 
 	VERBOSE_ANNOUNCE(verbose);
 	failures = 0;
@@ -32,7 +32,7 @@ int test_set_all(int verbose, enum eba_endian endian)
 	failures += check_byte_array(bytes, 10, expected, 10);
 
 	if (failures) {
-		Test_log_error1("%d failures in test_set\n", failures);
+		Test_log_error(failures, "test_set_all");
 	}
 
 	return failures;
@@ -47,13 +47,10 @@ int main(int argc, char **argv)
 	failures = 0;
 
 	failures += test_set_all(v, eba_big_endian);
-
-#if (!(EBA_SKIP_ENDIAN))
 	failures += test_set_all(v, eba_endian_little);
-#endif
 
 	if (failures) {
-		Test_log_error2("%d failures in %s\n", failures, __FILE__);
+		Test_log_error(failures, __FILE__);
 	}
 
 	return cap_failures(failures);

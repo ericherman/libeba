@@ -2,18 +2,11 @@
 # Makefile.am
 # Copyright (C) 2017, 2018, 2019 Eric Herman <eric@freesa.org>
 
-# for environments that do not have alloca, malloc is used
-# malloc instead of alloca can be forced: #define EBA_NO_ALLOCA 1
-# TODO: make this plugable for non-alloca embedded environments
-#ALLOCA_CFLAGS=-DEBA_NO_ALLOCA=1
-ALLOCA_CFLAGS=
 
 CSTD_CFLAGS=-std=c89
 
 if DEBUG
 BUILD_TYPE_CFLAGS=-ggdb -O0 \
-	-DEBA_DIY_MEMSET=1 \
-	-DEBA_DIY_MEMCPY=1 \
 	-fsanitize=address,leak,undefined \
 	-fno-inline-small-functions \
 	-fkeep-inline-functions \
@@ -21,26 +14,58 @@ BUILD_TYPE_CFLAGS=-ggdb -O0 \
 	--coverage
 BUILD_TYPE_LDFLAGS=--coverage
 else
-BUILD_TYPE_CFLAGS=-ggdb -O2 -DNDEBUG -Wno-unused-parameter -fomit-frame-pointer
-BUILD_TYPE_LDFLAGS=
+BUILD_TYPE_CFLAGS=-ggdb -O2 -DNDEBUG -fomit-frame-pointer
 endif
 
-#-DEBA_NO_ALLOCA=1 \
-BUILD_FAUX_EMBED_CFLAGS=-ggdb -O2 -fomit-frame-pointer \
- -DNDEBUG \
- -DEBA_SKIP_LIBC=1 \
- -DEBA_CHAR_BIT=8 \
- -DEBA_DIY_MEMCPY=1 \
- -DEBA_DIY_MEMSET=1 \
- -DEBA_SKIP_EBA_NEW=1 \
- -DEBA_SKIP_TO_STRING=1 \
- -DEBA_SKIP_ENDIAN=1
+if NO_ALLOCA
+EAB_NO_ALLOCA_CFLAGS=-DEBA_NO_ALLOCA=1
+endif
+
+if SKIP_ALLOCA_H
+EBA_SKIP_ALLOCA_H_CFLAGS=-DSKIP_ALLOCA_H=1
+endif
+
+if FAUX_FREESTANDING
+EBA_HOSTED_CFLAGS=-DEBA_HOSTED=0 -DFAUX_FREESTANDING=1
+endif
+
+if SKIP_EBA_NEW
+EBA_SKIP_EBA_NEW_CFLAGS=-DEBA_SKIP_EBA_NEW=1
+endif
+
+if SKIP_TO_STRING
+EBA_SKIP_TO_STRING_CFLAGS=-DEBA_SKIP_TO_STRING=1
+endif
+
+if SKIP_SWAP
+EBA_SKIP_SWAP_CFLAGS=-DEBA_SKIP_SWAP=1
+endif
+
+if SKIP_SET_ALL
+EBA_SKIP_SET_ALL_CFLAGS=-DEBA_SKIP_SET_ALL=1
+endif
+
+if SKIP_SHIFTS
+EBA_SKIP_SHIFTS_CFLAGS=-DEBA_SKIP_SHIFTS=1
+endif
+
+if SKIP_TOGGLE
+EBA_SKIP_TOGGLE_CFLAGS=-DEBA_SKIP_TOGGLE=1
+endif
 
 NOISY_CFLAGS=-Wall -Wextra -pedantic -Werror
 
 AM_CFLAGS=$(CSTD_CFLAGS) \
- $(ALLOCA_CFLAGS) \
  $(BUILD_TYPE_CFLAGS) \
+ $(EAB_NO_ALLOCA_CFLAGS) \
+ $(EAB_SKIP_ALLOCA_H_CFLAGS) \
+ $(EBA_HOSTED_CFLAGS) \
+ $(EBA_SKIP_EBA_NEW_CFLAGS) \
+ $(EBA_SKIP_TO_STRING_CFLAGS) \
+ $(EBA_SKIP_SWAP_CFLAGS) \
+ $(EBA_SKIP_SET_ALL_CFLAGS) \
+ $(EBA_SKIP_SHIFTS_CFLAGS) \
+ $(EBA_SKIP_TOGGLE_CFLAGS) \
  $(NOISY_CFLAGS) \
  -pipe
 
@@ -49,7 +74,6 @@ include_HEADERS=src/eba.h
 
 libeba_la_SOURCES=\
  src/eba.h \
- src/eba-internal.h \
  src/eba.c
 
 libeba_la_LIBADD=
@@ -64,14 +88,13 @@ check_PROGRAMS=\
  test-shift-left \
  test-shift-right \
  test-shift-fill \
- test-ring-shift \
+ test-rotate \
  test-new \
  test-to-string \
  test-toggle
 
 COMMON_TEST_SOURCES=\
  src/eba.h \
- src/eba-internal.h \
  submodules/libecheck/src/echeck.h \
  submodules/libecheck/src/echeck.c \
  tests/eba-test-private-utils.h
@@ -95,9 +118,9 @@ test_swap_SOURCES=tests/test-swap.c $(COMMON_TEST_SOURCES)
 test_swap_LDADD=$(TEST_LDADDS)
 test_swap_CFLAGS=$(AM_CFLAGS) $(TEST_CFLAGS)
 
-test_ring_shift_SOURCES=tests/test-ring-shift.c $(COMMON_TEST_SOURCES)
-test_ring_shift_LDADD=$(TEST_LDADDS)
-test_ring_shift_CFLAGS=$(AM_CFLAGS) $(TEST_CFLAGS)
+test_rotate_SOURCES=tests/test-rotate.c $(COMMON_TEST_SOURCES)
+test_rotate_LDADD=$(TEST_LDADDS)
+test_rotate_CFLAGS=$(AM_CFLAGS) $(TEST_CFLAGS)
 
 test_shift_fill_SOURCES=tests/test-shift-fill.c $(COMMON_TEST_SOURCES)
 test_shift_fill_LDADD=$(TEST_LDADDS)
@@ -144,11 +167,6 @@ tidy:
 
 sieve-of-eratosthenes: $(libeba_la_SOURCES) demos/sieve-of-eratosthenes.c
 	$(CC) $(CSTD_CFLAGS) $(BUILD_TYPE_CFLAGS) $(NOISY_CFLAGS) \
-		-DEBA_SKIP_ENDIAN=1 \
-		-DEBA_SKIP_SHIFTS=1 \
-		-DEBA_SKIP_TO_STRING=1 \
-		-DEBA_SKIP_TOGGLE=1 \
-		-DEBA_SKIP_SWAP=1 \
 		-o sieve-of-eratosthenes \
 		-I./src/ \
 		$(libeba_la_SOURCES) \
@@ -189,8 +207,8 @@ vg-test-shift-right: test-shift-right
 vg-test-shift-fill: test-shift-fill
 	./libtool --mode=execute valgrind -q ./test-shift-fill
 
-vg-test-ring-shift: test-ring-shift
-	./libtool --mode=execute valgrind -q ./test-ring-shift
+vg-test-rotate: test-rotate
+	./libtool --mode=execute valgrind -q ./test-rotate
 
 vg-test-toggle: test-toggle
 	./libtool --mode=execute valgrind -q ./test-toggle
@@ -203,4 +221,5 @@ vg-test-to-string: test-to-string
 
 valgrind: vg-test-get vg-test-set vg-test-set-all vg-test-swap \
 		vg-test-shift-left vg-test-shift-right vg-test-shift-fill \
-		vg-test-ring-shift vg-test-toggle vg-test-new vg-test-to-string
+		vg-test-rotate vg-test-toggle vg-test-new vg-test-to-string
+	@echo valgrind ok

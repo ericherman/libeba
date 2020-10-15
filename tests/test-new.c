@@ -6,19 +6,20 @@
 
 #define Num_bits 100
 
-int test_new_inner(struct eba_s *eba)
+int test_new_inner(struct eba *eba)
 {
 	int failures = 0;
 	size_t i;
 	unsigned char expect;
-	char buf[40];
 
 	if (!eba) {
-		fprintf(stderr, "no eba?\n");
+		eba_debug_print_s("no eba?");
+		eba_debug_print_eol();
 		return 1;
 	}
 	if (!eba->size_bytes) {
-		fprintf(stderr, "no eba->size_bytes?\n");
+		eba_debug_print_s("no eba->size_bytes?");
+		eba_debug_print_eol();
 		return 1;
 	}
 
@@ -50,8 +51,7 @@ int test_new_inner(struct eba_s *eba)
 		} else {
 			expect = 0;
 		}
-		sprintf(buf, "%lu", (unsigned long)i);
-		failures += check_int_m(eba_get(eba, i), expect, buf);
+		failures += check_int(eba_get(eba, i), expect);
 	}
 
 	return failures;
@@ -60,9 +60,21 @@ int test_new_inner(struct eba_s *eba)
 int main(int argc, char **argv)
 {
 	int verbose, failures;
-	struct eba_s *eba;
+	struct eba *eba;
+	void *can_alloc = NULL;
 
 	verbose = (argc > 1) ? atoi(argv[1]) : 0;
+
+#if !EBA_HOSTED
+	if (!eba_alloc) {
+		return 0;
+	}
+#endif
+	can_alloc = eba_alloc(eba_alloc_context, sizeof(int));
+	if (!can_alloc) {
+		return EBA_HOSTED;
+	}
+	eba_mfree(eba_alloc_context, can_alloc);
 
 	VERBOSE_ANNOUNCE(verbose);
 	failures = 0;
@@ -75,14 +87,12 @@ int main(int argc, char **argv)
 	failures += test_new_inner(eba);
 	eba_free(eba);
 
-#if !((!(EBA_SKIP_ENDIAN)))
 	eba = eba_new_endian(Num_bits, eba_endian_little);
 	failures += test_new_inner(eba);
 	eba_free(eba);
-#endif
 
 	if (failures) {
-		Test_log_error2("%d failures in %s\n", failures, __FILE__);
+		Test_log_error(failures, __FILE__);
 	}
 
 	return cap_failures(failures);

@@ -9,7 +9,7 @@ int test_get_el(int verbose)
 	int failures;
 	size_t i;
 	unsigned char bytes[10];
-	struct eba_s eba;
+	struct eba eba;
 
 	VERBOSE_ANNOUNCE(verbose);
 	failures = 0;
@@ -118,7 +118,7 @@ int test_get_el(int verbose)
 	failures += check_int(eba_get(&eba, 79), 0);
 
 	if (failures) {
-		Test_log_error1("%d failures in test_get\n", failures);
+		Test_log_error(failures, "test_get");
 	}
 
 	return failures;
@@ -129,7 +129,7 @@ int test_get_be(int verbose)
 	int failures;
 	size_t i;
 	unsigned char bytes[10];
-	struct eba_s eba;
+	struct eba eba;
 
 	VERBOSE_ANNOUNCE(verbose);
 	failures = 0;
@@ -238,7 +238,7 @@ int test_get_be(int verbose)
 	failures += check_int(eba_get(&eba, 79), 0);
 
 	if (failures) {
-		Test_log_error1("%d failures in test_get\n", failures);
+		Test_log_error(failures, "test_get");
 	}
 
 	return failures;
@@ -253,12 +253,10 @@ int main(int argc, char **argv)
 	failures = 0;
 
 	failures += test_get_be(v);
-#if (!(EBA_SKIP_ENDIAN))
 	failures += test_get_el(v);
-#endif
 
 	if (failures) {
-		Test_log_error2("%d failures in %s\n", failures, __FILE__);
+		Test_log_error(failures, __FILE__);
 	}
 
 	return cap_failures(failures);

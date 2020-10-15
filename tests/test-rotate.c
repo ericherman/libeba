@@ -1,24 +1,24 @@
 /* SPDX-License-Identifier: LGPL-3.0-or-later */
-/* test-swap.c */
+/* test-rotate.c */
 /* Copyright (C) 2017, 2019 Eric Herman <eric@freesa.org> */
 
 #include "eba-test-private-utils.h"
 
-int test_ring_shift(int verbose, enum eba_endian endian)
+int test_rotate(int verbose, enum eba_endian endian)
 {
 	int failures;
 	unsigned char bytes[10];
 	unsigned char start[10];
 	unsigned char middle[10];
-	struct eba_s eba;
+	struct eba eba;
 	unsigned int shift_amount;
 
 	VERBOSE_ANNOUNCE(verbose);
 	failures = 0;
 
-	memset(bytes, 0x00, 10);
-	memset(start, 0x00, 10);
-	memset(middle, 0x00, 10);
+	eba_memset(bytes, 0x00, 10);
+	eba_memset(start, 0x00, 10);
+	eba_memset(middle, 0x00, 10);
 
 	eba.bits = bytes;
 	eba.size_bytes = 10;
@@ -49,31 +49,31 @@ int test_ring_shift(int verbose, enum eba_endian endian)
 		middle[9] = 0x20;
 	}
 
-	memcpy(bytes, start, 10);
+	eba_memcpy(bytes, start, 10);
 
-	eba_ring_shift_left(&eba, shift_amount);
+	eba_rotate_left(&eba, shift_amount);
 
 	failures += check_byte_array_m(bytes, 10, middle, 10, "first");
 
-	eba_ring_shift_right(&eba, shift_amount);
+	eba_rotate_right(&eba, shift_amount);
 
 	failures += check_byte_array_m(bytes, 10, start, 10, "second");
 
 	if (failures) {
-		Test_log_error1("%d failures in test_set\n", failures);
+		Test_log_error(failures, "test_rotate");
 	}
 
 	return failures;
 }
 
-int test_simple_ring_shift_le(int verbose)
+int test_simple_rotate_le(int verbose)
 {
 	int failures;
 	size_t i;
 	unsigned char bytes[2];
 	unsigned char start[2];
 	unsigned char middle[2];
-	struct eba_s eba;
+	struct eba eba;
 	unsigned long shift_amount;
 
 	VERBOSE_ANNOUNCE(verbose);
@@ -97,19 +97,19 @@ int test_simple_ring_shift_le(int verbose)
 	}
 
 	shift_amount = 2;
-	eba_ring_shift_left(&eba, shift_amount);
+	eba_rotate_left(&eba, shift_amount);
 
 	middle[0] = (5U << 2);
 	middle[1] = (8U << 2);
 
 	failures += check_byte_array_m(bytes, 2, middle, 2, "first");
 
-	eba_ring_shift_right(&eba, shift_amount);
+	eba_rotate_right(&eba, shift_amount);
 
 	failures += check_byte_array_m(bytes, 2, start, 2, "second");
 
 	if (failures) {
-		Test_log_error1("%d failures in test_shift\n", failures);
+		Test_log_error(failures, "test_simple_rotate_le");
 	}
 
 	return failures;
@@ -118,14 +118,16 @@ int test_simple_ring_shift_le(int verbose)
 int test_round_the_world_shift_be(void)
 {
 	int failures = 0;
-	struct eba_s *eba;
+	struct eba eba_s;
+	unsigned char bytes[2];
+	struct eba *eba = &eba_s;
 	char buf[40];
 	size_t bits_size = 16;
 
-	eba = eba_new_endian(bits_size, eba_big_endian);
-	if (!eba) {
-		return 1;
-	}
+	eba_memset(bytes, 0x00, 2);
+	eba->bits = bytes;
+	eba->size_bytes = 2;
+	eba->endian = eba_big_endian;
 
 	eba_set(eba, 1, 1);
 	eba_set(eba, 2, 1);
@@ -135,26 +137,30 @@ int test_round_the_world_shift_be(void)
 
 	eba_to_string(eba, buf, 40);
 	failures += check_str(buf, "00000001 00101110");
-	eba_ring_shift_left(eba, bits_size + 3);
-	eba_ring_shift_right(eba, bits_size + 5);
+	eba_rotate_left(eba, bits_size + 3);
+	eba_rotate_right(eba, bits_size + 5);
 	eba_to_string(eba, buf, 40);
 	failures += check_str(buf, "10000000 01001011");
 
-	eba_free(eba);
+	if (failures) {
+		Test_log_error(failures, "test_round_the_world_shift_be");
+	}
 	return failures;
 }
 
 int test_round_the_world_shift_el(void)
 {
 	int failures = 0;
-	struct eba_s *eba;
+	unsigned char bytes[2];
+	struct eba eba_s;
+	struct eba *eba = &eba_s;
 	char buf[40];
 	size_t bits_size = 16;
 
-	eba = eba_new_endian(bits_size, eba_endian_little);
-	if (!eba) {
-		return 1;
-	}
+	eba_memset(bytes, 0x00, 2);
+	eba->bits = bytes;
+	eba->size_bytes = 2;
+	eba->endian = eba_endian_little;
 
 	eba_set(eba, 1, 1);
 	eba_set(eba, 2, 1);
@@ -164,12 +170,14 @@ int test_round_the_world_shift_el(void)
 
 	eba_to_string(eba, buf, 40);
 	failures += check_str(buf, "01110100 10000000");
-	eba_ring_shift_left(eba, bits_size + 3);
-	eba_ring_shift_right(eba, bits_size + 5);
+	eba_rotate_left(eba, bits_size + 3);
+	eba_rotate_right(eba, bits_size + 5);
 	eba_to_string(eba, buf, 40);
 	failures += check_str(buf, "11010010 00000001");
 
-	eba_free(eba);
+	if (failures) {
+		Test_log_error(failures, "test_round_the_world_shift_el");
+	}
 	return failures;
 }
 
@@ -181,20 +189,16 @@ int main(int argc, char **argv)
 
 	failures = 0;
 
-	failures += test_ring_shift(v, eba_big_endian);
+	failures += test_rotate(v, eba_big_endian);
 
-#if (!(EBA_SKIP_ENDIAN))
-	failures += test_simple_ring_shift_le(v);
-	failures += test_ring_shift(v, eba_endian_little);
-#endif
+	failures += test_simple_rotate_le(v);
+	failures += test_rotate(v, eba_endian_little);
 
 	failures += test_round_the_world_shift_be();
-#if (!(EBA_SKIP_ENDIAN))
 	failures += test_round_the_world_shift_el();
-#endif
 
 	if (failures) {
-		Test_log_error2("%d failures in %s\n", failures, __FILE__);
+		Test_log_error(failures, __FILE__);
 	}
 
 	return cap_failures(failures);

@@ -10,7 +10,7 @@ int test_swap_endianness(int verbose, enum eba_endian endian)
 	size_t i, j;
 	unsigned char bytes[10];
 	unsigned char expected[10];
-	struct eba_s eba;
+	struct eba eba;
 	unsigned int index1, index2;
 
 	VERBOSE_ANNOUNCE(verbose);
@@ -46,7 +46,7 @@ int test_swap_endianness(int verbose, enum eba_endian endian)
 	failures += check_byte_array(bytes, 10, expected, 10);
 
 	if (failures) {
-		Test_log_error1("%d failures in test_set\n", failures);
+		Test_log_error(failures, "test_swap_endianness");
 	}
 
 	return failures;
@@ -60,13 +60,11 @@ int main(int argc, char **argv)
 
 	failures = 0;
 
-#if (!(EBA_SKIP_ENDIAN))
 	failures += test_swap_endianness(v, eba_endian_little);
-#endif
 	failures += test_swap_endianness(v, eba_big_endian);
 
 	if (failures) {
-		Test_log_error2("%d failures in %s\n", failures, __FILE__);
+		Test_log_error(failures, __FILE__);
 	}
 
 	return cap_failures(failures);

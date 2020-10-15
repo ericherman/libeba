@@ -10,7 +10,7 @@
 int main(int argc, char **argv)
 {
 	unsigned long max;
-	struct eba_s *eba;
+	struct eba *eba;
 	size_t i, j;
 
 	max = argc > 1 ? strtoul(argv[1], NULL, 10) : 100;

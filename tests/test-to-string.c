@@ -7,13 +7,15 @@
 int test_to_string_be(void)
 {
 	int failures = 0;
-	struct eba_s *eba;
+	unsigned char bytes[2];
+	struct eba eba_s;
+	struct eba *eba = &eba_s;
 	char buf[40];
 
-	eba = eba_new_endian(10, eba_big_endian);
-	if (!eba) {
-		return 1;
-	}
+	eba_memset(bytes, 0x00, 2);
+	eba->bits = bytes;
+	eba->size_bytes = 2;
+	eba->endian = eba_big_endian;
 
 	eba_set(eba, 1, 1);
 	eba_set(eba, 2, 1);
@@ -22,23 +24,27 @@ int test_to_string_be(void)
 	eba_set(eba, 8, 1);
 
 	eba_to_string(eba, buf, 40);
-	eba_free(eba);
 
 	failures += check_str(buf, "00000001 00101110");
 
+	if (failures) {
+		Test_log_error(failures, "test_to_string_be");
+	}
 	return failures;
 }
 
 int test_to_string_el(void)
 {
 	int failures = 0;
-	struct eba_s *eba;
+	unsigned char bytes[2];
+	struct eba eba_s;
+	struct eba *eba = &eba_s;
 	char buf[40];
 
-	eba = eba_new_endian(10, eba_endian_little);
-	if (!eba) {
-		return 1;
-	}
+	eba_memset(bytes, 0x00, 2);
+	eba->bits = bytes;
+	eba->size_bytes = 2;
+	eba->endian = eba_endian_little;
 
 	eba_set(eba, 1, 1);
 	eba_set(eba, 2, 1);
@@ -47,23 +53,27 @@ int test_to_string_el(void)
 	eba_set(eba, 8, 1);
 
 	eba_to_string(eba, buf, 40);
-	eba_free(eba);
 
 	failures += check_str(buf, "01110100 10000000");
 
+	if (failures) {
+		Test_log_error(failures, "test_to_string_el");
+	}
 	return failures;
 }
 
 int test_to_string_error_1(void)
 {
 	int failures = 0;
-	struct eba_s *eba;
+	unsigned char bytes[2];
+	struct eba eba_s;
+	struct eba *eba = &eba_s;
 	char buf[40];
 
-	eba = eba_new_endian(10, eba_big_endian);
-	if (!eba) {
-		return 1;
-	}
+	eba_memset(bytes, 0x00, 2);
+	eba->bits = bytes;
+	eba->size_bytes = 2;
+	eba->endian = eba_big_endian;
 
 	eba_set(eba, 1, 1);
 	eba_set(eba, 2, 1);
@@ -71,25 +81,29 @@ int test_to_string_error_1(void)
 	eba_set(eba, 5, 1);
 	eba_set(eba, 8, 1);
 
-	memset(buf, 0x00, 40);
+	eba_memset(buf, 0x00, 40);
 	eba_to_string(eba, buf, 11);
-	eba_free(eba);
 
 	failures += check_str(buf, "00000001 !");
 
+	if (failures) {
+		Test_log_error(failures, "test_to_string_error_1");
+	}
 	return failures;
 }
 
 int test_to_string_error_2(void)
 {
 	int failures = 0;
-	struct eba_s *eba;
+	unsigned char bytes[2];
+	struct eba eba_s;
+	struct eba *eba = &eba_s;
 	char buf[40];
 
-	eba = eba_new_endian(10, eba_big_endian);
-	if (!eba) {
-		return 1;
-	}
+	eba_memset(bytes, 0x00, 2);
+	eba->bits = bytes;
+	eba->size_bytes = 2;
+	eba->endian = eba_big_endian;
 
 	eba_set(eba, 1, 1);
 	eba_set(eba, 2, 1);
@@ -97,28 +111,31 @@ int test_to_string_error_2(void)
 	eba_set(eba, 5, 1);
 	eba_set(eba, 8, 1);
 
-	memset(buf, 0x00, 40);
+	eba_memset(buf, 0x00, 40);
 	eba_to_string(eba, buf, 2);
-	eba_free(eba);
 
 	failures += check_str(buf, "!");
 
+	if (failures) {
+		Test_log_error(failures, "test_to_string_error_2");
+	}
 	return failures;
 }
 
 int test_to_string_invalid(void)
 {
 	int failures = 0;
-	struct eba_s eba;
+	struct eba eba;
 	unsigned char bytes[2];
 	char buf[40];
 	char *rv;
 
+	eba_memset(bytes, 0x00, 2);
 	eba.bits = bytes;
 	eba.size_bytes = 2;
 	eba.endian = eba_big_endian;
 
-	memset(buf, 'Z', 39);
+	eba_memset(buf, 'Z', 39);
 	buf[39] = '\0';
 
 	rv = eba_to_string(&eba, NULL, 40);
@@ -139,6 +156,9 @@ int test_to_string_invalid(void)
 	failures += check_ptr(rv, buf);
 	failures += check_str(buf, "");
 
+	if (failures) {
+		Test_log_error(failures, "test_to_string_invalid");
+	}
 	return failures;
 }
 
@@ -152,16 +172,14 @@ int main(int argc, char **argv)
 	failures = 0;
 
 	failures += test_to_string_be();
-#if (!(EBA_SKIP_ENDIAN))
 	failures += test_to_string_el();
-#endif
 
 	failures += test_to_string_error_1();
 	failures += test_to_string_error_2();
 	failures += test_to_string_invalid();
 
 	if (failures) {
-		Test_log_error2("%d failures in %s\n", failures, __FILE__);
+		Test_log_error(failures, __FILE__);
 	}
 
 	return cap_failures(failures);
