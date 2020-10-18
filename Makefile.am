@@ -100,7 +100,7 @@ COMMON_TEST_SOURCES=\
  tests/eba-test-private-utils.h
 
 TEST_LDADDS=-leba
-TEST_CFLAGS=-I ./submodules/libecheck/src
+TEST_CFLAGS=-I ./submodules/libecheck/src -I ./src
 
 test_set_SOURCES=tests/test-set.c $(COMMON_TEST_SOURCES)
 test_set_LDADD=$(TEST_LDADDS)
@@ -162,8 +162,8 @@ tidy:
 	$(LINDENT) \
 		-T size_t \
 		-T FILE \
-		-T eba_s \
-		`find src tests demos -name '*.h' -o -name '*.c'`
+		`find src tests demos -name '*.h' -o -name '*.c'` \
+		eba_test_arduino/eba_test_arduino.ino
 
 sieve-of-eratosthenes: $(libeba_la_SOURCES) demos/sieve-of-eratosthenes.c
 	$(CC) $(CSTD_CFLAGS) $(BUILD_TYPE_CFLAGS) $(NOISY_CFLAGS) \

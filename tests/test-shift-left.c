@@ -6,8 +6,8 @@
 #include <limits.h>
 #include <stdint.h>
 
-int test_shift_left(int verbose, uint16_t u16, uint8_t shift_val,
-		    enum eba_endian endian)
+int eba_test_shift_left_inner(int verbose, uint16_t u16, uint8_t shift_val,
+			      enum eba_endian endian)
 {
 	int failures;
 	unsigned char bytes[2];
@@ -18,7 +18,8 @@ int test_shift_left(int verbose, uint16_t u16, uint8_t shift_val,
 	char eba_buf[40];
 	char expect_buf[40];
 
-	VERBOSE_ANNOUNCE(verbose);
+	VERBOSE_ANNOUNCE_S_Z_Z_Z(verbose, "eba_test_shift_left_inner", endian,
+				 u16, shift_val);
 	failures = 0;
 	eba_buf[0] = '\0';
 	expect_buf[0] = '\0';
@@ -59,7 +60,7 @@ int test_shift_left(int verbose, uint16_t u16, uint8_t shift_val,
 	return failures;
 }
 
-int test_shift_left_bug(int verbose, enum eba_endian endian)
+int eba_test_shift_left_bug(int verbose, enum eba_endian endian)
 {
 	int failures;
 	unsigned char bytes[20];
@@ -69,7 +70,7 @@ int test_shift_left_bug(int verbose, enum eba_endian endian)
 	char eba_buf[255];
 	char expect_buf[255];
 
-	VERBOSE_ANNOUNCE(verbose);
+	VERBOSE_ANNOUNCE_S_Z(verbose, "eba_test_shift_left_bug", endian);
 	failures = 0;
 	eba_buf[0] = '\0';
 	expect_buf[0] = '\0';
@@ -105,30 +106,47 @@ int test_shift_left_bug(int verbose, enum eba_endian endian)
 	return failures;
 }
 
-int main(int argc, char **argv)
+static uint16_t next_u16_test(uint16_t in)
 {
-	int v, failures;
-	uint16_t u16;
-	uint8_t shift_val;
+	if (in >= (UINT16_MAX - (CHAR_BIT + 1)) || in <= (CHAR_BIT + 1)) {
+		return in - 1;
+	}
+	if (in > 8192) {
+		return in - 7993;
+	}
+	if (in > 255) {
+		return in - 251;
+	}
+	if (in > 32) {
+		return in - 17;
+	}
+	return in - 1;
+}
 
-	v = (argc > 1) ? atoi(argv[1]) : 0;
+int eba_test_shift_left(int v)
+{
+	int failures = 0;
+	uint16_t u16 = 0;
+	uint8_t shift_val = 0;
 
-	failures = 0;
-	for (u16 = UINT16_MAX; !failures && u16; --u16) {
+	for (u16 = UINT16_MAX; !failures && u16; u16 = next_u16_test(u16)) {
 		for (shift_val = 16; shift_val; --shift_val) {
 			failures +=
-			    test_shift_left(v, u16, shift_val,
-					    eba_endian_little);
+			    eba_test_shift_left_inner(v, u16, shift_val,
+						      eba_endian_little);
 			failures +=
-			    test_shift_left(v, u16, shift_val, eba_big_endian);
+			    eba_test_shift_left_inner(v, u16, shift_val,
+						      eba_big_endian);
 		}
 	}
 
-	failures += test_shift_left_bug(v, eba_big_endian);
-	failures += test_shift_left_bug(v, eba_endian_little);
+	failures += eba_test_shift_left_bug(v, eba_big_endian);
+	failures += eba_test_shift_left_bug(v, eba_endian_little);
 
 	if (failures) {
 		Test_log_error(failures, __FILE__);
 	}
-	return cap_failures(failures);
+	return failures;
 }
+
+EBA_TEST(eba_test_shift_left)

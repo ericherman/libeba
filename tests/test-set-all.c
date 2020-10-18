@@ -4,7 +4,7 @@
 
 #include "eba-test-private-utils.h"
 
-int test_set_all(int verbose, enum eba_endian endian)
+int eba_test_set_all_endian(int verbose, enum eba_endian endian)
 {
 	int failures;
 	size_t i;
@@ -12,7 +12,7 @@ int test_set_all(int verbose, enum eba_endian endian)
 	unsigned char expected[10];
 	struct eba eba;
 
-	VERBOSE_ANNOUNCE(verbose);
+	VERBOSE_ANNOUNCE_S_Z(verbose, "eba_test_set_all_endian", endian);
 	failures = 0;
 
 	eba.bits = bytes;
@@ -38,20 +38,18 @@ int test_set_all(int verbose, enum eba_endian endian)
 	return failures;
 }
 
-int main(int argc, char **argv)
+int eba_test_set_all(int v)
 {
-	int v, failures;
+	int failures = 0;
 
-	v = (argc > 1) ? atoi(argv[1]) : 0;
-
-	failures = 0;
-
-	failures += test_set_all(v, eba_big_endian);
-	failures += test_set_all(v, eba_endian_little);
+	failures += eba_test_set_all_endian(v, eba_big_endian);
+	failures += eba_test_set_all_endian(v, eba_endian_little);
 
 	if (failures) {
 		Test_log_error(failures, __FILE__);
 	}
 
-	return cap_failures(failures);
+	return failures;
 }
+
+EBA_TEST(eba_test_set_all)

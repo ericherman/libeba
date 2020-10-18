@@ -4,7 +4,7 @@
 
 #include "eba-test-private-utils.h"
 
-int test_to_string_be(void)
+int eba_test_to_string_be(void)
 {
 	int failures = 0;
 	unsigned char bytes[2];
@@ -33,7 +33,7 @@ int test_to_string_be(void)
 	return failures;
 }
 
-int test_to_string_el(void)
+int eba_test_to_string_el(void)
 {
 	int failures = 0;
 	unsigned char bytes[2];
@@ -62,7 +62,7 @@ int test_to_string_el(void)
 	return failures;
 }
 
-int test_to_string_error_1(void)
+int eba_test_to_string_error_1(void)
 {
 	int failures = 0;
 	unsigned char bytes[2];
@@ -92,7 +92,7 @@ int test_to_string_error_1(void)
 	return failures;
 }
 
-int test_to_string_error_2(void)
+int eba_test_to_string_error_2(void)
 {
 	int failures = 0;
 	unsigned char bytes[2];
@@ -122,7 +122,7 @@ int test_to_string_error_2(void)
 	return failures;
 }
 
-int test_to_string_invalid(void)
+int eba_test_to_string_invalid(void)
 {
 	int failures = 0;
 	struct eba eba;
@@ -162,25 +162,24 @@ int test_to_string_invalid(void)
 	return failures;
 }
 
-int main(int argc, char **argv)
+int eba_test_to_string(int verbose)
 {
-	int verbose, failures;
+	int failures = 0;
 
-	verbose = (argc > 1) ? atoi(argv[1]) : 0;
+	VERBOSE_ANNOUNCE_S(verbose, "eba_test_to_string");
 
-	VERBOSE_ANNOUNCE(verbose);
-	failures = 0;
+	failures += eba_test_to_string_be();
+	failures += eba_test_to_string_el();
 
-	failures += test_to_string_be();
-	failures += test_to_string_el();
-
-	failures += test_to_string_error_1();
-	failures += test_to_string_error_2();
-	failures += test_to_string_invalid();
+	failures += eba_test_to_string_error_1();
+	failures += eba_test_to_string_error_2();
+	failures += eba_test_to_string_invalid();
 
 	if (failures) {
 		Test_log_error(failures, __FILE__);
 	}
 
-	return cap_failures(failures);
+	return failures;
 }
+
+EBA_TEST(eba_test_to_string)

@@ -4,14 +4,14 @@
 
 #include "eba-test-private-utils.h"
 
-int test_get_el(int verbose)
+int eba_test_get_el(int verbose)
 {
 	int failures;
 	size_t i;
 	unsigned char bytes[10];
 	struct eba eba;
 
-	VERBOSE_ANNOUNCE(verbose);
+	VERBOSE_ANNOUNCE_S(verbose, "eba_test_get_el");
 	failures = 0;
 
 	for (i = 0; i < 10; ++i) {
@@ -124,14 +124,14 @@ int test_get_el(int verbose)
 	return failures;
 }
 
-int test_get_be(int verbose)
+int eba_test_get_be(int verbose)
 {
 	int failures;
 	size_t i;
 	unsigned char bytes[10];
 	struct eba eba;
 
-	VERBOSE_ANNOUNCE(verbose);
+	VERBOSE_ANNOUNCE_S(verbose, "eba_test_get_be");
 	failures = 0;
 
 	for (i = 0; i < 10; ++i) {
@@ -244,20 +244,18 @@ int test_get_be(int verbose)
 	return failures;
 }
 
-int main(int argc, char **argv)
+int eba_test_get(int v)
 {
-	int v, failures;
+	int failures = 0;
 
-	v = (argc > 1) ? atoi(argv[1]) : 0;
-
-	failures = 0;
-
-	failures += test_get_be(v);
-	failures += test_get_el(v);
+	failures += eba_test_get_be(v);
+	failures += eba_test_get_el(v);
 
 	if (failures) {
 		Test_log_error(failures, __FILE__);
 	}
 
-	return cap_failures(failures);
+	return failures;
 }
+
+EBA_TEST(eba_test_get)

@@ -6,7 +6,7 @@
 
 #define Num_bits 100
 
-int test_new_inner(struct eba *eba)
+int eba_test_new_inner(struct eba *eba)
 {
 	int failures = 0;
 	size_t i;
@@ -57,13 +57,11 @@ int test_new_inner(struct eba *eba)
 	return failures;
 }
 
-int main(int argc, char **argv)
+int eba_test_new(int verbose)
 {
-	int verbose, failures;
-	struct eba *eba;
+	int failures = 0;
+	struct eba *eba = NULL;
 	void *can_alloc = NULL;
-
-	verbose = (argc > 1) ? atoi(argv[1]) : 0;
 
 #if !EBA_HOSTED
 	if (!eba_alloc) {
@@ -76,24 +74,26 @@ int main(int argc, char **argv)
 	}
 	eba_mfree(eba_alloc_context, can_alloc);
 
-	VERBOSE_ANNOUNCE(verbose);
+	VERBOSE_ANNOUNCE_S(verbose, "eba_test_new");
 	failures = 0;
 
 	eba = eba_new(Num_bits);
-	failures += test_new_inner(eba);
+	failures += eba_test_new_inner(eba);
 	eba_free(eba);
 
 	eba = eba_new_endian(Num_bits, eba_big_endian);
-	failures += test_new_inner(eba);
+	failures += eba_test_new_inner(eba);
 	eba_free(eba);
 
 	eba = eba_new_endian(Num_bits, eba_endian_little);
-	failures += test_new_inner(eba);
+	failures += eba_test_new_inner(eba);
 	eba_free(eba);
 
 	if (failures) {
 		Test_log_error(failures, __FILE__);
 	}
 
-	return cap_failures(failures);
+	return failures;
 }
+
+EBA_TEST(eba_test_new)

@@ -4,7 +4,7 @@
 
 #include "eba-test-private-utils.h"
 
-int test_rotate(int verbose, enum eba_endian endian)
+int eba_test_rotate_endian(int verbose, enum eba_endian endian)
 {
 	int failures;
 	unsigned char bytes[10];
@@ -13,7 +13,7 @@ int test_rotate(int verbose, enum eba_endian endian)
 	struct eba eba;
 	unsigned int shift_amount;
 
-	VERBOSE_ANNOUNCE(verbose);
+	VERBOSE_ANNOUNCE_S_Z(verbose, "eba_test_rotate_endian", endian);
 	failures = 0;
 
 	eba_memset(bytes, 0x00, 10);
@@ -66,7 +66,7 @@ int test_rotate(int verbose, enum eba_endian endian)
 	return failures;
 }
 
-int test_simple_rotate_le(int verbose)
+int eba_test_simple_rotate_le(int verbose)
 {
 	int failures;
 	size_t i;
@@ -76,7 +76,7 @@ int test_simple_rotate_le(int verbose)
 	struct eba eba;
 	unsigned long shift_amount;
 
-	VERBOSE_ANNOUNCE(verbose);
+	VERBOSE_ANNOUNCE_S(verbose, "eba_test_simple_rotate_le");
 	failures = 0;
 
 	for (i = 0; i < 2; ++i) {
@@ -115,7 +115,7 @@ int test_simple_rotate_le(int verbose)
 	return failures;
 }
 
-int test_round_the_world_shift_be(void)
+int eba_test_round_the_world_shift_be(void)
 {
 	int failures = 0;
 	struct eba eba_s;
@@ -148,7 +148,7 @@ int test_round_the_world_shift_be(void)
 	return failures;
 }
 
-int test_round_the_world_shift_el(void)
+int eba_test_round_the_world_shift_el(void)
 {
 	int failures = 0;
 	unsigned char bytes[2];
@@ -181,25 +181,23 @@ int test_round_the_world_shift_el(void)
 	return failures;
 }
 
-int main(int argc, char **argv)
+int eba_test_rotate(int v)
 {
-	int v, failures;
+	int failures = 0;
 
-	v = (argc > 1) ? atoi(argv[1]) : 0;
+	failures += eba_test_rotate_endian(v, eba_big_endian);
+	failures += eba_test_rotate_endian(v, eba_endian_little);
 
-	failures = 0;
+	failures += eba_test_simple_rotate_le(v);
 
-	failures += test_rotate(v, eba_big_endian);
-
-	failures += test_simple_rotate_le(v);
-	failures += test_rotate(v, eba_endian_little);
-
-	failures += test_round_the_world_shift_be();
-	failures += test_round_the_world_shift_el();
+	failures += eba_test_round_the_world_shift_be();
+	failures += eba_test_round_the_world_shift_el();
 
 	if (failures) {
 		Test_log_error(failures, __FILE__);
 	}
 
-	return cap_failures(failures);
+	return failures;
 }
+
+EBA_TEST(eba_test_rotate)

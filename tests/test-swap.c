@@ -4,7 +4,7 @@
 
 #include "eba-test-private-utils.h"
 
-int test_swap_endianness(int verbose, enum eba_endian endian)
+int eba_test_swap_endianness(int verbose, enum eba_endian endian)
 {
 	int failures;
 	size_t i, j;
@@ -13,7 +13,7 @@ int test_swap_endianness(int verbose, enum eba_endian endian)
 	struct eba eba;
 	unsigned int index1, index2;
 
-	VERBOSE_ANNOUNCE(verbose);
+	VERBOSE_ANNOUNCE_S_Z(verbose, "eba_test_swap_endianness", endian);
 	failures = 0;
 
 	for (i = 0; i < 10; ++i) {
@@ -52,20 +52,18 @@ int test_swap_endianness(int verbose, enum eba_endian endian)
 	return failures;
 }
 
-int main(int argc, char **argv)
+int eba_test_swap(int v)
 {
-	int v, failures;
+	int failures = 0;
 
-	v = (argc > 1) ? atoi(argv[1]) : 0;
-
-	failures = 0;
-
-	failures += test_swap_endianness(v, eba_endian_little);
-	failures += test_swap_endianness(v, eba_big_endian);
+	failures += eba_test_swap_endianness(v, eba_endian_little);
+	failures += eba_test_swap_endianness(v, eba_big_endian);
 
 	if (failures) {
 		Test_log_error(failures, __FILE__);
 	}
 
-	return cap_failures(failures);
+	return failures;
 }
+
+EBA_TEST(eba_test_swap)

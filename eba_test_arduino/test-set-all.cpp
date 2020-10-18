@@ -1,0 +1,1 @@
+../tests/test-set-all.c

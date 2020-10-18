@@ -3,29 +3,25 @@
 /* Copyright (C) 2017, 2019 Eric Herman <eric@freesa.org> */
 
 #include "eba-test-private-utils.h"
+#include <limits.h>
 
-int test_toggle(int verbose, enum eba_endian endian)
+int eba_test_toggle_endian(int verbose, enum eba_endian endian)
 {
-	int failures;
-	size_t i;
+	int failures = 0;
+	size_t i = 0;
 	unsigned char bytes[2];
 	unsigned char expected[2];
 	struct eba eba;
-
-	VERBOSE_ANNOUNCE(verbose);
-	failures = 0;
-
-	for (i = 0; i < 2; ++i) {
-		bytes[i] = 0;
-	}
 
 	eba.bits = bytes;
 	eba.size_bytes = 2;
 	eba.endian = endian;
 
-	expected[(endian == eba_big_endian) ? 1 : 0] = (1U << 7);
-	expected[(endian == eba_big_endian) ? 0 : 1] =
-	    ((1U << (9 - 8)) | (1U << (10 - 8)));
+	VERBOSE_ANNOUNCE_S_Z(verbose, "eba_test_toggle_endian", endian);
+
+	for (i = 0; i < eba.size_bytes; ++i) {
+		eba.bits[i] = 0;
+	}
 
 	failures += check_int(eba_get(&eba, 0), 0);
 	failures += check_int(eba_get(&eba, 1), 0);
@@ -140,6 +136,9 @@ int test_toggle(int verbose, enum eba_endian endian)
 	failures += check_int(eba_get(&eba, 14), 0);
 	failures += check_int(eba_get(&eba, 15), 0);
 
+	expected[(endian == eba_big_endian) ? 1 : 0] = (1U << 7);
+	expected[(endian == eba_big_endian) ? 0 : 1] =
+	    ((1U << (9 - CHAR_BIT)) | (1U << (10 - CHAR_BIT)));
 	failures += check_byte_array(bytes, 2, expected, 2);
 
 	if (failures) {
@@ -149,7 +148,7 @@ int test_toggle(int verbose, enum eba_endian endian)
 	return failures;
 }
 
-int test_toggle_all_el(int verbose)
+int eba_test_toggle_all_el(int verbose)
 {
 	int failures;
 	size_t i;
@@ -157,7 +156,7 @@ int test_toggle_all_el(int verbose)
 	unsigned char expected[10];
 	struct eba eba;
 
-	VERBOSE_ANNOUNCE(verbose);
+	VERBOSE_ANNOUNCE_S(verbose, "eba_test_toggle_all_el");
 	failures = 0;
 
 	for (i = 0; i < 10; ++i) {
@@ -190,21 +189,19 @@ int test_toggle_all_el(int verbose)
 	return failures;
 }
 
-int main(int argc, char **argv)
+int eba_test_toggle(int v)
 {
-	int v, failures;
+	int failures = 0;
 
-	v = (argc > 1) ? atoi(argv[1]) : 0;
-
-	failures = 0;
-
-	failures += test_toggle(v, eba_big_endian);
-	failures += test_toggle(v, eba_endian_little);
-	failures += test_toggle_all_el(v);
+	failures += eba_test_toggle_endian(v, eba_big_endian);
+	failures += eba_test_toggle_endian(v, eba_endian_little);
+	failures += eba_test_toggle_all_el(v);
 
 	if (failures) {
 		Test_log_error(failures, __FILE__);
 	}
 
-	return cap_failures(failures);
+	return failures;
 }
+
+EBA_TEST(eba_test_toggle)
