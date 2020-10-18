@@ -5,32 +5,8 @@
 
 #include <Arduino.h>
 #include <HardwareSerial.h>
-#include "eba.h"
+#include "eba-arduino.h"
 #include "echeck-arduino.h"
-
-void print_z(size_t z)
-{
-	Serial.print(z);
-}
-
-void print_s(const char *s)
-{
-	Serial.print(s);
-}
-
-void print_eol(void)
-{
-	Serial.println();
-}
-
-void (*call_null_pointer_to_crash_and_reboot)(void) = NULL;
-void die(void)
-{
-	Serial.println("EXIT FAILURE");
-	delay(5 * 1000);
-	Serial.println();
-	call_null_pointer_to_crash_and_reboot();
-}
 
 int eba_test_get(int verbose);
 int eba_test_new(int verbose);
@@ -51,12 +27,8 @@ void setup(void)
 {
 	Serial.begin(115200);
 
+	eba_arduino_init();
 	echeck_arduino_serial_log_init();
-
-	eba_debug_print_z = print_z;
-	eba_debug_print_s = print_s;
-	eba_debug_print_eol = print_eol;
-	eba_debug_die = die;
 
 	delay(50);
 

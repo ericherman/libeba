@@ -163,6 +163,7 @@ tidy:
 		-T size_t \
 		-T FILE \
 		`find src tests demos -name '*.h' -o -name '*.c'` \
+		`find src -name '*.cpp'` \
 		eba_test_arduino/eba_test_arduino.ino
 
 sieve-of-eratosthenes: $(libeba_la_SOURCES) demos/sieve-of-eratosthenes.c
