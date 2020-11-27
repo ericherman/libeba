@@ -31,12 +31,14 @@ AC_CHECK_FUNCS([atoi])
 
 # Add an --enable-debug option in a somewhat horrible and non-autotoolsy way
 AC_ARG_ENABLE(debug,
-	AS_HELP_STRING([--enable-debug], [enable debugging, default: no]),
+	AS_HELP_STRING([--enable-debug],
+		[enable debugging, default: no]),
 	[case "${enableval}" in
 		yes) debug=true ;;
 		no)  debug=false ;;
-		*)   AC_MSG_ERROR([bad value ${enableval} for --enable-debug]) ;;
-	esac],
+		*)   AC_MSG_ERROR(\
+			[bad value ${enableval} for --enable-debug]) ;;
+	 esac],
 	[debug=false])
 AM_CONDITIONAL(DEBUG, test x"$debug" = x"true")
 
@@ -47,8 +49,8 @@ AC_ARG_ENABLE(faux-freestanding,
 		yes) faux_freestanding=true ;;
 		no)  faux_freestanding=false ;;
 		*)   AC_MSG_ERROR(\
-		[bad value ${enableval} for --enable-faux-freestanding]) ;;
-	esac],
+		    [bad value ${enableval} for --enable-faux-freestanding]) ;;
+	 esac],
 	[faux_freestanding=false])
 AM_CONDITIONAL(FAUX_FREESTANDING, test x"$faux_freestanding" = x"true")
 

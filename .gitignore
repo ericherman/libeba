@@ -1,4 +1,6 @@
 test-get
+test-get-be
+test-get-el
 test-set
 test-set-all
 test-swap

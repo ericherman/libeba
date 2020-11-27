@@ -7,7 +7,6 @@ CSTD_CFLAGS=-std=c89
 
 if DEBUG
 BUILD_TYPE_CFLAGS=-ggdb -O0 \
-	-fsanitize=address,leak,undefined \
 	-fno-inline-small-functions \
 	-fkeep-inline-functions \
 	-fkeep-static-functions \
@@ -26,7 +25,7 @@ EBA_SKIP_ALLOCA_H_CFLAGS=-DSKIP_ALLOCA_H=1
 endif
 
 if FAUX_FREESTANDING
-EBA_HOSTED_CFLAGS=-DEBA_HOSTED=0 -DFAUX_FREESTANDING=1
+EEMBED_HOSTED_CFLAGS=-DEEMBED_HOSTED=0 -DFAUX_FREESTANDING=1
 endif
 
 if SKIP_EBA_NEW
@@ -59,7 +58,7 @@ AM_CFLAGS=$(CSTD_CFLAGS) \
  $(BUILD_TYPE_CFLAGS) \
  $(EAB_NO_ALLOCA_CFLAGS) \
  $(EAB_SKIP_ALLOCA_H_CFLAGS) \
- $(EBA_HOSTED_CFLAGS) \
+ $(EEMBED_HOSTED_CFLAGS) \
  $(EBA_SKIP_EBA_NEW_CFLAGS) \
  $(EBA_SKIP_TO_STRING_CFLAGS) \
  $(EBA_SKIP_SWAP_CFLAGS) \
@@ -67,12 +66,16 @@ AM_CFLAGS=$(CSTD_CFLAGS) \
  $(EBA_SKIP_SHIFTS_CFLAGS) \
  $(EBA_SKIP_TOGGLE_CFLAGS) \
  $(NOISY_CFLAGS) \
+ -I ./submodules/libecheck/src \
+ -I ./src \
  -pipe
 
 lib_LTLIBRARIES=libeba.la
 include_HEADERS=src/eba.h
 
 libeba_la_SOURCES=\
+ submodules/libecheck/src/eembed.h \
+ submodules/libecheck/src/eembed.c \
  src/eba.h \
  src/eba.c
 
@@ -81,7 +84,8 @@ AM_LDFLAGS=-rdynamic $(BUILD_TYPE_LDFLAGS)
 
 TESTS=$(check_PROGRAMS)
 check_PROGRAMS=\
- test-get \
+ test-get-be \
+ test-get-el \
  test-set \
  test-set-all \
  test-swap \
@@ -95,6 +99,8 @@ check_PROGRAMS=\
 
 COMMON_TEST_SOURCES=\
  src/eba.h \
+ submodules/libecheck/src/eembed.h \
+ submodules/libecheck/src/eembed.c \
  submodules/libecheck/src/echeck.h \
  submodules/libecheck/src/echeck.c \
  tests/eba-test-private-utils.h
@@ -106,9 +112,13 @@ test_set_SOURCES=tests/test-set.c $(COMMON_TEST_SOURCES)
 test_set_LDADD=$(TEST_LDADDS)
 test_set_CFLAGS=$(AM_CFLAGS) $(TEST_CFLAGS)
 
-test_get_SOURCES=tests/test-get.c $(COMMON_TEST_SOURCES)
-test_get_LDADD=$(TEST_LDADDS)
-test_get_CFLAGS=$(AM_CFLAGS) $(TEST_CFLAGS)
+test_get_be_SOURCES=tests/test-get-be.c $(COMMON_TEST_SOURCES)
+test_get_be_LDADD=$(TEST_LDADDS)
+test_get_be_CFLAGS=$(AM_CFLAGS) $(TEST_CFLAGS)
+
+test_get_el_SOURCES=tests/test-get-el.c $(COMMON_TEST_SOURCES)
+test_get_el_LDADD=$(TEST_LDADDS)
+test_get_el_CFLAGS=$(AM_CFLAGS) $(TEST_CFLAGS)
 
 test_set_all_SOURCES=tests/test-set-all.c $(COMMON_TEST_SOURCES)
 test_set_all_LDADD=$(TEST_LDADDS)
@@ -170,6 +180,7 @@ sieve-of-eratosthenes: $(libeba_la_SOURCES) demos/sieve-of-eratosthenes.c
 	$(CC) $(CSTD_CFLAGS) $(BUILD_TYPE_CFLAGS) $(NOISY_CFLAGS) \
 		-o sieve-of-eratosthenes \
 		-I./src/ \
+		-I./submodules/libecheck/src/ \
 		$(libeba_la_SOURCES) \
 		demos/sieve-of-eratosthenes.c
 
@@ -187,8 +198,11 @@ spotless:
 		popd
 
 
-vg-test-get: test-get
-	./libtool --mode=execute valgrind -q ./test-get
+vg-test-get-be: test-get-be
+	./libtool --mode=execute valgrind -q ./test-get-be
+
+vg-test-get-el: test-get-el
+	./libtool --mode=execute valgrind -q ./test-get-el
 
 vg-test-set: test-set
 	./libtool --mode=execute valgrind -q ./test-set
@@ -220,7 +234,17 @@ vg-test-new: test-new
 vg-test-to-string: test-to-string
 	./libtool --mode=execute valgrind -q ./test-to-string
 
-valgrind: vg-test-get vg-test-set vg-test-set-all vg-test-swap \
-		vg-test-shift-left vg-test-shift-right vg-test-shift-fill \
-		vg-test-rotate vg-test-toggle vg-test-new vg-test-to-string
+valgrind: \
+	vg-test-get-be \
+	vg-test-get-el \
+	vg-test-set \
+	vg-test-set-all \
+	vg-test-swap \
+	vg-test-shift-left \
+	vg-test-shift-right \
+	vg-test-shift-fill \
+	vg-test-rotate \
+	vg-test-toggle \
+	vg-test-new \
+	vg-test-to-string
 	@echo valgrind ok

@@ -4,15 +4,17 @@
 
 #include "eba-test-private-utils.h"
 
-int eba_test_to_string_be(void)
+unsigned eba_test_to_string_be(int verbose)
 {
-	int failures = 0;
+	unsigned failures = 0;
 	unsigned char bytes[2];
 	struct eba eba_s;
 	struct eba *eba = &eba_s;
 	char buf[40];
 
-	eba_memset(bytes, 0x00, 2);
+	VERBOSE_ANNOUNCE_S(verbose, "eba_test_to_string_be");
+
+	eembed_memset(bytes, 0x00, 2);
 	eba->bits = bytes;
 	eba->size_bytes = 2;
 	eba->endian = eba_big_endian;
@@ -27,21 +29,22 @@ int eba_test_to_string_be(void)
 
 	failures += check_str(buf, "00000001 00101110");
 
-	if (failures) {
-		Test_log_error(failures, "test_to_string_be");
-	}
+	VERBOSE_ANNOUNCE_DONE(verbose, failures);
+
 	return failures;
 }
 
-int eba_test_to_string_el(void)
+unsigned eba_test_to_string_el(int verbose)
 {
-	int failures = 0;
+	unsigned failures = 0;
 	unsigned char bytes[2];
 	struct eba eba_s;
 	struct eba *eba = &eba_s;
 	char buf[40];
 
-	eba_memset(bytes, 0x00, 2);
+	VERBOSE_ANNOUNCE_S(verbose, "eba_test_to_string_el");
+
+	eembed_memset(bytes, 0x00, 2);
 	eba->bits = bytes;
 	eba->size_bytes = 2;
 	eba->endian = eba_endian_little;
@@ -56,21 +59,22 @@ int eba_test_to_string_el(void)
 
 	failures += check_str(buf, "01110100 10000000");
 
-	if (failures) {
-		Test_log_error(failures, "test_to_string_el");
-	}
+	VERBOSE_ANNOUNCE_DONE(verbose, failures);
+
 	return failures;
 }
 
-int eba_test_to_string_error_1(void)
+unsigned eba_test_to_string_error_1(int verbose)
 {
-	int failures = 0;
+	unsigned failures = 0;
 	unsigned char bytes[2];
 	struct eba eba_s;
 	struct eba *eba = &eba_s;
 	char buf[40];
 
-	eba_memset(bytes, 0x00, 2);
+	VERBOSE_ANNOUNCE_S(verbose, "eba_test_to_string_error_1");
+
+	eembed_memset(bytes, 0x00, 2);
 	eba->bits = bytes;
 	eba->size_bytes = 2;
 	eba->endian = eba_big_endian;
@@ -81,26 +85,27 @@ int eba_test_to_string_error_1(void)
 	eba_set(eba, 5, 1);
 	eba_set(eba, 8, 1);
 
-	eba_memset(buf, 0x00, 40);
+	eembed_memset(buf, 0x00, 40);
 	eba_to_string(eba, buf, 11);
 
 	failures += check_str(buf, "00000001 !");
 
-	if (failures) {
-		Test_log_error(failures, "test_to_string_error_1");
-	}
+	VERBOSE_ANNOUNCE_DONE(verbose, failures);
+
 	return failures;
 }
 
-int eba_test_to_string_error_2(void)
+unsigned eba_test_to_string_error_2(int verbose)
 {
-	int failures = 0;
+	unsigned failures = 0;
 	unsigned char bytes[2];
 	struct eba eba_s;
 	struct eba *eba = &eba_s;
 	char buf[40];
 
-	eba_memset(bytes, 0x00, 2);
+	VERBOSE_ANNOUNCE_S(verbose, "eba_test_to_string_error_2");
+
+	eembed_memset(bytes, 0x00, 2);
 	eba->bits = bytes;
 	eba->size_bytes = 2;
 	eba->endian = eba_big_endian;
@@ -111,31 +116,32 @@ int eba_test_to_string_error_2(void)
 	eba_set(eba, 5, 1);
 	eba_set(eba, 8, 1);
 
-	eba_memset(buf, 0x00, 40);
+	eembed_memset(buf, 0x00, 40);
 	eba_to_string(eba, buf, 2);
 
 	failures += check_str(buf, "!");
 
-	if (failures) {
-		Test_log_error(failures, "test_to_string_error_2");
-	}
+	VERBOSE_ANNOUNCE_DONE(verbose, failures);
+
 	return failures;
 }
 
-int eba_test_to_string_invalid(void)
+unsigned eba_test_to_string_invalid(int verbose)
 {
-	int failures = 0;
+	unsigned failures = 0;
 	struct eba eba;
 	unsigned char bytes[2];
 	char buf[40];
 	char *rv;
 
-	eba_memset(bytes, 0x00, 2);
+	VERBOSE_ANNOUNCE_S(verbose, "eba_test_to_string_invalid");
+
+	eembed_memset(bytes, 0x00, 2);
 	eba.bits = bytes;
 	eba.size_bytes = 2;
 	eba.endian = eba_big_endian;
 
-	eba_memset(buf, 'Z', 39);
+	eembed_memset(buf, 'Z', 39);
 	buf[39] = '\0';
 
 	rv = eba_to_string(&eba, NULL, 40);
@@ -156,30 +162,24 @@ int eba_test_to_string_invalid(void)
 	failures += check_ptr(rv, buf);
 	failures += check_str(buf, "");
 
-	if (failures) {
-		Test_log_error(failures, "test_to_string_invalid");
-	}
+	VERBOSE_ANNOUNCE_DONE(verbose, failures);
+
 	return failures;
 }
 
-int eba_test_to_string(int verbose)
+/* TODO Split in to five tests */
+unsigned eba_test_to_string(int verbose)
 {
-	int failures = 0;
+	unsigned failures = 0;
 
-	VERBOSE_ANNOUNCE_S(verbose, "eba_test_to_string");
+	failures += eba_test_to_string_be(verbose);
+	failures += eba_test_to_string_el(verbose);
 
-	failures += eba_test_to_string_be();
-	failures += eba_test_to_string_el();
-
-	failures += eba_test_to_string_error_1();
-	failures += eba_test_to_string_error_2();
-	failures += eba_test_to_string_invalid();
-
-	if (failures) {
-		Test_log_error(failures, __FILE__);
-	}
+	failures += eba_test_to_string_error_1(verbose);
+	failures += eba_test_to_string_error_2(verbose);
+	failures += eba_test_to_string_invalid(verbose);
 
 	return failures;
 }
 
-EBA_TEST(eba_test_to_string)
+ECHECK_TEST_MAIN_V(eba_test_to_string)

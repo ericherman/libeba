@@ -19,38 +19,8 @@ Eba_begin_C_functions
 /**********************************************************************/
 #include <stddef.h>		/* size_t */
 /**********************************************************************/
-/* Avoid using the standard C library? */
-/**********************************************************************/
-/*
- * When compiling to embedded environments, __STDC_HOSTED__ can be
- * defined to be 1, however due to the increased size of the firmware
- * it may be desirable to _not_ use anything from the libc.
- *
- * If EBA_HOSTED is defined to be 0, then hopefully using EBA
- * will not result in pulling in a bunch of bloat from libc.
- */
-/*
- * Function pointers to standard "hosted" LibC functions which may not be
- * available in a freestanding environment. If not hosted, then simple, if
- * not very optimal, versions of these functions will be provided, as they
- * are needed internally and may be useful externally.
- */
-/* memset - fill memory with a constant byte */
-extern void *(*eba_memset)(void *s, int c, size_t n);
-
-/* memcpy - copy memory area */
-extern void *(*eba_memcpy)(void *dest, const void *src, size_t n);
-
-/* alloc, free - allocate and free dynamic memory */
-/* for HOSTED, defaults to malloc */
-extern void *eba_alloc_context;
-extern void *(*eba_alloc)(void *context, size_t size);
-extern void (*eba_mfree)(void *context, void *ptr);
-
-extern void (*eba_debug_print_z)(size_t z);
-extern void (*eba_debug_print_s)(const char *s);
-extern void (*eba_debug_print_eol)(void);
-extern void (*eba_debug_die)(void);
+/* forward declaration of main eba struct */
+    struct eba;
 
 /* byte order */
 enum eba_endian {

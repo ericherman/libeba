@@ -69,7 +69,7 @@ think hard.
 
 If targeting something like an stm or avr chip, the source should be
 easy to drop into a project, possibly modifying to remove functions,
-and defineing EBA_HOSTED to 0.
+and defineing EEMBED_HOSTED to 0.
 
 
 Example Usage
@@ -83,16 +83,13 @@ The tests/ directory also may shed some light.
 
 Reducing firmware size
 ----------------------
-If EBA_HOSTED is defined to be non-zero, the function pointers
-eba_memset, eba_memcpy, eba_alloc, and eba_mfree naturally point to
-the standard C library functions, however if EBA_HOSTED is 0,
-alternative implementations are provided, and these pointers default
-to simple versions, or no-op versions. To instead initialize these
-pointers to NULL, and avoid building the default versions, define
-the following:
+If EEMBED_HOSTED is defined to be non-zero, the function pointers
+eba_malloc, and eba_mfree naturally point to the standard C library
+functions, however if EEMBED_HOSTED is 0, alternative
+implementations are provided, and these pointers default to simple
+versions, or no-op versions. To instead initialize these pointers to
+NULL, and avoid building the default versions, define the following:
 
-#define EBA_SKIP_DIY_MEMCPY 1
-#define EBA_SKIP_DIY_MEMSET 1
 #define EBA_SKIP_NO_MALLOC 1
 #define EBA_SKIP_NO_PRINT 1
 
@@ -116,7 +113,7 @@ from the stack. In rare situations, like very large arrays or very
 stack constrained environments, this may not be desirable. The build
 can be tuned to address this.
 
-Calls to alloca can be replaced with calls to eba_alloc by defining
+Calls to alloca can be replaced with calls to eba_malloc by defining
 EBA_NO_ALLOCA when compiling eba.c.  Typically calls to alloca are
 resolved to a compiler, built-in; in some situations it may be
 advantageous to call alloca, but _not_ include <alloca.h>, this can
@@ -130,20 +127,6 @@ debugging, by defining EBA_DEBUG to 1. When EBA_DEBUG is defined to
 non-zero, assertions are added to the code.
 
 
-Debug for embedded
------------------
-If EBA_DEBUG is non-zero and EBA_HOSTED is non-zero, rather than
-including <assert.h>, eba_assert is defined to be a macro which
-makes use of function pointers for printing error information. To
-get useful information from the assertion failures, assign suitable
-printing behavior to the following functions:
-
-	void (*eba_debug_print_z)(size_t z);
-	void (*eba_debug_print_s)(const char *s);
-	void (*eba_debug_print_eol)(void);
-	void (*eba_debug_die)(void);
-
-
 CHAR_BIT weird-ness
 -------------------
 POSIX and Windows define CHAR_BIT to 8. Most people never work on a
@@ -152,7 +135,7 @@ rare DSPs and some emultors of very old hardware define CHAR_BIT to
 values like 9, 16, 24, 32, or 36.  Effort has been made to try to
 suport weird platforms, but this is largely un-tested.  If your
 platform is weird or you do not wish to reference limits.h, you can
-define "EBA_CHAR_BIT" to 8 or a larger number.
+define "EEMBED_CHAR_BIT" to 8 or a larger number.
 
 
 Cloning

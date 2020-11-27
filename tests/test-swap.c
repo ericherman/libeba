@@ -4,9 +4,9 @@
 
 #include "eba-test-private-utils.h"
 
-int eba_test_swap_endianness(int verbose, enum eba_endian endian)
+unsigned eba_test_swap_endianness(int verbose, enum eba_endian endian)
 {
-	int failures;
+	unsigned failures;
 	size_t i, j;
 	unsigned char bytes[10];
 	unsigned char expected[10];
@@ -45,25 +45,19 @@ int eba_test_swap_endianness(int verbose, enum eba_endian endian)
 
 	failures += check_byte_array(bytes, 10, expected, 10);
 
-	if (failures) {
-		Test_log_error(failures, "test_swap_endianness");
-	}
+	VERBOSE_ANNOUNCE_DONE(verbose, failures);
 
 	return failures;
 }
 
-int eba_test_swap(int v)
+unsigned eba_test_swap(int v)
 {
-	int failures = 0;
+	unsigned failures = 0;
 
 	failures += eba_test_swap_endianness(v, eba_endian_little);
 	failures += eba_test_swap_endianness(v, eba_big_endian);
 
-	if (failures) {
-		Test_log_error(failures, __FILE__);
-	}
-
 	return failures;
 }
 
-EBA_TEST(eba_test_swap)
+ECHECK_TEST_MAIN_V(eba_test_swap)

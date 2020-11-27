@@ -5,30 +5,33 @@
 
 #include <Arduino.h>
 #include <HardwareSerial.h>
-#include "eba-arduino.h"
-#include "echeck-arduino.h"
+#include "eembed-arduino.h"
 
-int eba_test_get(int verbose);
-int eba_test_new(int verbose);
-int eba_test_rotate(int verbose);
-int eba_test_set_all(int verbose);
-int eba_test_set(int verbose);
-int eba_test_shift_fill(int verbose);
-int eba_test_shift_left(int verbose);
-int eba_test_shift_right(int verbose);
-int eba_test_swap(int verbose);
-int eba_test_to_string(int verbose);
-int eba_test_toggle(int verbose);
+unsigned eba_test_get_be(int verbose);
+unsigned eba_test_get_el(int verbose);
+unsigned eba_test_new(int verbose);
+unsigned eba_test_rotate(int verbose);
+unsigned eba_test_set_all(int verbose);
+unsigned eba_test_set(int verbose);
+unsigned eba_test_shift_fill(int verbose);
+unsigned eba_test_shift_left(int verbose);
+unsigned eba_test_shift_right(int verbose);
+unsigned eba_test_swap(int verbose);
+unsigned eba_test_to_string(int verbose);
+unsigned eba_test_toggle(int verbose);
 
 /* globals */
 uint32_t loop_count;
 
 void setup(void)
 {
-	Serial.begin(115200);
+	if (1) {
+		Serial.begin(115200);
+	} else {
+		Serial.begin(9600);
+	}
 
-	eba_arduino_init();
-	echeck_arduino_serial_log_init();
+	eembed_arduino_serial_log_init();
 
 	delay(50);
 
@@ -39,7 +42,7 @@ void setup(void)
 
 void loop(void)
 {
-	int failures = 0;
+	unsigned failures = 0;
 	int verbose = 1;
 	Serial.println("=================================================");
 	++loop_count;
@@ -55,7 +58,8 @@ void loop(void)
 		failures += eba_test_shift_fill(verbose);
 	}
 
-	failures += eba_test_get(verbose);
+	failures += eba_test_get_be(verbose);
+	failures += eba_test_get_el(verbose);
 	failures += eba_test_new(verbose);
 	failures += eba_test_rotate(verbose);
 	failures += eba_test_set_all(verbose);

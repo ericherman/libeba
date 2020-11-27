@@ -6,10 +6,10 @@
 #include <limits.h>
 #include <stdint.h>
 
-int eba_test_shift_right_endian(int verbose, uint16_t u16, uint8_t shift_val,
-				enum eba_endian endian)
+unsigned eba_test_shift_right_endian(int verbose, uint16_t u16,
+				     uint8_t shift_val, enum eba_endian endian)
 {
-	int failures;
+	unsigned failures;
 	unsigned char bytes[2];
 	unsigned char expect_bytes[2];
 	struct eba eba;
@@ -54,9 +54,7 @@ int eba_test_shift_right_endian(int verbose, uint16_t u16, uint8_t shift_val,
 
 	failures += check_str(eba_buf, expect_buf);
 
-	if (failures) {
-		Test_log_error(failures, "test_shift_right");
-	}
+	VERBOSE_ANNOUNCE_DONE(verbose, failures);
 
 	return failures;
 }
@@ -78,9 +76,9 @@ static uint16_t next_u16_test(uint16_t in)
 	return in - 1;
 }
 
-int eba_test_shift_right(int v)
+unsigned eba_test_shift_right(int v)
 {
-	int failures = 0;
+	unsigned failures = 0;
 	uint16_t u16 = 0;
 	uint8_t shift_val = 0;
 
@@ -95,10 +93,7 @@ int eba_test_shift_right(int v)
 		}
 	}
 
-	if (failures) {
-		Test_log_error(failures, __FILE__);
-	}
 	return failures;
 }
 
-EBA_TEST(eba_test_shift_right)
+ECHECK_TEST_MAIN_V(eba_test_shift_right)

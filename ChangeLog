@@ -1,3 +1,61 @@
+2020-11-28:  Eric Herman <eric@freesa.org>
+
+	Getting Ready for 3.0
+	renamed "struct eba_s" -> "struct eba"
+	Update libecheck, make use of eembed_global_alloctor, and
+	generally make use of eembed for platform abstraction of
+	printing and standard C library depency e.g.: eembed_memset
+	The tests run on an arduino (eba_test_arduino)
+
+	* src/eba.h
+	* src/eba.c
+	* src/eba-internal.h: folded into eba.c
+	* demos/sieve-of-eratosthenes.c
+	* configure.ac
+	* Makefile.am
+	* tests/eba-test-private-utils.h
+	* tests/test-get.c
+	* tests/test-new.c
+	* tests/test-rotate.c
+	* tests/test-set-all.c
+	* tests/test-set.c
+	* tests/test-shift-fill.c
+	* tests/test-shift-left.c
+	* tests/test-shift-right.c
+	* tests/test-swap.c
+	* tests/test-toggle.c
+	* tests/test-to-string.c
+	* eba_test_arduino/eba-arduino.h
+	* eba_test_arduino/eba.cpp
+	* eba_test_arduino/eba.h
+	* eba_test_arduino/eba_test_arduino.ino
+	* eba_test_arduino/eba-test-private-utils.h
+	* eba_test_arduino/echeck.cpp
+	* eba_test_arduino/echeck.h
+	* eba_test_arduino/eembed-arduino.cpp
+	* eba_test_arduino/eembed-arduino.h
+	* eba_test_arduino/eembed-assert.h
+	* eba_test_arduino/eembed.h
+	* eba_test_arduino/eembed-hosted.h
+	* eba_test_arduino/eembed-io.cpp
+	* eba_test_arduino/eembed-memcpy.cpp
+	* eba_test_arduino/eembed-memset.cpp
+	* eba_test_arduino/eembed-strcmp.cpp
+	* eba_test_arduino/eembed-strlen.cpp
+	* eba_test_arduino/test-get.cpp
+	* eba_test_arduino/test-new.cpp
+	* eba_test_arduino/test-rotate.cpp
+	* eba_test_arduino/test-set-all.cpp
+	* eba_test_arduino/test-set.cpp
+	* eba_test_arduino/test-shift-fill.cpp
+	* eba_test_arduino/test-shift-left.cpp
+	* eba_test_arduino/test-shift-right.cpp
+	* eba_test_arduino/test-swap.cpp
+	* eba_test_arduino/test-toggle.cpp
+	* eba_test_arduino/test-to-string.cpp
+	* .gitignore
+	* README
+
 2020-02-20:  Eric Herman <eric@freesa.org>
 
 	Use git submodules to replace copies of echeck files.
