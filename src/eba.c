@@ -51,10 +51,12 @@ static void eba_get_byte_and_offset_(struct eba *eba, unsigned long index,
 
 void eba_set(struct eba *eba, unsigned long index, unsigned char val)
 {
-	size_t byte;
-	unsigned char offset;
+	size_t byte = 0;
+	unsigned char offset = 0;
+
 	eba_assert_not_null_(eba);
 	eba_get_byte_and_offset_(eba, index, &byte, &offset);
+
 	/* This should work, but seems too tricky: */
 	/* val = val ? 1 : 0; */
 	/* eba->bits[byte] ^= (-val ^ eba->bits[byte]) & (1U << offset); */
@@ -68,9 +70,11 @@ void eba_set(struct eba *eba, unsigned long index, unsigned char val)
 
 unsigned char eba_get(struct eba *eba, unsigned long index)
 {
-	size_t byte;
-	unsigned char offset;
+	size_t byte = 0;
+	unsigned char offset = 0;
+
 	eba_assert_not_null_(eba);
+
 	eba_get_byte_and_offset_(eba, index, &byte, &offset);
 	return (eba->bits[byte] >> offset) & 0x01;
 }
@@ -78,9 +82,10 @@ unsigned char eba_get(struct eba *eba, unsigned long index)
 #if (!(EBA_SKIP_SET_ALL))
 void eba_set_all(struct eba *eba, unsigned char val)
 {
-	int all_vals;
+	int all_vals = val ? -1 : 0;
+
 	eba_assert_not_null_(eba);
-	all_vals = val ? UCHAR_MAX : 0;
+
 	eembed_memset(eba->bits, all_vals, eba->size_bytes);
 }
 #endif /* (!(EBA_SKIP_SET_ALL)) */
@@ -88,9 +93,11 @@ void eba_set_all(struct eba *eba, unsigned char val)
 #if (!(EBA_SKIP_TOGGLE))
 void eba_toggle(struct eba *eba, unsigned long index)
 {
-	size_t byte;
-	unsigned char offset;
+	size_t byte = 0;
+	unsigned char offset = 0;
+
 	eba_assert_not_null_(eba);
+
 	eba_get_byte_and_offset_(eba, index, &byte, &offset);
 	eba->bits[byte] ^= (1U << offset);
 }
@@ -99,7 +106,9 @@ void eba_toggle(struct eba *eba, unsigned long index)
 #if (!(EBA_SKIP_SWAP))
 void eba_swap(struct eba *eba, unsigned long index1, unsigned long index2)
 {
-	unsigned char tmp1, tmp2;
+	unsigned char tmp1 = 0;
+	unsigned char tmp2 = 0;
+
 	tmp1 = eba_get(eba, index1);
 	tmp2 = eba_get(eba, index2);
 	eba_set(eba, index1, tmp2);
@@ -150,8 +159,8 @@ static size_t eba_min_(size_t a, size_t b)
 	return a > b ? b : a;
 }
 
-static int eba_shift_right_be_(struct eba *eba, unsigned long positions,
-			       enum eba_shift_fill_val fill)
+static void eba_shift_right_be_(struct eba *eba, unsigned long positions,
+				enum eba_shift_fill_val fill)
 {
 	unsigned char *buf = NULL;
 	size_t i = 0;
@@ -160,30 +169,29 @@ static int eba_shift_right_be_(struct eba *eba, unsigned long positions,
 	size_t shift_bits = 0;
 	size_t size_bits = 0;
 	unsigned char lowest = 0;
-	int all_vals = 0;
 	size_t tmp_size = Eba_stack_buf_size;
 	unsigned char tmp[Eba_stack_buf_size];
 
 	eembed_memset(tmp, (fill == eba_fill_one ? 0xFF : 0x00), tmp_size);
 
 	eba_assert_not_null_(eba);
-	eembed_assert(EEMBED_CHAR_BIT == 8);
+	eembed_assert(CHAR_BIT == 8);
 	eembed_assert(eba->size_bytes);
 	eembed_assert(eba->size_bytes < (ULONG_MAX * 8));
 
-	size_bits = eba->size_bytes * EEMBED_CHAR_BIT;
+	size_bits = eba->size_bytes * CHAR_BIT;
 	if (positions >= size_bits) {
 		if (fill == eba_fill_ring) {
 			positions = positions % size_bits;
 		} else {
-			all_vals = (fill == eba_fill_zero) ? 0 : -1;
+			int all_vals = (fill == eba_fill_zero) ? 0 : -1;
 			eembed_memset(eba->bits, all_vals, eba->size_bytes);
-			return 0;
+			return;
 		}
 	}
 
 	if (positions == 0) {
-		return 0;
+		return;
 	}
 
 	buf = eba->bits;
@@ -204,7 +212,10 @@ static int eba_shift_right_be_(struct eba *eba, unsigned long positions,
 		shift_bytes -= mv_bytes;
 	}
 
-	shift_bits = positions % EEMBED_CHAR_BIT;
+	shift_bits = positions % CHAR_BIT;
+	if (shift_bits == 0) {
+		return;
+	}
 
 	switch (fill) {
 	case eba_fill_zero:
@@ -223,21 +234,18 @@ static int eba_shift_right_be_(struct eba *eba, unsigned long positions,
 		unsigned char hi_val = byte_pos ? buf[byte_pos - 1] : lowest;
 		unsigned u16_a = (((unsigned)hi_val) << 8) | ((unsigned)lo_val);
 		unsigned u16_b = (u16_a >> shift_bits);
-		uint8_t val = 0xFF & ((uint8_t) u16_b);
+		unsigned char val = 0xFF & ((unsigned char)u16_b);
 		buf[byte_pos] = val;
 	}
-
-	return 0;
 }
 
-static int eba_shift_right_el_(struct eba *eba, unsigned long positions,
-			       enum eba_shift_fill_val fill)
+static void eba_shift_right_el_(struct eba *eba, unsigned long positions,
+				enum eba_shift_fill_val fill)
 {
 	unsigned long i = 0;
 	size_t shift_bytes = 0;
 	unsigned char lowest = 0x00;
-	unsigned char val, hi_val, lo_val;
-	unsigned int u16_a, u16_b;
+	size_t size_bits = 0;
 	size_t shift_bits = 0;
 	unsigned char *buf = NULL;
 	size_t buf_size = 0;
@@ -246,14 +254,25 @@ static int eba_shift_right_el_(struct eba *eba, unsigned long positions,
 
 	eembed_memset(tmp, (fill == eba_fill_one ? 0xFF : 0x00), tmp_size);
 
-	if (positions == 0) {
-		return 0;
-	}
-
 	buf = eba->bits;
 	buf_size = eba->size_bytes;
+	size_bits = eba->size_bytes * CHAR_BIT;
 
-	shift_bytes = positions / EEMBED_CHAR_BIT;
+	if (positions >= size_bits) {
+		if (fill == eba_fill_ring) {
+			positions = positions % size_bits;
+		} else {
+			int all_vals = (fill == eba_fill_zero) ? 0 : -1;
+			eembed_memset(eba->bits, all_vals, eba->size_bytes);
+			return;
+		}
+	}
+
+	if (positions == 0) {
+		return;
+	}
+
+	shift_bytes = positions / CHAR_BIT;
 	while (shift_bytes) {
 		size_t mv_bytes = eba_min_(shift_bytes, tmp_size);
 		if (fill == eba_fill_ring) {
@@ -265,7 +284,10 @@ static int eba_shift_right_el_(struct eba *eba, unsigned long positions,
 		shift_bytes -= mv_bytes;
 	}
 
-	shift_bits = positions % EEMBED_CHAR_BIT;
+	shift_bits = positions % CHAR_BIT;
+	if (shift_bits == 0) {
+		return;
+	}
 
 	switch (fill) {
 	case eba_fill_zero:
@@ -279,35 +301,34 @@ static int eba_shift_right_el_(struct eba *eba, unsigned long positions,
 		break;
 	}
 	for (i = 0; i < buf_size; ++i) {
-		hi_val = i < (buf_size - 1) ? buf[i + 1] : lowest;
-		lo_val = buf[i];
-		u16_a = (((unsigned)hi_val) << 8) | ((unsigned)lo_val);
-		u16_b = (u16_a >> shift_bits);
-		val = 0xFF & ((unsigned char)u16_b);
+		unsigned char hi_val = i < (buf_size - 1) ? buf[i + 1] : lowest;
+		unsigned char lo_val = buf[i];
+		unsigned u16_a = (((unsigned)hi_val) << 8) | ((unsigned)lo_val);
+		unsigned u16_b = (u16_a >> shift_bits);
+		unsigned char val = 0xFF & ((unsigned char)u16_b);
 		buf[i] = val;
 	}
-	return 0;
+	return;
 }
 
-static int eba_shift_right_(struct eba *eba, unsigned long positions,
-			    enum eba_shift_fill_val fill)
+static void eba_shift_right_(struct eba *eba, unsigned long positions,
+			     enum eba_shift_fill_val fill)
 {
 	if (eba->endian == eba_big_endian) {
-		return eba_shift_right_be_(eba, positions, fill);
+		eba_shift_right_be_(eba, positions, fill);
 	} else {
-		return eba_shift_right_el_(eba, positions, fill);
+		eba_shift_right_el_(eba, positions, fill);
 	}
 }
 
-static int eba_shift_left_be_(struct eba *eba, unsigned long positions,
-			      enum eba_shift_fill_val fill)
+static void eba_shift_left_be_(struct eba *eba, unsigned long positions,
+			       enum eba_shift_fill_val fill)
 {
 	unsigned long i = 0;
 	size_t shift_bytes = 0;
 	unsigned char highest = 0x00;
-	unsigned char val, hi_val, lo_val;
-	unsigned int u16_a, u16_b;
 	size_t shift_bits = 0;
+	size_t size_bits = 0;
 	unsigned char *buf = NULL;
 	size_t buf_size = 0;
 	size_t tmp_size = Eba_stack_buf_size;
@@ -315,14 +336,25 @@ static int eba_shift_left_be_(struct eba *eba, unsigned long positions,
 
 	eembed_memset(tmp, (fill == eba_fill_one ? 0xFF : 0x00), tmp_size);
 
+	size_bits = eba->size_bytes * CHAR_BIT;
+	if (positions >= size_bits) {
+		if (fill == eba_fill_ring) {
+			positions = positions % size_bits;
+		} else {
+			int all_vals = (fill == eba_fill_zero) ? 0 : -1;
+			eembed_memset(eba->bits, all_vals, eba->size_bytes);
+			return;
+		}
+	}
+
 	if (positions == 0) {
-		return 0;
+		return;
 	}
 
 	buf = eba->bits;
 	buf_size = eba->size_bytes;
 
-	shift_bytes = positions / EEMBED_CHAR_BIT;
+	shift_bytes = positions / CHAR_BIT;
 	while (shift_bytes) {
 		size_t mv_bytes = eba_min_(shift_bytes, tmp_size);
 		if (fill == eba_fill_ring) {
@@ -334,7 +366,7 @@ static int eba_shift_left_be_(struct eba *eba, unsigned long positions,
 		shift_bytes -= mv_bytes;
 	}
 
-	shift_bits = positions % EEMBED_CHAR_BIT;
+	shift_bits = positions % CHAR_BIT;
 
 	switch (fill) {
 	case eba_fill_zero:
@@ -348,18 +380,18 @@ static int eba_shift_left_be_(struct eba *eba, unsigned long positions,
 		break;
 	}
 	for (i = 0; i < buf_size; ++i) {
-		hi_val = buf[i];
-		lo_val = i < (buf_size - 1) ? buf[i + 1] : highest;
-		u16_a = (((unsigned)hi_val) << 8) | ((unsigned)lo_val);
-		u16_b = ((u16_a << shift_bits) >> 8);
-		val = 0xFF & ((unsigned char)u16_b);
+		unsigned char hi_val = buf[i];
+		unsigned char lo_val =
+		    i < (buf_size - 1) ? buf[i + 1] : highest;
+		unsigned u16_a = (((unsigned)hi_val) << 8) | ((unsigned)lo_val);
+		unsigned u16_b = ((u16_a << shift_bits) >> 8);
+		unsigned char val = 0xFF & ((unsigned char)u16_b);
 		buf[i] = val;
 	}
-	return 0;
 }
 
-static int eba_shift_left_el_(struct eba *eba, unsigned long positions,
-			      enum eba_shift_fill_val fill)
+static void eba_shift_left_el_(struct eba *eba, unsigned long positions,
+			       enum eba_shift_fill_val fill)
 {
 	unsigned char *buf = NULL;
 	size_t i = 0;
@@ -368,30 +400,29 @@ static int eba_shift_left_el_(struct eba *eba, unsigned long positions,
 	size_t shift_bits = 0;
 	size_t size_bits = 0;
 	unsigned char highest = 0;
-	int all_vals = 0;
 	size_t tmp_size = Eba_stack_buf_size;
 	unsigned char tmp[Eba_stack_buf_size];
 
 	eembed_memset(tmp, (fill == eba_fill_one ? 0xFF : 0x00), tmp_size);
 
 	eba_assert_not_null_(eba);
-	eembed_assert(EEMBED_CHAR_BIT == 8);
+	eembed_assert(CHAR_BIT == 8);
 	eembed_assert(eba->size_bytes);
 	eembed_assert(eba->size_bytes < (ULONG_MAX * 8));
 
-	size_bits = eba->size_bytes * EEMBED_CHAR_BIT;
+	size_bits = eba->size_bytes * CHAR_BIT;
 	if (positions >= size_bits) {
 		if (fill == eba_fill_ring) {
 			positions = positions % size_bits;
 		} else {
-			all_vals = (fill == eba_fill_zero) ? 0 : -1;
+			int all_vals = (fill == eba_fill_zero) ? 0 : -1;
 			eembed_memset(eba->bits, all_vals, eba->size_bytes);
-			return 0;
+			return;
 		}
 	}
 
 	if (positions == 0) {
-		return 0;
+		return;
 	}
 
 	buf = eba->bits;
@@ -412,7 +443,7 @@ static int eba_shift_left_el_(struct eba *eba, unsigned long positions,
 		shift_bytes -= mv_bytes;
 	}
 
-	shift_bits = positions % EEMBED_CHAR_BIT;
+	shift_bits = positions % CHAR_BIT;
 
 	switch (fill) {
 	case eba_fill_zero:
@@ -431,55 +462,54 @@ static int eba_shift_left_el_(struct eba *eba, unsigned long positions,
 		unsigned char lo_val = byte_pos ? buf[byte_pos - 1] : highest;
 		unsigned u16_a = (((unsigned)hi_val) << 8) | ((unsigned)lo_val);
 		unsigned u16_b = ((u16_a << shift_bits) >> 8);
-		uint8_t val = 0xFF & ((uint8_t) u16_b);
+		unsigned char val = 0xFF & ((unsigned char)u16_b);
 		buf[byte_pos] = val;
 	}
 
-	return 0;
+	return;
 }
 
-static int eba_shift_left_(struct eba *eba, unsigned long positions,
-			   enum eba_shift_fill_val fill)
+static void eba_shift_left_(struct eba *eba, unsigned long positions,
+			    enum eba_shift_fill_val fill)
 {
 	if (eba->endian == eba_big_endian) {
-		return eba_shift_left_be_(eba, positions, fill);
+		eba_shift_left_be_(eba, positions, fill);
 	} else {
-		return eba_shift_left_el_(eba, positions, fill);
+		eba_shift_left_el_(eba, positions, fill);
 	}
 }
 
-int eba_rotate_right(struct eba *eba, unsigned long positions)
+void eba_rotate_right(struct eba *eba, unsigned long positions)
 {
-	return eba_shift_right_(eba, positions, eba_fill_ring);
+	eba_shift_right_(eba, positions, eba_fill_ring);
 }
 
-int eba_rotate_left(struct eba *eba, unsigned long positions)
+void eba_rotate_left(struct eba *eba, unsigned long positions)
 {
-	return eba_shift_left_(eba, positions, eba_fill_ring);
+	eba_shift_left_(eba, positions, eba_fill_ring);
 }
 
-int eba_shift_left(struct eba *eba, unsigned long positions)
+void eba_shift_left(struct eba *eba, unsigned long positions)
 {
-	return eba_shift_left_(eba, positions, eba_fill_zero);
+	eba_shift_left_(eba, positions, eba_fill_zero);
 }
 
-int eba_shift_left_fill(struct eba *eba, unsigned long positions,
-			unsigned char fillval)
-{
-	return eba_shift_left_(eba, positions,
-			       fillval ? eba_fill_one : eba_fill_zero);
-}
-
-int eba_shift_right(struct eba *eba, unsigned long positions)
-{
-	return eba_shift_right_(eba, positions, eba_fill_zero);
-}
-
-int eba_shift_right_fill(struct eba *eba, unsigned long positions,
+void eba_shift_left_fill(struct eba *eba, unsigned long positions,
 			 unsigned char fillval)
 {
-	return eba_shift_right_(eba, positions,
-				fillval ? eba_fill_one : eba_fill_zero);
+	eba_shift_left_(eba, positions, fillval ? eba_fill_one : eba_fill_zero);
+}
+
+void eba_shift_right(struct eba *eba, unsigned long positions)
+{
+	eba_shift_right_(eba, positions, eba_fill_zero);
+}
+
+void eba_shift_right_fill(struct eba *eba, unsigned long positions,
+			  unsigned char fillval)
+{
+	eba_shift_right_(eba, positions,
+			 fillval ? eba_fill_one : eba_fill_zero);
 }
 
 #endif /* (!(EBA_SKIP_SHIFTS)) */
@@ -488,14 +518,14 @@ int eba_shift_right_fill(struct eba *eba, unsigned long positions,
 
 struct eba *eba_new_endian(unsigned long num_bits, enum eba_endian endian)
 {
-	struct eba *eba;
-	unsigned char *bytes;
-	size_t len;
-	size_t eba_s_size;
-	size_t array_size;
+	struct eba *eba = NULL;
+	unsigned char *bytes = NULL;
+	size_t len = 0;
+	size_t eba_s_size = 0;
+	size_t array_size = 0;
 
-	array_size = num_bits / EEMBED_CHAR_BIT;
-	if ((array_size * EEMBED_CHAR_BIT) < num_bits) {
+	array_size = num_bits / CHAR_BIT;
+	if ((array_size * CHAR_BIT) < num_bits) {
 		array_size += 1;
 	}
 
@@ -526,8 +556,8 @@ static void eba_get_byte_and_offset_(struct eba *eba, unsigned long index,
 				     size_t *byte, unsigned char *offset)
 {
 	/* compiler does the right thing; no "div"s in the .s files */
-	*byte = index / EEMBED_CHAR_BIT;
-	*offset = index % EEMBED_CHAR_BIT;
+	*byte = index / CHAR_BIT;
+	*offset = index % CHAR_BIT;
 	eembed_assert((*byte) < eba->size_bytes);
 
 	if (eba->endian == eba_big_endian) {
@@ -538,7 +568,11 @@ static void eba_get_byte_and_offset_(struct eba *eba, unsigned long index,
 #if (!(EBA_SKIP_TO_STRING))
 char *eba_to_string(struct eba *eba, char *buf, size_t len)
 {
-	size_t i, pos, size_bits, done;
+	size_t i = 0;
+	size_t pos = 0;
+	size_t size_bits = 0;
+	size_t done = 0;
+
 	if (!buf) {
 		return NULL;
 	}
@@ -550,14 +584,14 @@ char *eba_to_string(struct eba *eba, char *buf, size_t len)
 		return buf;
 	}
 
-	size_bits = eba->size_bytes * EEMBED_CHAR_BIT;
+	size_bits = eba->size_bytes * CHAR_BIT;
 	pos = 0;
 	done = 0;
 	if (eba->endian == eba_endian_little) {
 		for (i = 0; pos < (len - 1) && i < size_bits; ++i) {
 			++done;
 			buf[pos++] = eba_get(eba, i) ? '1' : '0';
-			if ((done % EEMBED_CHAR_BIT == 0)
+			if ((done % CHAR_BIT == 0)
 			    && (i < (size_bits - 1))
 			    && (pos < (len - 1))) {
 				buf[pos++] = ' ';
@@ -567,7 +601,7 @@ char *eba_to_string(struct eba *eba, char *buf, size_t len)
 		for (i = size_bits; pos < (len - 1) && i; --i) {
 			++done;
 			buf[pos++] = eba_get(eba, (i - 1)) ? '1' : '0';
-			if ((done % EEMBED_CHAR_BIT == 0) && (i - 1)
+			if ((done % CHAR_BIT == 0) && (i - 1)
 			    && (pos < (len - 1))) {
 				buf[pos++] = ' ';
 			}

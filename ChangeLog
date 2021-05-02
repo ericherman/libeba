@@ -1,3 +1,11 @@
+2021-05-02:  Eric Herman <eric@freesa.org>
+
+	The eba shift and rotate functions now no longer need to
+	allocate memory. As such, they no longer return an error code.
+
+	* src/eha.h: shift functions now return void
+	* src/eba.c: remove need for allocation, consistency improvements
+
 2020-11-28:  Eric Herman <eric@freesa.org>
 
 	Getting Ready for 3.0

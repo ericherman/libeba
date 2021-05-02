@@ -66,19 +66,19 @@ void eba_toggle(struct eba *eba, unsigned long index);
 
 void eba_swap(struct eba *eba, unsigned long index1, unsigned long index2);
 
-int eba_rotate_left(struct eba *eba, unsigned long positions);
+void eba_rotate_left(struct eba *eba, unsigned long positions);
 
-int eba_rotate_right(struct eba *eba, unsigned long positions);
+void eba_rotate_right(struct eba *eba, unsigned long positions);
 
-int eba_shift_left(struct eba *eba, unsigned long positions);
+void eba_shift_left(struct eba *eba, unsigned long positions);
 
-int eba_shift_right(struct eba *eba, unsigned long positions);
+void eba_shift_right(struct eba *eba, unsigned long positions);
 
-int eba_shift_left_fill(struct eba *eba, unsigned long positions,
-			unsigned char fillval);
-
-int eba_shift_right_fill(struct eba *eba, unsigned long positions,
+void eba_shift_left_fill(struct eba *eba, unsigned long positions,
 			 unsigned char fillval);
+
+void eba_shift_right_fill(struct eba *eba, unsigned long positions,
+			  unsigned char fillval);
 
 /**********************************************************************/
 Eba_end_C_functions
