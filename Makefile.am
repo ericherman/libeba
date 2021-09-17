@@ -52,7 +52,7 @@ if SKIP_TOGGLE
 EBA_SKIP_TOGGLE_CFLAGS=-DEBA_SKIP_TOGGLE=1
 endif
 
-NOISY_CFLAGS=-Wall -Wextra -pedantic -Werror
+NOISY_CFLAGS=-Wall -Wextra -pedantic -Werror -Wcast-qual -Wc++-compat
 
 AM_CFLAGS=$(CSTD_CFLAGS) \
  $(BUILD_TYPE_CFLAGS) \
