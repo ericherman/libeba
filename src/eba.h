@@ -19,8 +19,12 @@ Eba_begin_C_functions
 /**********************************************************************/
 #include <stddef.h>		/* size_t */
 /**********************************************************************/
+/* Basic bit extraction or insertion into a byte */
+unsigned char eba_get_byte_bit(unsigned char byte, unsigned i);
+unsigned char eba_set_byte_bit(unsigned char byte, unsigned i, unsigned val);
+
 /* forward declaration of main eba struct */
-    struct eba;
+struct eba;
 
 /* byte order */
 enum eba_endian {

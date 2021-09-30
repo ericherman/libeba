@@ -49,6 +49,30 @@ static void eba_assert_not_null_(struct eba *eba)
 static void eba_get_byte_and_offset_(struct eba *eba, unsigned long index,
 				     size_t *byte, unsigned char *offset);
 
+unsigned char eba_set_byte_bit(unsigned char byte, unsigned i, unsigned val)
+{
+	eembed_assert(i < CHAR_BIT);
+
+	/* This should work, but seems too tricky: */
+	/* val = val ? 1 : 0; */
+	/* byte ^= (-val ^ byte) & (1U << i); */
+	/* instead, be a bit more verbose and trust the optimizer */
+	if (val) {
+		byte |= (1U << i);
+	} else {
+		byte &= ~(1U << i);
+	}
+
+	return byte;
+
+}
+
+unsigned char eba_get_byte_bit(unsigned char byte, unsigned i)
+{
+	eembed_assert(i < CHAR_BIT);
+	return (byte >> i) & 0x01;
+}
+
 void eba_set(struct eba *eba, unsigned long index, unsigned char val)
 {
 	size_t byte = 0;
@@ -57,15 +81,7 @@ void eba_set(struct eba *eba, unsigned long index, unsigned char val)
 	eba_assert_not_null_(eba);
 	eba_get_byte_and_offset_(eba, index, &byte, &offset);
 
-	/* This should work, but seems too tricky: */
-	/* val = val ? 1 : 0; */
-	/* eba->bits[byte] ^= (-val ^ eba->bits[byte]) & (1U << offset); */
-	/* instead, be a bit more verbose and trust the optimizer */
-	if (val) {
-		eba->bits[byte] |= (1U << offset);
-	} else {
-		eba->bits[byte] &= ~(1U << offset);
-	}
+	eba->bits[byte] = eba_set_byte_bit(eba->bits[byte], offset, val);
 }
 
 unsigned char eba_get(struct eba *eba, unsigned long index)
@@ -76,7 +92,7 @@ unsigned char eba_get(struct eba *eba, unsigned long index)
 	eba_assert_not_null_(eba);
 
 	eba_get_byte_and_offset_(eba, index, &byte, &offset);
-	return (eba->bits[byte] >> offset) & 0x01;
+	return eba_get_byte_bit(eba->bits[byte], offset);
 }
 
 #if (!(EBA_SKIP_SET_ALL))
