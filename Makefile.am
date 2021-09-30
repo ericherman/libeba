@@ -2,6 +2,8 @@
 # Makefile.am
 # Copyright (C) 2017, 2018, 2019 Eric Herman <eric@freesa.org>
 
+SHELL=/bin/bash
+BROWSER=firefox
 
 CSTD_CFLAGS=-std=c89
 
@@ -164,6 +166,20 @@ EXTRA_DIST=COPYING COPYING.LESSER \
 	submodules/libecheck/COPYING.LESSER \
 	submodules/libecheck/src/echeck.h \
 	submodules/libecheck/src/echeck.c
+
+line-cov: check
+	lcov    --checksum \
+		--capture \
+		--base-directory . \
+		--directory src \
+		--output-file coverage.info
+
+html-report: line-cov
+	mkdir -pv ./coverage_html
+	genhtml coverage.info --output-directory coverage_html
+
+coverage: html-report
+	$(BROWSER) ./coverage_html/src/index.html
 
 # extracted from https://github.com/torvalds/linux/blob/master/scripts/Lindent
 LINDENT=indent -npro -kr -i8 -ts8 -sob -l80 -ss -ncs -cp1 -il0
