@@ -26,7 +26,6 @@ AC_TYPE_SIZE_T
 
 # Checks for library functions.
 AC_FUNC_MALLOC
-AC_FUNC_ALLOCA
 AC_CHECK_FUNCS([atoi])
 
 # Add an --enable-debug option in a somewhat horrible and non-autotoolsy way
@@ -53,30 +52,6 @@ AC_ARG_ENABLE(faux-freestanding,
 	 esac],
 	[faux_freestanding=false])
 AM_CONDITIONAL(FAUX_FREESTANDING, test x"$faux_freestanding" = x"true")
-
-AC_ARG_ENABLE(no-alloca,
-	AS_HELP_STRING([--enable-no-alloca],
-		[enable replace alloca calls with alloc/free, default: no]),
-	[case "${enableval}" in
-		yes) no_alloca=true ;;
-		no)  no_alloca=false ;;
-		*)   AC_MSG_ERROR(\
-			[bad value ${enableval} for --enable-no-alloca]) ;;
-	esac],
-	[no_alloca=false])
-AM_CONDITIONAL(NO_ALLOCA, test x"$no_alloca" = x"true")
-
-AC_ARG_ENABLE(skip-alloca-h,
-	AS_HELP_STRING([--enable-skip-alloca-h],
-		[enable _not_ including alloca.h, default: no]),
-	[case "${enableval}" in
-		yes) skip_alloca_h=true ;;
-		no)  skip_alloca_h=false ;;
-		*)   AC_MSG_ERROR(\
-			[bad value ${enableval} for --enable-skip-alloca-h]) ;;
-	esac],
-	[skip_alloca_h=false])
-AM_CONDITIONAL(SKIP_ALLOCA_H, test x"$skip_alloca_h" = x"true")
 
 AC_ARG_ENABLE(skip-eab-new,
 	AS_HELP_STRING([--enable-skip-eab-new],

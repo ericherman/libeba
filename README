@@ -94,30 +94,13 @@ NULL, and avoid building the default versions, define the following:
 #define EBA_SKIP_NO_PRINT 1
 
 Additionally, other functions can be skipped, and the firmware made
-marginally samller, with the following defines:
+marginally smaller, with the following defines:
 
 #define EBA_SKIP_NEW 1
 #define EBA_SKIP_SET_ALL 1
 #define EBA_SKIP_SHIFTS 1
 #define EBA_SKIP_SWAP 1
 #define EBA_SKIP_TOGGLE 1
-
-
-A note on stack usage
----------------------
-Most of the Embedable Bit Array functions are very light with
-regards to stack demands.  The shift and rotate functions allocate
-temporary space, typically this is done with calls to 'alloca' to
-obtain the space needed to make a copy of the incoming eba_struct
-from the stack. In rare situations, like very large arrays or very
-stack constrained environments, this may not be desirable. The build
-can be tuned to address this.
-
-Calls to alloca can be replaced with calls to eba_malloc by defining
-EBA_NO_ALLOCA when compiling eba.c.  Typically calls to alloca are
-resolved to a compiler, built-in; in some situations it may be
-advantageous to call alloca, but _not_ include <alloca.h>, this can
-be accomplished by defining EBA_SKIP_ALLOCA_H to 1.
 
 
 Bugs
@@ -131,9 +114,9 @@ CHAR_BIT weird-ness
 -------------------
 POSIX and Windows define CHAR_BIT to 8. Most people never work on a
 system where CHAR_BIT is defined to anything other than 8.  However,
-rare DSPs and some emultors of very old hardware define CHAR_BIT to
+rare DSPs and some emulators of very old hardware define CHAR_BIT to
 values like 9, 16, 24, 32, or 36.  Effort has been made to try to
-suport weird platforms, but this is largely un-tested.  If your
+support weird platforms, but this is largely un-tested.  If your
 platform is weird or you do not wish to reference limits.h, you can
 define "EEMBED_CHAR_BIT" to 8 or a larger number.
 

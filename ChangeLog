@@ -1,3 +1,11 @@
+2022-06-24:  Eric Herman <eric@freesa.org>
+
+	Update docs to remove allocation references.
+
+	* README: remove obsolete note on stack usage, spell fixes
+	* configure.ac: remove no-alloca and skip-alloca-h
+	* Makefile.am: remove NO_ALLOCA and SKIP_ALLOCA_H
+
 2021-05-02:  Eric Herman <eric@freesa.org>
 
 	The eba shift and rotate functions now no longer need to
