@@ -5,7 +5,7 @@
 SHELL=/bin/bash
 BROWSER=firefox
 
-CSTD_CFLAGS=-std=c89
+CSTD_CFLAGS=-std=gnu89
 
 if DEBUG
 BUILD_TYPE_CFLAGS=-ggdb -O0 \
